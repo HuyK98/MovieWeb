@@ -118,9 +118,6 @@ const ScheduleList = () => {
                 <li>
                   <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
                 </li>
-                <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
-                </li>
               </ul>
             )}
           </li>

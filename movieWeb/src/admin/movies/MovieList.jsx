@@ -207,9 +207,6 @@ const MovieList = () => {
                 <li>
                   <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
                 </li>
-                <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
-                </li>
               </ul>
             )}
           </li>
@@ -222,16 +219,16 @@ const MovieList = () => {
           <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
         </ul>
       </aside>
-      <div className="card-items">
+      <div className="card-container">
         <h2>Danh sách phim</h2>
         {error ? (
           <p className="error">{error}</p>
         ) : (
-          <div className="movies-list">
+          <div className="movie-list">
             {movies.length > 0 ? (
               movies.map((movie) => (
                 <div key={movie._id} className="movie-item">
-                  <div className="movie-image-container">
+                  <div className="movie-container">
                     <img src={movie.imageUrl} alt={movie.title} />
                     <button
                       className="trailer-button"
