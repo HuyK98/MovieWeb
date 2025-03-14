@@ -1,0 +1,155 @@
+/* Showtime.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  
+  .beta-cinema-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  /* Main Content */
+  .beta-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .date-selector {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .date-item {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .date-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .date-item.active {
+    border-bottom: 3px solid #0078D7;
+    font-weight: bold;
+    color: #0078D7;
+  }
+  
+  .date-number {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .date-info {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  /* Movie Cards */
+  .movie-listings {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .movie-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .movie-poster {
+    width: 250px;
+    position: relative;
+  }
+  
+  .movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .age-rating {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #f44336;
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .movie-details {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .movie-title {
+    color: #000 important;
+    font-weight: bold;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  
+  .movie-meta {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .movie-genre, .movie-duration {
+    margin-right: 15px;
+  }
+  
+  .movie-type {
+    display: inline-block;
+    background-color: #f1f1f1;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .showtime-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .showtime-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    width: 100px;
+  }
+  
+  .showtime-item:hover {
+    border-color: #0078D7;
+    background-color: #f5f9ff;
+  }
+  
+  .showtime-hour {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+  
+  .seats-available {
+    font-size: 12px;
+    color: #666;
+  }
