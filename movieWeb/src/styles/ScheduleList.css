@@ -1,6 +1,7 @@
 .schedule-list {
   padding: 20px;
   flex: 11;
+  margin-left: 250px;
 }
 
 .schedule-list h2 {

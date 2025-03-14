@@ -13,6 +13,7 @@ import PriceList from "./pages/PriceList";
 import NewsAndOffers from "./pages/NewsAndOffers";
 import CinemaIntro from "./pages/CinemaIntro";
 import Showtimes from "./pages/Showtime";
+import Revenue from "./admin/Revenue";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/about" element={<PriceList />} />
         <Route path="/news" element={<NewsAndOffers />} />
         <Route path="/showtimes" element={<Showtimes />} />
+        <Route path="/admin/revenue" element={<Revenue />} />
       </Routes>
     </>
   );

@@ -41,15 +41,26 @@ router.post('/pay', protect, async (req, res) => {
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking
 router.get('/seats', async (req, res) => {
   const { movieTitle, date, time } = req.query;
+  console.log('Thông tin nhận được:', { movieTitle, date, time });
+  
   try {
-    const bookings = await Booking.find({ movieTitle, date, time });
-    const bookedSeats = bookings.reduce((acc, booking) => {
+    // Thử tìm mà không cần date và time trước
+    const bookings = await Booking.find({ movieTitle });
+    console.log(`Tìm thấy ${bookings.length} booking cho phim: ${movieTitle}`);
+    
+    // Lọc thủ công nếu cần
+    const filteredBookings = bookings.filter(booking => 
+      booking.date === date && booking.time === time
+    );
+    
+    const bookedSeats = filteredBookings.reduce((acc, booking) => {
       return acc.concat(booking.seats);
     }, []);
+    
     res.json(bookedSeats);
   } catch (error) {
-    console.error('Lỗi khi lấy thông tin ghế:', error);
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    console.error('Lỗi chi tiết khi lấy thông tin ghế:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 });
 
@@ -165,4 +176,127 @@ router.post('/momo-notify', async (req, res) => {
   }
 });
 
-module.exports = router;     
+
+// Lấy tổng doanh thu, số lượng vé bán ra, doanh thu theo phim, rạp và ngày
+router.get('/summary', async (req, res) => {
+  try {
+    const totalRevenue = await Booking.aggregate([
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+    ]);
+
+    const totalTickets = await Booking.aggregate([
+      { $group: { _id: null, total: { $sum: { $size: "$seats" } } } }
+    ]);
+
+    const revenueByMovie = await Booking.aggregate([
+      { $group: { _id: "$movieTitle", total: { $sum: "$totalPrice" } } }
+    ]);
+
+    const revenueByCinema = await Booking.aggregate([
+      { $group: { _id: "$cinema", total: { $sum: "$totalPrice" } } }
+    ]);
+
+    const revenueByDate = await Booking.aggregate([
+      { $group: { _id: "$date", total: { $sum: "$totalPrice" } } }
+    ]);
+
+    res.json({
+      totalRevenue: totalRevenue[0]?.total || 0,
+      totalTickets: totalTickets[0]?.total || 0,
+      revenueByMovie,
+      revenueByCinema,
+      revenueByDate,
+    });
+  } catch (error) {
+    console.error("Error fetching revenue summary:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Lấy chi tiết giao dịch
+router.get('/transactions', async (req, res) => {
+  try {
+    const transactions = await Booking.find().populate('user', 'name email');
+    res.json(transactions);
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// Lấy doanh thu theo tuần
+router.get('/weekly', async (req, res) => {
+  try {
+    const weeklyRevenue = await Booking.aggregate([
+      {
+        $addFields: {
+          date: {
+            $dateFromString: {
+              dateString: "$date",
+              format: "%d/%m/%Y",
+              onError: null, // Bỏ qua lỗi nếu không thể chuyển đổi
+              onNull: null // Bỏ qua nếu giá trị là null
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          date: { $ne: null } // Loại bỏ các bản ghi không thể chuyển đổi ngày
+        }
+      },
+      {
+        $group: {
+          _id: { $week: "$date" },
+          total: { $sum: "$totalPrice" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    res.json(weeklyRevenue);
+  } catch (error) {
+    console.error("Error fetching weekly revenue:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Lấy doanh thu theo tháng
+router.get('/monthly', async (req, res) => {
+  try {
+    const monthlyRevenue = await Booking.aggregate([
+      {
+        $addFields: {
+          date: {
+            $dateFromString: {
+              dateString: "$date",
+              format: "%d/%m/%Y",
+              onError: null, // Bỏ qua lỗi nếu không thể chuyển đổi
+              onNull: null // Bỏ qua nếu giá trị là null
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          date: { $ne: null } // Loại bỏ các bản ghi không thể chuyển đổi ngày
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$date" },
+          total: { $sum: "$totalPrice" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    res.json(monthlyRevenue);
+  } catch (error) {
+    console.error("Error fetching monthly revenue:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+module.exports = router;

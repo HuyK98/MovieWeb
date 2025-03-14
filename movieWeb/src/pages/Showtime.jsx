@@ -81,6 +81,29 @@ const Showtimes = () => {
   useEffect(() => {
 
     // Xem lịch chiếu và giờ chiếu
+    const handleBuyTicketClick = async (movie) => {
+      setSelectedMovie(movie);
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/showtimes?movieId=${movie._id}`
+        );
+        setShowtimes(response.data);
+        if (response.data.length > 0) {
+          setSelectedShowtime(response.data[0]); // Tự động chọn ngày đầu tiên
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy lịch chiếu:", error);
+      }
+      setShowPopup(true);
+    };
+  
+    const handleClosePopup = () => {
+      setShowPopup(false);
+      setSelectedMovie(null);
+      setSelectedShowtime(null);
+      setSelectedSeat(null);
+      setBookingInfo(null);
+    };
 
     // Fetch showtimes data
     const fetchShowtimes = async () => {
@@ -107,8 +130,8 @@ const Showtimes = () => {
         const showtimeDate = new Date(item.date).toISOString().split('T')[0];
         const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
-        if (showtimeDate === selectedDateStr) {
-          const movieId = item.movieId._id;
+        if (showtimeDate === selectedDateStr && item.movie) { // Ensure item.movie is defined
+          const movieId = item.movie._id;
 
           if (!movieMap.has(movieId)) {
             movieMap.set(movieId, {
@@ -254,7 +277,7 @@ const Showtimes = () => {
             moviesWithShowtimes.map((movie) => (
               <div key={movie.id} className="movie-card">
                 <div className="movie-poster">
-                  <img src={movie.image} alt={movie.title} />
+                  <img src={movie.imageUrl} alt={movie.title} />
                   <div className="age-rating">T16</div>
                 </div>
 
