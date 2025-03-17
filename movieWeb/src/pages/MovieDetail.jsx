@@ -128,50 +128,52 @@ const MovieDetail = () => {
         </div>
       </header>
 
-      <div className="content">
-        <p className='map-seats'>Sơ đồ ghế ngồi</p>
-        <div className="seating-chart">
-          <div className="screen">Màn hình chiếu</div>
-          <div className="seats">
-            {seats.map((seat) => (
-              <div
-                key={seat.id}
-                className={`seat ${seat.isBooked ? 'booked' : selectedSeats.includes(seat.id) ? 'selected' : 'available'}`}
-                onClick={() => handleSeatClick(seat)}
-              >
-                {seat.id}
-              </div>
-            ))}
+      <div className="movie-detail-container">
+        <div className="content">
+          <p className="map-seats">SƠ ĐỒ GHẾ NGỒI</p>
+          <div className="seating-chart">
+            <div className="screen">Màn hình chiếu</div>
+            <div className="seats">
+              {seats.map((seat) => (
+                <div
+                  key={seat.id}
+                  className={`seat ${seat.isBooked ? 'booked' : selectedSeats.includes(seat.id) ? 'selected' : 'available'}`}
+                  onClick={() => handleSeatClick(seat)}
+                >
+                  {seat.id}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="movie-info">
-          <h2>Thông tin chi tiết về phim</h2>
-          {bookingInfo && (
-            <>
-              <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
-              <div className="details">
-                <p><strong>Tên phim:</strong> {bookingInfo.movieTitle}</p>
-                <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
-                <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
-                <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
-                <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
-                <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
-                <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
-                <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
-              </div>
-            </>
-          )}
-          <button className='button-btn' type="button" onClick={handleBooking}>Tiếp tục</button>
-        </div>
-        <div className="legend">
-          <div className="available">
-            <span></span> <p>Ghế trống</p>
+          <div className="movie-info">
+            <h2>Thông tin chi tiết về phim</h2>
+            {bookingInfo && (
+              <>
+                <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
+                <div className="details">
+                  <p><strong>Tên phim:</strong> {bookingInfo.movieTitle}</p>
+                  <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
+                  <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
+                  <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
+                  <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
+                  <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
+                  <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
+                  <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
+                </div>
+              </>
+            )}
+            <button className="button-btn" type="button" onClick={handleBooking}>Tiếp tục</button>
           </div>
-          <div className="selected">
-            <span></span> <p>Ghế đang chọn</p>
-          </div>
-          <div className="booked">
-            <span></span> <p>Ghế đã đặt</p>
+          <div className="legend">
+            <div className="available">
+              <span></span> <p>Ghế trống</p>
+            </div>
+            <div className="selected">
+              <span></span> <p>Ghế đang chọn</p>
+            </div>
+            <div className="booked">
+              <span></span> <p>Ghế đã đặt</p>
+            </div>
           </div>
         </div>
       </div>

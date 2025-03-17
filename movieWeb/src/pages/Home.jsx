@@ -424,44 +424,46 @@ const Home = () => {
           {error ? (
             <p className="error">{error}</p>
           ) : (
-            <div className="movies-list">
+            <div className="movies-grid">
               {filteredMovies.length > 0 ? (
-                filteredMovies.map((movie, index) => (
-                  <AnimatedSection
-                    key={movie._id}
-                    animation="fade-up"
-                    delay={index * 150}
-                  >
-                    <div className="movie-item">
-                      <div className="movie-image-container">
-                        <img src={movie.imageUrl} alt={movie.title} />
+                <>
+                  {filteredMovies.map((movie, index) => (
+                    <AnimatedSection
+                      key={movie._id}
+                      animation="fade-up"
+                      delay={index * 100}
+                    >
+                      <div className="movie-item">
+                        <div className="movie-image-container">
+                          <img src={movie.imageUrl} alt={movie.title} />
+                          <button
+                            className="trailer-button"
+                            onClick={() => handleTrailerClick(movie.videoUrl)}
+                          >
+                            <FontAwesomeIcon
+                              icon={faPlay}
+                              style={{ marginRight: "8px" }}
+                            />
+                            Trailer
+                          </button>
+                        </div>
+                        <h3 className="movie-title">{movie.title}</h3>
+                        <p>Thể Loại: {movie.genre}</p>
+                        <p>Thời Lượng: {movie.description}</p>
+                        <p>
+                          Ngày phát hành:{" "}
+                          {new Date(movie.releaseDate).toLocaleDateString()}
+                        </p>
                         <button
-                          className="trailer-button"
-                          onClick={() => handleTrailerClick(movie.videoUrl)}
+                          className="card-button"
+                          onClick={() => handleBuyTicketClick(movie)}
                         >
-                          <FontAwesomeIcon
-                            icon={faPlay}
-                            style={{ marginRight: "8px" }}
-                          />
-                          Trailer
+                          MUA VÉ
                         </button>
                       </div>
-                      <h3>{movie.title}</h3>
-                      <p>Thể Loại: {movie.genre}</p>
-                      <p>Thời Lượng: {movie.description}</p>
-                      <p>
-                        Ngày phát hành:{" "}
-                        {new Date(movie.releaseDate).toLocaleDateString()}
-                      </p>
-                      <button
-                        className="card-button"
-                        onClick={() => handleBuyTicketClick(movie)}
-                      >
-                        MUA VÉ
-                      </button>
-                    </div>
-                  </AnimatedSection>
-                ))
+                    </AnimatedSection>
+                  ))}
+                </>
               ) : (
                 <p>Không có phim nào</p>
               )}

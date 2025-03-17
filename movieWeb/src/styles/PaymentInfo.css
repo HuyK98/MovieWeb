@@ -5,14 +5,14 @@
   font-size: 25px;
 }
 .payment-info-container h2 {
-  color: rgb(21, 147, 210);
+  color: black;
   font-weight: bold;
   font-size: 24px;
   margin-right: 550px;
 }
 
 .payment-details {
-  margin-bottom: 20px;
+  margin-bottom: -100px;
   margin-left: 300px;
 }
 
@@ -29,11 +29,12 @@
   display: flex;
   gap: 10px;
   margin-right: 80px;
+  margin-left: 50px;
 }
 
 .button-btn {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #C8910D;
   color: white;
   border: none;
   cursor: pointer;
@@ -66,4 +67,19 @@
 .payment-methods .momo-icon {
   width: 45px;
   height: 45px;
+}
+
+.movie-info{
+  display: flex;
+  gap: 20px;
+  margin-left: 10px;
+  margin-top: -590px;
+  padding: 8px;
+  margin-bottom: 125px;
+}
+
+.movie-info h2 {
+  color: black;
+  font-weight: bold;
+  font-size: 24px;
 }
