@@ -1,6 +1,6 @@
 .dashboard-container {
   display: flex;
-  height: 100vh;
+  height: 80vh;
 }
 .add-container {
   width: 1500px;
@@ -57,7 +57,8 @@ h2 {
 }
 
 .preview-img {
-  max-width: 100%;
+  max-width: 50%;
+  height: 20%;
   margin-bottom: 15px;
   border-radius: 4px;
 }

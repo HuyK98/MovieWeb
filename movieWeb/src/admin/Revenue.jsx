@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Legend } from 'chart.js';
 import '../styles/Revenue.css';
 import { Link } from "react-router-dom";
 import { FaCogs, FaFilm, FaUser, FaTicketAlt, FaSignOutAlt, FaChartLine } from "react-icons/fa";
@@ -9,13 +9,15 @@ import { MdRemoveRedEye, MdOutlineAddCircle, MdTheaters, MdSchedule, MdCategory 
 import logo from "../assets/logo.jpg";
 
 // Đăng ký các thành phần cần thiết của Chart.js
-Chart.register(CategoryScale, LinearScale, BarElement, Title);
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Legend);
 
 const Revenue = () => {
   const [summary, setSummary] = useState({});
   const [transactions, setTransactions] = useState([]);
+  const [dailyRevenue, setDailyRevenue] = useState([]);
   const [weeklyRevenue, setWeeklyRevenue] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+  const [revenueByMovie, setRevenueByMovie] = useState([]);
   const [error, setError] = useState(null);
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
 
@@ -41,15 +43,25 @@ const Revenue = () => {
       }
     };
 
-    const fetchWeeklyRevenue = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/payment/weekly');
-        setWeeklyRevenue(response.data);
-      } catch (error) {
-        console.error("Error fetching weekly revenue:", error);
-        setError("Không thể tải dữ liệu doanh thu theo tuần.");
-      }
-    };
+    // const fetchDailyRevenue = async () => {
+    //   try {
+    //     const response = await axios.get('http://localhost:5000/api/revenue/daily');
+    //     setDailyRevenue(response.data);
+    //   } catch (error) {
+    //     console.error("Error fetching daily revenue:", error);
+    //     setError("Không thể tải dữ liệu doanh thu theo ngày.");
+    //   }
+    // };
+
+    // const fetchWeeklyRevenue = async () => {
+    //   try {
+    //     const response = await axios.get('http://localhost:5000/api/payment/weekly');
+    //     setWeeklyRevenue(response.data);
+    //   } catch (error) {
+    //     console.error("Error fetching weekly revenue:", error);
+    //     setError("Không thể tải dữ liệu doanh thu theo tuần.");
+    //   }
+    // };
 
     const fetchMonthlyRevenue = async () => {
       try {
@@ -60,25 +72,49 @@ const Revenue = () => {
         setError("Không thể tải dữ liệu doanh thu theo tháng.");
       }
     };
+    const fetchRevenueByMovie = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/payment/by-movie');
+        setRevenueByMovie(response.data);
+      } catch (error) {
+        console.error("Error fetching revenue by movie:", error);
+        setError("Không thể tải dữ liệu doanh thu theo phim.");
+      }
+    };
 
     fetchSummary();
     fetchTransactions();
-    fetchWeeklyRevenue();
+    // fetchWeeklyRevenue();
     fetchMonthlyRevenue();
+    // fetchDailyRevenue();
+    fetchRevenueByMovie();
   }, []);
+  
+  // const dailyData = {
+  //   labels: dailyRevenue.map(item => item._id),
+  //   datasets: [
+  //     {
+  //       label: 'Doanh thu theo ngày',
+  //       data: dailyRevenue.map(item => item.total),
+  //       backgroundColor: 'rgba(75, 192, 192, 0.6)',
+  //       borderColor: 'rgba(75, 192, 192, 1)',
+  //       borderWidth: 1,
+  //     },
+  //   ],
+  // };
 
-  const weeklyData = {
-    labels: weeklyRevenue.map(item => `Tuần ${item._id}`),
-    datasets: [
-      {
-        label: 'Doanh thu theo tuần',
-        data: weeklyRevenue.map(item => item.total),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
+  // const weeklyData = {
+  //   labels: weeklyRevenue.map(item => `Tuần ${item._id}`),
+  //   datasets: [
+  //     {
+  //       label: 'Doanh thu theo tuần',
+  //       data: weeklyRevenue.map(item => item.total),
+  //       backgroundColor: 'rgba(75, 192, 192, 0.6)',
+  //       borderColor: 'rgba(75, 192, 192, 1)',
+  //       borderWidth: 1,
+  //     },
+  //   ],
+  // };
 
   const monthlyData = {
     labels: monthlyRevenue.map(item => `Tháng ${item._id}`),
@@ -88,6 +124,19 @@ const Revenue = () => {
         data: monthlyRevenue.map(item => item.total),
         backgroundColor: 'rgba(153, 102, 255, 0.6)',
         borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const movieData = {
+    labels: revenueByMovie.map(item => item._id),
+    datasets: [
+      {
+        label: 'Doanh thu theo phim',
+        data: revenueByMovie.map(item => item.total),
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+        borderColor: 'rgba(255, 159, 64, 1)',
         borderWidth: 1,
       },
     ],
@@ -167,13 +216,21 @@ const Revenue = () => {
       </div>
       <div className="charts">
         <h2>Biểu Đồ Doanh Thu</h2>
-        <div className="chart">
-          <h3>Doanh Thu Theo Tuần</h3>
-          <Bar data={weeklyData} />
+        {/* <div className="chart">
+          <h3>Doanh Thu Theo Ngày</h3>
+          <Bar data={dailyData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(75, 192, 192, 1)' } } } }} />
         </div>
         <div className="chart">
+          <h3>Doanh Thu Theo Tuần</h3>
+          <Bar data={weeklyData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(75, 192, 192, 1)' } } } }} />
+        </div> */}
+        <div className="chart">
           <h3>Doanh Thu Theo Tháng</h3>
-          <Bar data={monthlyData} />
+          <Bar data={monthlyData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(153, 102, 255, 1)' } } } }} />
+        </div>
+        <div className="chart">
+          <h3>Doanh Thu Theo Phim</h3>
+          <Bar data={movieData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(255, 159, 64, 1)' } } } }} />
         </div>
       </div>
       <div className="transactions">
@@ -181,6 +238,7 @@ const Revenue = () => {
         <table>
           <thead>
             <tr>
+              <th>STT</th>
               <th>Người Dùng</th>
               <th>Email</th>
               <th>Phim</th>
@@ -195,6 +253,7 @@ const Revenue = () => {
           <tbody>
             {transactions.map((transaction) => (
               <tr key={transaction._id}>
+                <td>{transactions.indexOf(transaction) + 1}</td>
                 <td>{transaction.user.name}</td>
                 <td>{transaction.user.email}</td>
                 <td>{transaction.movieTitle}</td>
