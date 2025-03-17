@@ -2,30 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
-import logo from "../assets/logo.jpg";
 import poster1 from "../assets/poster/post1.jpg";
 import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
   faTimes,
-  faSearch,
-  faSun,
-  faMoon,
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -74,10 +66,10 @@ const AnimatedSection = ({
           animation === "fade-up"
             ? "translateY(50px)"
             : animation === "fade-left"
-            ? "translateX(-50px)"
-            : animation === "fade-right"
-            ? "translateX(50px)"
-            : "translateY(50px)",
+              ? "translateX(-50px)"
+              : animation === "fade-right"
+                ? "translateX(50px)"
+                : "translateY(50px)",
       }}
     >
       {children}
@@ -112,7 +104,7 @@ const Home = () => {
       );
       setShowtimes(response.data);
       if (response.data.length > 0) {
-        setSelectedShowtime(response.data[0]); // Tự động chọn ngày đầu tiên
+        setSelectedShowtime(response.data[0]);
       }
     } catch (error) {
       console.error("Lỗi khi lấy lịch chiếu:", error);
@@ -280,40 +272,12 @@ const Home = () => {
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-      <header>
-        <Link to="/">
-          <img src={logo} alt="Logo" className="logo" />
-        </Link>
-        <nav>
-          <ul>
-            <li><Link to="/showtimes">LỊCH CHIẾU THEO RẠP</Link></li>
-            <li><Link to="/movielist">PHIM</Link></li>
-            <li><Link to="/place">RẠP</Link></li>
-            <li><Link to="/about">GIÁ VÉ</Link></li>
-            <li><Link to="/news">TIN MỚI VÀ ƯU ĐÃI</Link></li>
-            {user ? (
-              <>
-                <li><span>Xin chào, {user.name}</span></li>
-                <li><button onClick={handleLogout}>Đăng xuất</button></li>
-              </>
-            ) : (
-              <li><Link to="/login">Login</Link></li>
-            )}
-          </ul>
-        </nav>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm kiếm phim..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <button>
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </div>
-      </header>
-
+      <Header
+        user={user}
+        handleLogout={handleLogout}
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+      />
       <div className="poster-container">
         <button onClick={handlePrev} className="arrow-button prev">
           {"<"}
@@ -514,9 +478,8 @@ const Home = () => {
                 {selectedShowtime.times.map((timeSlot) => (
                   <div
                     key={timeSlot._id}
-                    className={`seat ${
-                      timeSlot.isBooked ? "booked" : "available"
-                    }`}
+                    className={`seat ${timeSlot.isBooked ? "booked" : "available"
+                      }`}
                     onClick={() => handleSeatClick(selectedShowtime, timeSlot)}
                   >
                     <p>Giờ: {timeSlot.time}</p>
@@ -561,68 +524,7 @@ const Home = () => {
           )}
         </div>
       )}
-
-      <footer className="footer">
-        <div className="footer-container">
-          <AnimatedSection animation="fade-up" delay={100}>
-            <div className="footer-section left">
-              <h3>CÁC RẠP Cinema</h3>
-              <ul>
-                <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-                <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-                <li>
-                  Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509
-                </li>
-                <li>
-                  Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456
-                </li>
-                <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-                <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
-              </ul>
-            </div>
-          </AnimatedSection>
-          <AnimatedSection animation="fade-up" delay={200}>
-            <div className="footer-section center">
-              <Link to="/">
-                <img src={logo} alt="Logo" className="logo" />
-              </Link>
-              <p>© 2021 Cinema Media. All Rights Reserved</p>
-              <button className="toggle-button" onClick={toggleDarkMode}>
-                {darkMode ? (
-                  <FontAwesomeIcon icon={faSun} />
-                ) : (
-                  <FontAwesomeIcon icon={faMoon} />
-                )}
-                {darkMode ? " Light Mode" : " Dark Mode"}
-              </button>
-            </div>
-          </AnimatedSection>
-          <AnimatedSection animation="fade-up" delay={300}>
-            <div className="footer-section right">
-              <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
-              <div className="social-links">
-                <a href="#" className="facebook">
-                  <FontAwesomeIcon icon={faFacebookF} />
-                </a>
-                <a href="#" className="youtube">
-                  <FontAwesomeIcon icon={faYoutube} />
-                </a>
-                <a href="#" className="tiktok">
-                  <FontAwesomeIcon icon={faTiktok} />
-                </a>
-                <a href="#" className="instagram">
-                  <FontAwesomeIcon icon={faInstagram} />
-                </a>
-              </div>
-              <h3>LIÊN HỆ</h3>
-              <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-              <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-              <p>Hotline: 1800 123 456</p>
-              <p>Email: info@cinemamedia.vn</p>
-            </div>
-          </AnimatedSection>
-        </div>
-      </footer>
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
     </div>
   );
 };

@@ -282,6 +282,22 @@ nav a:hover::after, nav button:hover::after {
   align-items: center;
 }
 
+.featured-movie-card .movie-poster {
+  width: 200px;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.featured-movie-card .movie-poster movie.imageUrl {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
 .featured-movies-slider {
   display: flex;
   gap: 1.5rem;

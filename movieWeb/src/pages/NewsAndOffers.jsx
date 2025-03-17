@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "../styles/NewsAndOffers.css"; // File CSS riêng cho phần nội dung đặc thù
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGlobe, faSearch, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { faFacebookF, faYoutube, faTiktok, faInstagram } from "@fortawesome/free-brands-svg-icons";
 import offer1Image from "../assets/offer1.png";
 import offer2Image from "../assets/offer2.png";
@@ -14,10 +14,13 @@ import offer6Image from "../assets/offer6.jpg";
 import offer7Image from "../assets/offer7.png";
 import newsImage1 from "../assets/news1.png";
 import newsImage2 from "../assets/news2.jpg";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 
 const NewsAndOffers = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [user, setUser] = useState(null);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -26,6 +29,12 @@ const NewsAndOffers = () => {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.body.classList.toggle("dark-mode", !darkMode);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    setUser(null);
+    navigate("/");
   };
 
   const offers = [
@@ -81,34 +90,12 @@ const NewsAndOffers = () => {
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-      {/* Header tái sử dụng từ Home.css */}
-      <header>
-        <Link to="/">
-          <img src={logo} alt="Logo" className="logo" />
-        </Link>
-        <nav>
-          <ul>
-            <li><Link to="/showtimes">LỊCH CHIẾU THEO RẠP</Link></li>
-            <li><Link to="/movielist">PHIM</Link></li>
-            <li><Link to="/place">RẠP</Link></li>
-            <li><Link to="/about">GIÁ VÉ</Link></li>
-            <li><Link to="/news">TIN MỚI VÀ ƯU ĐÃI</Link></li>
-            <li><Link to="/login">THÀNH VIÊN</Link></li>
-          </ul>
-        </nav>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <button>
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </div>
-      </header>
-
+            <Header
+        user={user}
+        handleLogout={handleLogout}
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+      />
       {/* Nội dung chính của NewsAndOffers */}
       <main className="news-offers-main">
         <div className="offers-section">
@@ -143,55 +130,7 @@ const NewsAndOffers = () => {
           </div>
         </div>
       </main>
-
-      {/* Footer tái sử dụng từ Home.css */}
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-section left">
-            <h3>CÁC RẠP CINEMA</h3>
-            <ul>
-              <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-              <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-              <li>Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509</li>
-              <li>Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456</li>
-              <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-              <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
-            </ul>
-          </div>
-          <div className="footer-section center">
-            <Link to="/">
-              <img src={logo} alt="Logo" className="logo" />
-            </Link>
-            <p>© 2021 Cinema Media. All Rights Reserved</p>
-            <button className="toggle-button" onClick={toggleDarkMode}>
-              <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
-              <span>{darkMode ? " Light Mode" : " Dark Mode"}</span>
-            </button>
-          </div>
-          <div className="footer-section right">
-            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
-            <div className="social-links">
-              <a href="#" className="facebook">
-                <FontAwesomeIcon icon={faFacebookF} />
-              </a>
-              <a href="#" className="youtube">
-                <FontAwesomeIcon icon={faYoutube} />
-              </a>
-              <a href="#" className="tiktok">
-                <FontAwesomeIcon icon={faTiktok} />
-              </a>
-              <a href="#" className="instagram">
-                <FontAwesomeIcon icon={faInstagram} />
-              </a>
-            </div>
-            <h3>LIÊN HỆ</h3>
-            <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-            <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-            <p>Hotline: 1800 123 456</p>
-            <p>Email: info@cinemamedia.vn</p>
-          </div>
-        </div>
-      </footer>
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} /> 
     </div>
   );
 };
