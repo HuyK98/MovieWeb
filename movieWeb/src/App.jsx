@@ -4,15 +4,17 @@ import AddMovies from "./admin/movies/AddMovies";
 import MovieList from "./admin/movies/MovieList";
 import AdminDashboard from './admin/AdminDashboard';
 import ScheduleList from './admin/ScheduleList';
+import UserList from './admin/UserList';
+import Revenue from './admin//Revenue';
 import Login from "./login/Login";
 import MovieDetail from './pages/MovieDetail';
 import PaymentInfo from './pages/PaymentInfo';
-import UserList from './admin/UserList';
 import ListMovie from "./pages/ListMovie";
 import PriceList from "./pages/PriceList";
 import NewsAndOffers from "./pages/NewsAndOffers";
 import CinemaIntro from "./pages/CinemaIntro";
 import Showtimes from "./pages/Showtime";
+
 
 const App = () => {
   return (
@@ -25,6 +27,7 @@ const App = () => {
         <Route path="/admin/add-movie" element={<AddMovies />} />
         <Route path="/admin/schedules" element={<ScheduleList />} />
         <Route path="/admin/users" element={<UserList />} />
+        <Route path="/admin/revenue" element={<Revenue />} />
         <Route path="/movie-detail" element={<MovieDetail />} />
         <Route path="/payment" element={<PaymentInfo />} />
         <Route path="/movielist" element={<ListMovie />} />

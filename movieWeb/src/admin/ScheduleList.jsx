@@ -138,6 +138,7 @@ const ScheduleList = () => {
           <table className="schedule-table">
             <thead>
               <tr>
+                <th>STT</th>
                 <th>Phim</th>
                 <th>Ngày</th>
                 <th>Giờ chiếu</th>
@@ -147,6 +148,7 @@ const ScheduleList = () => {
             <tbody>
               {showtimes.map((showtime) => (
                 <tr key={showtime._id}>
+                  <td>{showtimes.indexOf(showtime) + 1}</td>
                   <td>{showtime.movieId.title}</td>
                   <td>{showtime.date}</td>
                   <td>

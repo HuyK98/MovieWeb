@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const showtimeSchema = new mongoose.Schema({
   movieId: { type: mongoose.Schema.Types.ObjectId, ref: 'Movie', required: true },
-  date: { type: String, required: true },
+  date: { type: Date, required: true },
   times: [
     {
       time: { type: String, required: true },
