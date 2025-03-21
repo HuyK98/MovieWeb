@@ -1,16 +1,16 @@
 /* Base styles & custom font imports */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap");
 
 :root {
-  --primary-color: #b8860b;         /* Gold */
-  --primary-dark: #8b6914;          /* Darker gold */
-  --secondary-color: #1a1a2e;       /* Deep blue */
+  --primary-color: #b8860b; /* Gold */
+  --primary-dark: #8b6914; /* Darker gold */
+  --secondary-color: #1a1a2e; /* Deep blue */
   --text-light: #f0f0f0;
   --text-dark: #1a1a1a;
   --background-light: #ffffff;
   --background-dark: #0f0f1a;
-  --accent-color: #d4af37;          /* Accent gold */
+  --accent-color: #d4af37; /* Accent gold */
   --gray-light: #e0e0e0;
   --gray-medium: #b0b0b0;
   --gray-dark: #707070;
@@ -20,7 +20,7 @@
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Arial", sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--background-light);
@@ -28,8 +28,13 @@ body {
   transition: var(--transition);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Arial", sans-serif;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
@@ -80,7 +85,8 @@ nav ul {
   gap: 2rem;
 }
 
-nav a, nav button {
+nav a,
+nav button {
   text-decoration: none;
   color: var(--secondary-color);
   font-weight: 500;
@@ -95,12 +101,14 @@ nav a, nav button {
   cursor: pointer;
 }
 
-.dark-mode nav a, .dark-mode nav button {
+.dark-mode nav a,
+.dark-mode nav button {
   color: var(--text-light);
 }
 
-nav a::after, nav button::after {
-  content: '';
+nav a::after,
+nav button::after {
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
@@ -110,11 +118,13 @@ nav a::after, nav button::after {
   transition: var(--transition);
 }
 
-nav a:hover, nav button:hover {
+nav a:hover,
+nav button:hover {
   color: var(--primary-color);
 }
 
-nav a:hover::after, nav button:hover::after {
+nav a:hover::after,
+nav button:hover::after {
   width: 100%;
 }
 
@@ -138,7 +148,7 @@ nav a:hover::after, nav button:hover::after {
   background: transparent;
   padding: 0.5rem;
   outline: none;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Arial", sans-serif;
   width: 180px;
   color: var(--text-dark);
   transition: var(--transition);
@@ -218,7 +228,8 @@ nav a:hover::after, nav button:hover::after {
 }
 
 /* Featured movies section */
-.featured-movies-section, .movie-row-section {
+.featured-movies-section,
+.movie-row-section {
   margin: 4rem 5%;
   position: relative;
 }
@@ -249,7 +260,7 @@ nav a:hover::after, nav button:hover::after {
 }
 
 .section-header h2::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -290,7 +301,8 @@ nav a:hover::after, nav button:hover::after {
   scroll-behavior: smooth;
 }
 
-.featured-movie-card, .movie-row-card {
+.featured-movie-card,
+.movie-row-card {
   flex: 0 0 calc(20% - 1.2rem);
   transition: var(--transition);
   border-radius: 8px;
@@ -300,11 +312,13 @@ nav a:hover::after, nav button:hover::after {
   position: relative;
 }
 
-.dark-mode .featured-movie-card, .dark-mode .movie-row-card {
+.dark-mode .featured-movie-card,
+.dark-mode .movie-row-card {
   background-color: rgba(30, 30, 50, 0.6);
 }
 
-.featured-movie-card:hover, .movie-row-card:hover {
+.featured-movie-card:hover,
+.movie-row-card:hover {
   transform: translateY(-10px);
   box-shadow: var(--shadow-strong);
 }
@@ -431,149 +445,128 @@ nav a:hover::after, nav button:hover::after {
 /* Movie grid section */
 .card-items {
   color: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 0px;
+  font-family: "Arial", sans-serif;
 }
 
 .card-items h2 {
-  color: black;
-  text-align: center;
+  color: rgb(0, 0, 0);
   margin-bottom: 20px;
   font-size: 1.8rem;
+  margin-right: 210px;
 }
 
 .movies-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin: 20px 0;
+  gap: 10px;
+  margin-left: 90px;
+  margin-right: 90px;
 }
 
 .movie-item {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  flex-direction: row; /* Đặt thành row để xếp ngang */
+  align-items: center;  /* Canh giữa theo chiều dọc */
+  justify-content: space-between; /* Canh đều hai bên */  height: 80%;
   background-color: white;
+  border: none;
+  border-radius: 0%;
 }
 
-.movie-item h3 {
-  color: rgb(14, 3, 3) !important; 
-  margin: 15px 15px 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  padding: 5px 0;
-  display: block !important; 
-  white-space: normal;
-  overflow: visible; 
-  text-overflow: clip;
-  max-height: none; 
-  opacity: 1 !important; 
-  visibility: visible !important; ;
-}
-
-.movie-item h3 {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.movie-item h3.movie-title,
-.movie-item p {
-  text-align: left !important;
-  padding-left: 10px !important;
-  margin-left: 0 !important;
-  width: calc(100% - 10px) !important;
-  box-sizing: border-box !important;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.movie-item p {
-  margin: 5px 15px;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.movie-item,
-.movie-item > div {
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-}
-
-.movie-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
 
 .movie-image-container {
-  position: relative;
   width: 100%;
-  padding-top: 150%;
+  height: auto;
   overflow: hidden;
+  position: relative;
 }
-
 .movie-image-container img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .trailer-button {
   position: absolute;
-  bottom: 10px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.7);
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  padding: 8px 15px;
-  border-radius: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
+.trailer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.trailer-content {
+  position: relative;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 100%;
+}
+
 .movie-image-container:hover .trailer-button {
   opacity: 1;
 }
 
+
 /* Nội dung phim */
 .movie-item h3 {
-  margin: 15px 15px 10px;
+  margin-top: 5px;
   font-size: 1.1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  justify-content: left;
+  color: hsl(204, 88%, 42%);
 }
 
 .movie-item p {
-  margin: 5px 15px;
+  margin: 3px;
   font-size: 0.9rem;
-  color: #666;
+  color: black;
+}
+.movie-title{
+  padding: 5 20px;
+  text-align: left;
+  margin-left: -100px;
 }
 
 /* Nút mua vé */
 .card-button {
   margin: auto 15px 15px;
-  background-color: #C8910D;
+  background-color: hsl(204, 88%, 42%);
   color: white;
   border: none;
-  padding: 10px;
+  padding: 5px 130px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s ease;
-  margin-top: auto; /* Đẩy nút xuống dưới cùng */
+  margin-top: 2px; /* Đẩy nút xuống dưới cùng */
+  margin-bottom: 5px;
 }
 
 .card-button:hover {
-  background-color: #c1121f;
+  background-color: hsl(204, 88%, 32%);
 }
 
 /* Showtimes popup */
@@ -591,7 +584,8 @@ nav a:hover::after, nav button:hover::after {
   backdrop-filter: blur(5px);
 }
 
-.showtimes-content, .booking-info {
+.showtimes-content,
+.booking-info {
   background-color: white;
   border-radius: 10px;
   padding: 2rem;
@@ -601,7 +595,8 @@ nav a:hover::after, nav button:hover::after {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
 }
 
-.dark-mode .showtimes-content, .dark-mode .booking-info {
+.dark-mode .showtimes-content,
+.dark-mode .booking-info {
   background-color: var(--secondary-color);
   color: var(--text-light);
 }
@@ -661,7 +656,8 @@ nav a:hover::after, nav button:hover::after {
   background-color: rgba(60, 60, 80, 0.8);
 }
 
-.date-showtime li:hover, .date-showtime li.selected {
+.date-showtime li:hover,
+.date-showtime li.selected {
   background-color: var(--primary-color);
   color: white;
 }
@@ -736,13 +732,15 @@ nav a:hover::after, nav button:hover::after {
   margin-bottom: 2rem;
 }
 
-.booking-info th, .booking-info td {
+.booking-info th,
+.booking-info td {
   padding: 1rem;
   text-align: center;
   border: 1px solid var(--gray-light);
 }
 
-.dark-mode .booking-info th, .dark-mode .booking-info td {
+.dark-mode .booking-info th,
+.dark-mode .booking-info td {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -788,7 +786,8 @@ nav a:hover::after, nav button:hover::after {
   backdrop-filter: blur(5px);
 }
 
-.showtimes-content, .booking-info {
+.showtimes-content,
+.booking-info {
   background-color: white;
   border-radius: 10px;
   padding: 2rem;
@@ -798,7 +797,8 @@ nav a:hover::after, nav button:hover::after {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
 }
 
-.dark-mode .showtimes-content, .dark-mode .booking-info {
+.dark-mode .showtimes-content,
+.dark-mode .booking-info {
   background-color: var(--secondary-color);
   color: var(--text-light);
 }
@@ -858,7 +858,8 @@ nav a:hover::after, nav button:hover::after {
   background-color: rgba(60, 60, 80, 0.8);
 }
 
-.date-showtime li:hover, .date-showtime li.selected {
+.date-showtime li:hover,
+.date-showtime li.selected {
   background-color: var(--primary-color);
   color: white;
 }
@@ -933,13 +934,15 @@ nav a:hover::after, nav button:hover::after {
   margin-bottom: 2rem;
 }
 
-.booking-info th, .booking-info td {
+.booking-info th,
+.booking-info td {
   padding: 1rem;
   text-align: center;
   border: 1px solid var(--gray-light);
 }
 
-.dark-mode .booking-info th, .dark-mode .booking-info td {
+.dark-mode .booking-info th,
+.dark-mode .booking-info td {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -975,7 +978,7 @@ nav a:hover::after, nav button:hover::after {
   background-color: var(--secondary-color);
   color: var(--text-light);
   padding: 3rem 0;
-  margin-top: 5rem;
+  margin-top: 10rem;
 }
 
 .footer-container {
@@ -1002,7 +1005,7 @@ nav a:hover::after, nav button:hover::after {
 }
 
 .footer-section h3::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 50px;
   height: 2px;
@@ -1094,7 +1097,14 @@ nav a:hover::after, nav button:hover::after {
 }
 
 .social-links a.instagram:hover {
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888
+  );
 }
 
 .footer-section p {
@@ -1120,13 +1130,14 @@ nav a:hover::after, nav button:hover::after {
     grid-template-columns: 1fr;
     text-align: center;
   }
-  
+
   .footer-section h3::after {
     left: 50%;
     transform: translateX(-50%);
   }
-  
-  .footer-section.left, .footer-section.right {
+
+  .footer-section.left,
+  .footer-section.right {
     align-items: center;
   }
 }
@@ -1135,11 +1146,12 @@ nav a:hover::after, nav button:hover::after {
   nav ul {
     gap: 1rem;
   }
-  
-  .featured-movie-card, .movie-row-card {
+
+  .featured-movie-card,
+  .movie-row-card {
     flex: 0 0 calc(33.333% - 1rem);
   }
-  
+
   .poster-container {
     height: 400px;
   }
@@ -1150,50 +1162,78 @@ nav a:hover::after, nav button:hover::after {
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   nav {
     margin: 1rem 0;
   }
-  
+
   nav ul {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .search-bar {
     margin-top: 1rem;
   }
-  
-  .featured-movie-card, .movie-row-card {
+
+  .featured-movie-card,
+  .movie-row-card {
     flex: 0 0 calc(50% - 0.75rem);
   }
-  
+
   .movie-overlay {
     opacity: 1;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent 70%);
   }
-  
+
   .trailer-button {
     opacity: 1;
   }
 }
 
 @media (max-width: 576px) {
-  .featured-movie-card, .movie-row-card {
+  .featured-movie-card,
+  .movie-row-card {
     flex: 0 0 100%;
   }
-  
+
   .movies-list {
     display: grid;
     grid-template-columns: 1fr;
   }
-  
+
   .poster-container {
     height: 300px;
   }
-  
-  .showtimes-content, .booking-info {
+
+  .showtimes-content,
+  .booking-info {
     width: 95%;
     padding: 1rem;
   }
+}
+
+.movie-tabs {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.movie-tabs button {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.movie-tabs button.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+}
+
+.movie-tabs button:hover {
+  color: #007bff;
 }

@@ -143,6 +143,7 @@ const UserList = () => {
           <table className="user-table">
             <thead>
               <tr>
+                <th>STT</th>
                 <th>Tên</th>
                 <th>Email</th>
                 <th>Vai trò</th>
@@ -152,6 +153,7 @@ const UserList = () => {
             <tbody>
               {users.map((user) => (
                 <tr key={user._id}>
+                  <td>{users.indexOf(user) + 1}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>

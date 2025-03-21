@@ -171,6 +171,10 @@ const PaymentInfo = () => {
               <label>Email: {user.email}</label>
             </div>
             <div className="form-group">
+              <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
+              <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
+            </div>
+            <div className="form-group">
               <label>Phương thức thanh toán:</label>
               <div className="payment-methods">
                 <label>
@@ -206,12 +210,10 @@ const PaymentInfo = () => {
             <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
             <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
             <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
-            <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
-            <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
           </div>
           <div className="button-container">
-            <button className="button-btn" onClick={() => navigate(-1)}>Quay lại</button>
-            <button className="button-btn" onClick={handlePayment}>Thanh toán</button>
+            <button className="booking-btn" onClick={() => navigate(-1)}>Quay lại</button>
+            <button className="booking-btn" onClick={handlePayment}>Thanh toán</button>
           </div>
         </div>
       </div>
