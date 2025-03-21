@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from "../assets/logo.jpg";
 import {FaGooglePlusG,FaFacebookF,FaGithub,FaLinkedinIn} from "react-icons/fa";
 import "../styles/Login.css";
 

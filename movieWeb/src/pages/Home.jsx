@@ -18,6 +18,8 @@ import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import ChatButton from "../components/ChatButton";
+import Chatbot from "../components/Chatbot";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -525,6 +527,8 @@ const Home = () => {
         </div>
       )}
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      <ChatButton />
+      <Chatbot />
     </div>
   );
 };

@@ -14,7 +14,9 @@ import PriceList from "./pages/PriceList";
 import NewsAndOffers from "./pages/NewsAndOffers";
 import CinemaIntro from "./pages/CinemaIntro";
 import Showtimes from "./pages/Showtime";
-
+import Chat from "./admin/Chat";
+import ChatButton from "./components/ChatButton";
+import Chatbot from "./components/Chatbot";
 
 const App = () => {
   return (
@@ -35,6 +37,9 @@ const App = () => {
         <Route path="/about" element={<PriceList />} />
         <Route path="/news" element={<NewsAndOffers />} />
         <Route path="/showtimes" element={<Showtimes />} />
+        <Route path="/admin/chat" element={<Chat />} />
+        <Route path="/chat" element={<ChatButton />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </>
   );

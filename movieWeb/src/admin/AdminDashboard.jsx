@@ -4,6 +4,7 @@ import { FaFilm, FaUser, FaTicketAlt, FaChartLine, FaSignOutAlt, FaCogs } from "
 import { MdSchedule, MdTheaters, MdCategory, MdOutlineAddCircle, MdRemoveRedEye } from "react-icons/md";
 import logo from "../assets/logo.jpg";
 import "../styles/AdminDashboard.css";
+import Chat from "./Chat";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -51,7 +52,9 @@ const AdminDashboard = () => {
                 <li>
                   <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
                 </li>
-
+                <li>
+                  <Link to="/admin/chat" className="menu-item"><FaUser className="icon" /> Chat với người dùng</Link>
+                </li>
               </ul>
             )}
           </li>
@@ -69,6 +72,7 @@ const AdminDashboard = () => {
       <main className="dashboard-content">
         <h1>Welcom to Admin Dashboard</h1>
       </main>
+      <Chat />
     </div>
   );
 };

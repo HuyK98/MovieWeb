@@ -4,18 +4,6 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import axios from "axios";
 import "../styles/Showtime.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSearch,
-  faSun,
-  faMoon,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
 
 const Showtime = () => {
   const [movies, setMovies] = useState([]);
