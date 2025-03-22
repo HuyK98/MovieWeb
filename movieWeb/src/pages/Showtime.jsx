@@ -109,26 +109,37 @@ const Showtime = () => {
   // Process data when selectedDate changes
   useEffect(() => {
     const processShowtimesData = () => {
-      const formattedSelectedDate = selectedDate.toISOString().split("T")[0];
-
-      // Lọc showtimes theo ngày đã chọn
+      // Normalize the selected date to remove time zone offsets
+      const formattedSelectedDate = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate()
+      ).toISOString().split("T")[0];
+  
+      // Filter showtimes by the normalized selected date
       const filteredShowtimes = showtimes.filter((showtime) => {
-        const showtimeDate = new Date(showtime.date).toISOString().split("T")[0];
-        return showtimeDate === formattedSelectedDate;
+        const showtimeDate = new Date(showtime.date);
+        const normalizedShowtimeDate = new Date(
+          showtimeDate.getFullYear(),
+          showtimeDate.getMonth(),
+          showtimeDate.getDate()
+        ).toISOString().split("T")[0];
+  
+        return normalizedShowtimeDate === formattedSelectedDate;
       });
-
-      // Ánh xạ dữ liệu phim với showtimes
+  
+      // Map movies with their showtimes
       const moviesWithShowtimes = filteredShowtimes.map((showtime) => {
-        const movie = showtime.movieId; // Lấy thông tin phim từ movieId
+        const movie = showtime.movieId; // Get movie info from movieId
         return {
           ...movie,
-          showtime: showtime.times, // Gắn danh sách thời gian chiếu
+          showtime: showtime.times, // Attach showtime times
         };
       });
-
+  
       setMovieShowtimes(moviesWithShowtimes);
     };
-
+  
     if (showtimes.length > 0) {
       processShowtimesData();
     }
@@ -140,7 +151,12 @@ const Showtime = () => {
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date);
+    const normalizedDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    setSelectedDate(normalizedDate);
   };
 
   const generateDates = () => {
