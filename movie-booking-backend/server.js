@@ -5,10 +5,37 @@ require("dotenv").config();
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const movieRoutes = require("./routes/movieRoutes");
-const Movie = require("./models/Movie"); // ✅ Fix lỗi thiếu import Movie
+const Movie = require("./models/Movie");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
+const WebSocket = require('ws');
+// Create a WebSocket server on port 8080
+const wss = new WebSocket.Server({ port: 8080 });
 
+// Store connected clients
+const clients = new Set();
+
+wss.on('connection', (ws) => {
+  console.log('New client connected');
+  clients.add(ws);
+
+  // Handle incoming messages
+  ws.on('message', (message) => {
+    const messageString = message.toString('utf8'); 
+    console.log(`Received: ${messageString}`);
+    for (const client of clients) {
+      // Only send the message to other clients, not the sender
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(messageString); 
+      }
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+    clients.delete(ws);
+  });
+});
 
 const app = express();
 app.use(express.urlencoded({extended: true}));
@@ -45,3 +72,4 @@ app.get("/", (req, res) => {
 });
 
 app.listen(5000, () => console.log("🚀 Server running on port 5000"));
+console.log('WebSocket server running on ws://localhost:8080');
