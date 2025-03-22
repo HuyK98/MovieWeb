@@ -35,6 +35,9 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+//QUẢN LÝ LỊCH CHIẾU
+
 // Thêm giờ chiếu mới
 router.post('/:id/time', async (req, res) => {
   const { time, seats } = req.body;
@@ -52,42 +55,49 @@ router.post('/:id/time', async (req, res) => {
 });
 
 // Chỉnh sửa giờ chiếu
-router.put('/:id/time/:timeId', async (req, res) => {
-  const { time } = req.body;
+router.put('/:showtimeId/time/:timeId', async (req, res) => {
   try {
-    const showtime = await Showtimes.findById(req.params.id);
+    const { showtimeId, timeId } = req.params;
+    const { time, seats } = req.body;
+
+    const showtime = await Showtimes.findById(showtimeId);
     if (!showtime) {
-      return res.status(404).json({ message: 'Lịch chiếu không tồn tại' });
+      return res.status(404).json({ message: 'Showtime not found' });
     }
-    const timeSlot = showtime.times.id(req.params.timeId);
-    if (!timeSlot) {
-      return res.status(404).json({ message: 'Giờ chiếu không tồn tại' });
+
+    const timeIndex = showtime.times.findIndex(t => t._id.toString() === timeId);
+    if (timeIndex === -1) {
+      return res.status(404).json({ message: 'Time not found' });
     }
-    timeSlot.time = time;
-    timeSlot.seats = 70; // Mặc định số ghế là 70
+
+    showtime.times[timeIndex].time = time;
+    showtime.times[timeIndex].seats = seats;
+
     await showtime.save();
     res.json(showtime);
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    console.error('Error updating showtime:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
 // Xóa giờ chiếu
-router.delete('/:id/time/:timeId', async (req, res) => {
+router.delete('/:showtimeId/time/:timeId', async (req, res) => {
   try {
-    const showtime = await Showtimes.findById(req.params.id);
+    const { showtimeId, timeId } = req.params;
+
+    const showtime = await Showtimes.findById(showtimeId);
     if (!showtime) {
-      return res.status(404).json({ message: 'Lịch chiếu không tồn tại' });
+      return res.status(404).json({ message: 'Showtime not found' });
     }
-    const timeSlot = showtime.times.id(req.params.timeId);
-    if (!timeSlot) {
-      return res.status(404).json({ message: 'Giờ chiếu không tồn tại' });
-    }
-    timeSlot.remove();
+
+    showtime.times = showtime.times.filter(t => t._id.toString() !== timeId);
+
     await showtime.save();
-    res.json({ message: 'Giờ chiếu đã được xóa' });
+    res.json({ message: 'Time deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    console.error('Error deleting showtime:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
