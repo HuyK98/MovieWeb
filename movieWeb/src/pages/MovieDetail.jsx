@@ -17,6 +17,8 @@ import {
   faTiktok,
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
+import moment from 'moment';
+
 
 const MovieDetail = () => {
   const location = useLocation();
@@ -37,10 +39,12 @@ const MovieDetail = () => {
           console.error('bookingInfo hoặc các trường cần thiết là undefined');
           return;
         }
+        // Chuyển đổi định dạng ngày
+        const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
         const response = await axios.get('http://localhost:5000/api/payment/seats', {
           params: {
             movieTitle: bookingInfo.movieTitle,
-            date: bookingInfo.date,
+            date: formattedDate,
             time: bookingInfo.time,
           },
         });
@@ -76,7 +80,9 @@ const MovieDetail = () => {
   };
 
   const handleBooking = () => {
-    navigate('/payment', { state: { bookingInfo, selectedSeats, totalPrice } });
+    const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    const updatedBookingInfo = { ...bookingInfo, date: formattedDate };
+    navigate('/payment', { state: { bookingInfo: updatedBookingInfo, selectedSeats, totalPrice } });
   };
 
   const handleSearchChange = (e) => {
@@ -119,6 +125,10 @@ const MovieDetail = () => {
               ))}
             </div>
           </div>
+          <div className="booking-oder">
+              <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
+              <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
+          </div>
           <div className="movie-info">
             <h2>Thông tin chi tiết về phim</h2>
             {bookingInfo && (
@@ -131,12 +141,14 @@ const MovieDetail = () => {
                   <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
                   <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
                   <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
-                  <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
-                  <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
+  
                 </div>
               </>
             )}
-            <button className="button-btn" type="button" onClick={handleBooking}>Tiếp tục</button>
+            <div className="button-container">
+              <button className='booking-btn' onClick={() => navigate('/')}>Quay lại</button>
+              <button className="booking-btn" type="button" onClick={handleBooking}>Tiếp tục</button>
+            </div>
           </div>
           <div className="legend">
             <div className="available">

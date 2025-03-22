@@ -9,7 +9,6 @@
 
 .login-page {
   background-color: white;
-  background: linear-gradient(to right, white, #c9d6ff);
   display: flex;
   align-items: center; /* Giữ căn giữa theo chiều ngang */
   justify-content: flex-start; /* Thay đổi từ center thành flex-start để căn trên */
