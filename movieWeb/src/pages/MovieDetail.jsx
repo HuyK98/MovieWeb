@@ -3,20 +3,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import '../styles/MovieDetail.css';
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import logo from "../assets/logo.jpg";
 import axios from 'axios';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSearch,
-  faSun,
-  faMoon,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
 import moment from 'moment';
 
 

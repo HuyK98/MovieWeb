@@ -109,14 +109,12 @@ const Showtime = () => {
   // Process data when selectedDate changes
   useEffect(() => {
     const processShowtimesData = () => {
-      // Normalize the selected date to remove time zone offsets
       const formattedSelectedDate = new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth(),
         selectedDate.getDate()
       ).toISOString().split("T")[0];
   
-      // Filter showtimes by the normalized selected date
       const filteredShowtimes = showtimes.filter((showtime) => {
         const showtimeDate = new Date(showtime.date);
         const normalizedShowtimeDate = new Date(
@@ -130,10 +128,10 @@ const Showtime = () => {
   
       // Map movies with their showtimes
       const moviesWithShowtimes = filteredShowtimes.map((showtime) => {
-        const movie = showtime.movieId; // Get movie info from movieId
+        const movie = showtime.movieId;
         return {
           ...movie,
-          showtime: showtime.times, // Attach showtime times
+          showtime: showtime.times,
         };
       });
   
@@ -257,7 +255,7 @@ const Showtime = () => {
                 <img src={movie.imageUrl} alt={movie.title} />
               </div>
               <div className="movie-details">
-                <h2 className="movie-title">{movie.title}</h2>
+                <h2>{movie.title}</h2>
                 <p className="movie-description">{movie.description}</p>
                 <p className="movie-genre">Thể loại: {movie.genre}</p>
                 <p className="movie-release-date">Ngày phát hành: {formatDate(movie.releaseDate)}</p>

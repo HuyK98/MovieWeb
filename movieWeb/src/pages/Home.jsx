@@ -464,7 +464,11 @@ const Home = () => {
                           </button>
                         </div>
                         <div className="movie-title">
-                          <h3>{movie.title}</h3>
+                        <h3>
+                          <Link to={`/movie/${movie._id}`} className="movie-title-link">
+                            {movie.title}
+                          </Link>
+                        </h3>
                           <p>Thể Loại: {movie.genre}</p>
                           <p>Thời Lượng: {movie.description}</p>
                           <p>
