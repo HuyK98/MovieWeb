@@ -9,6 +9,7 @@ import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import PosterSection from "../components/PosterSection";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -96,6 +97,7 @@ const Home = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
+  const [upcomingIndex, setUpcomingIndex] = useState(0);
   // Thêm các state để quản lý phim đang chiếu và phim sắp chiếu
   const [currentTab, setCurrentTab] = useState('now-showing');
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
@@ -283,6 +285,18 @@ const Home = () => {
     setCurrentTab(tab);
   };
 
+  const handleUpcomingPrev = () => {
+    setUpcomingIndex((prev) =>
+      prev === 0 ? (upcomingMovies.length > 4 ? upcomingMovies.length - 4 : 0) : prev - 1
+    );
+  };
+
+  const handleUpcomingNext = () => {
+    setUpcomingIndex((prev) =>
+      prev >= (upcomingMovies.length > 4 ? upcomingMovies.length - 4 : 0) ? 0 : prev + 1
+    );
+  };
+
   // Cập nhật useEffect để lấy danh sách phim đang chiếu và phim sắp chiếu
   useEffect(() => {
     const fetchMovies = async () => {
@@ -339,7 +353,7 @@ const Home = () => {
           Phim Sắp Chiếu
         </button>
       </div>
-      
+
 
       <AnimatedSection animation="fade-up">
         <div className="section-container">
@@ -360,7 +374,7 @@ const Home = () => {
               <div className="featured-movies-slider">
                 {filteredMovies.length > 0 &&
                   filteredMovies
-                    .slice(featuredIndex, featuredIndex + 5)
+                    .slice(featuredIndex, featuredIndex + 7)
                     .map((movie, index) => (
                       <AnimatedSection
                         key={movie._id}
@@ -395,6 +409,8 @@ const Home = () => {
               </button>
             </div>
           </div>
+          {/* Poster Section */}
+          <PosterSection movies={movies} />
           <div className="movie-row-section">
             <div className="section-header">
               <h2>Phim Sắp Ra Mắt</h2>
@@ -403,32 +419,51 @@ const Home = () => {
               </div>
             </div>
             <div className="movie-row-container">
-              {filteredMovies.length > 0 ? (
-                filteredMovies.slice(0, 8).map((movie, index) => (
-                  <AnimatedSection
-                    key={movie._id}
-                    animation="fade-up"
-                    delay={index * 100}
-                  >
-                    <div className="movie-row-card">
-                      <div className="movie-poster">
-                        <img src={movie.imageUrl} alt={movie.title} />
-                        <div className="movie-overlay">
-                          <button
-                            className="play-trailer-btn"
-                            onClick={() => handleTrailerClick(movie.videoUrl)}
-                          >
-                            <FontAwesomeIcon icon={faPlay} />
-                          </button>
+              <button
+                onClick={handleUpcomingPrev}
+                className="carousel-button prev"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} />
+              </button>
+              <div className="movie-row-slider">
+                {upcomingMovies.length > 0 ? (
+                  upcomingMovies
+                    .slice(upcomingIndex, upcomingIndex + 7)
+                    .map((movie, index) => (
+                      <AnimatedSection
+                        key={movie._id}
+                        animation="fade-up"
+                        delay={index * 100}
+                      >
+                        <div className="movie-row-card">
+                          <div className="movie-poster">
+                            <img src={movie.imageUrl} alt={movie.title} />
+                            <div className="movie-overlay">
+                              <button
+                                className="play-trailer-btn"
+                                onClick={() => handleTrailerClick(movie.videoUrl)}
+                              >
+                                <FontAwesomeIcon icon={faPlay} />
+                              </button>
+                            </div>
+                          </div>
+                          <h3 className="movie-title1">{movie.title}</h3>
+                          <p className="movie-year">
+                            ({new Date(movie.releaseDate).getFullYear()})
+                          </p>
                         </div>
-                      </div>
-                      <h3 className="movie-title1">{movie.title}</h3>
-                    </div>
-                  </AnimatedSection>
-                ))
-              ) : (
-                <p>Không có phim nào</p>
-              )}
+                      </AnimatedSection>
+                    ))
+                ) : (
+                  <p>Không có phim nào</p>
+                )}
+              </div>
+              <button
+                onClick={handleUpcomingNext}
+                className="carousel-button next"
+              >
+                <FontAwesomeIcon icon={faChevronRight} />
+              </button>
             </div>
           </div>
         </div>
@@ -464,11 +499,12 @@ const Home = () => {
                           </button>
                         </div>
                         <div className="movie-title">
-                        <h3>
-                          <Link to={`/movie/${movie._id}`} className="movie-title-link">
+                          <h3
+                            className="movie-title-link"
+                            onClick={() => navigate(`/movie/${movie._id}`)}
+                          >
                             {movie.title}
-                          </Link>
-                        </h3>
+                          </h3>
                           <p>Thể Loại: {movie.genre}</p>
                           <p>Thời Lượng: {movie.description}</p>
                           <p>
