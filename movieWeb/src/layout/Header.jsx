@@ -2,9 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faHeart } from "@fortawesome/free-solid-svg-icons";
 
-const Header = ({ user, handleLogout, searchTerm, handleSearchChange }) => {
+const Header = ({ 
+  user, 
+  handleLogout, 
+  searchTerm, 
+  handleSearchChange, 
+  favorites = [], 
+  toggleFavorites 
+}) => {
   return (
     <header>
       <Link to="/">
@@ -37,6 +44,10 @@ const Header = ({ user, handleLogout, searchTerm, handleSearchChange }) => {
         <button>
           <FontAwesomeIcon icon={faSearch} />
         </button>
+      </div>
+      <div className="favorites-icon" onClick={toggleFavorites}>
+        <FontAwesomeIcon icon={faHeart} />
+        {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
       </div>
     </header>
   );
