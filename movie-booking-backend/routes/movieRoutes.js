@@ -70,6 +70,22 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Lỗi server" });
   }
 });
+
+// 📌 **Lấy thông tin phim theo ID**
+router.get("/:id", async (req, res) => {
+  const { id } = req.params; // Get the movie ID from the request parameters
+  try {
+    const movie = await Movie.findById(id); // Find the movie by its ID
+    if (!movie) {
+      return res.status(404).json({ message: "Phim không tồn tại" }); // Return 404 if the movie is not found
+    }
+    res.json(movie); // Return the movie details
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin phim:", error);
+    res.status(500).json({ error: "Lỗi server" }); // Return 500 if there is a server error
+  }
+});
+
 // 📌 **Xóa phim**
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;

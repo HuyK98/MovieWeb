@@ -9,12 +9,14 @@ import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import PosterSection from "../components/PosterSection";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
   faTimes,
+  faHeart,
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
@@ -97,12 +99,17 @@ const Home = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
+  const [upcomingIndex, setUpcomingIndex] = useState(0);
   const [availableSeats, setAvailableSeats] = useState(70);
   
   // Thêm các state để quản lý phim đang chiếu và phim sắp chiếu
   const [currentTab, setCurrentTab] = useState("now-showing");
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState("Tất cả");
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
+
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
 
 
@@ -295,6 +302,34 @@ const Home = () => {
     setCurrentTab(tab);
   };
 
+  const handleUpcomingPrev = () => {
+    setUpcomingIndex((prev) =>
+      prev === 0 ? (upcomingMovies.length > 4 ? upcomingMovies.length - 4 : 0) : prev - 1
+    );
+  };
+
+  const handleUpcomingNext = () => {
+    setUpcomingIndex((prev) =>
+      prev >= (upcomingMovies.length > 4 ? upcomingMovies.length - 4 : 0) ? 0 : prev + 1
+    );
+  };
+
+  const handleFavoriteClick = (movie) => {
+    setFavorites((prevFavorites) => {
+      if (prevFavorites.some((fav) => fav._id === movie._id)) {
+        // Nếu phim đã có trong danh sách yêu thích, xóa nó
+        return prevFavorites.filter((fav) => fav._id !== movie._id);
+      } else {
+        // Nếu chưa có, thêm vào danh sách yêu thích
+        return [...prevFavorites, movie];
+      }
+    });
+  };
+
+  const handleRemoveFavorite = (movieId) => {
+    setFavorites((prevFavorites) => prevFavorites.filter((movie) => movie._id !== movieId));
+  };
+
   // Cập nhật useEffect để lấy danh sách phim đang chiếu và phim sắp chiếu
   useEffect(() => {
     const fetchMovies = async () => {
@@ -369,6 +404,8 @@ const Home = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        favorites={favorites}
+        toggleFavorites={() => setShowFavorites(!showFavorites)}
       />
 
       <div className="poster-container">
@@ -397,6 +434,7 @@ const Home = () => {
         </button>
       </div>
 
+
       {currentTab === "now-showing" && (
         <AnimatedSection animation="fade-up">
           <div className="featured-movies-section">
@@ -414,9 +452,10 @@ const Home = () => {
                 <FontAwesomeIcon icon={faChevronLeft} />
               </button>
               <div className="featured-movies-slider">
-                {nowShowingMovies.length > 0 &&
-                  nowShowingMovies
-                    .slice(featuredIndex, featuredIndex + 8)
+                {filteredMovies.length > 0 &&
+                  filteredMovies
+                    .slice(featuredIndex, featuredIndex + 7)
+
                     .map((movie, index) => (
                       <AnimatedSection
                         key={movie._id}
@@ -452,6 +491,11 @@ const Home = () => {
               </button>
             </div>
           </div>
+          {/* Poster Section */}
+          <div className="poster-header">
+            <h2>XEM GÌ TẠI CINEMA</h2>
+          </div>
+          <PosterSection movies={movies} />
         </AnimatedSection>
       )}
 
@@ -465,32 +509,51 @@ const Home = () => {
               </div>
             </div>
             <div className="movie-row-container">
-              {upcomingMovies.length > 0 ? (
-                upcomingMovies.slice(0, 8).map((movie, index) => (
-                  <AnimatedSection
-                    key={movie._id}
-                    animation="fade-up"
-                    delay={index * 100}
-                  >
-                    <div className="movie-row-card">
-                      <div className="movie-poster">
-                        <img src={movie.imageUrl} alt={movie.title} />
-                        <div className="movie-overlay">
-                          <button
-                            className="play-trailer-btn"
-                            onClick={() => handleTrailerClick(movie.videoUrl)}
-                          >
-                            <FontAwesomeIcon icon={faPlay} />
-                          </button>
+              <button
+                onClick={handleUpcomingPrev}
+                className="carousel-button prev"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} />
+              </button>
+              <div className="movie-row-slider">
+                {upcomingMovies.length > 0 ? (
+                  upcomingMovies
+                    .slice(upcomingIndex, upcomingIndex + 7)
+                    .map((movie, index) => (
+                      <AnimatedSection
+                        key={movie._id}
+                        animation="fade-up"
+                        delay={index * 100}
+                      >
+                        <div className="movie-row-card">
+                          <div className="movie-poster">
+                            <img src={movie.imageUrl} alt={movie.title} />
+                            <div className="movie-overlay">
+                              <button
+                                className="play-trailer-btn"
+                                onClick={() => handleTrailerClick(movie.videoUrl)}
+                              >
+                                <FontAwesomeIcon icon={faPlay} />
+                              </button>
+                            </div>
+                          </div>
+                          <h3 className="movie-title1">{movie.title}</h3>
+                          <p className="movie-year">
+                            ({new Date(movie.releaseDate).getFullYear()})
+                          </p>
                         </div>
-                      </div>
-                      <h3 className="movie-title1">{movie.title}</h3>
-                    </div>
-                  </AnimatedSection>
-                ))
-              ) : (
-                <p>Không có phim nào</p>
-              )}
+                      </AnimatedSection>
+                    ))
+                ) : (
+                  <p>Không có phim nào</p>
+                )}
+              </div>
+              <button
+                onClick={handleUpcomingNext}
+                className="carousel-button next"
+              >
+                <FontAwesomeIcon icon={faChevronRight} />
+              </button>
             </div>
           </div>
         </AnimatedSection>
@@ -498,51 +561,83 @@ const Home = () => {
 
       <AnimatedSection animation="fade-right" delay={100}>
         <div className="card-items">
-          <h2>Danh sách phim</h2>
+          <h2 className="section-title">Danh sách phim</h2>
+          <div className="genre-filter">
+            {Array.from(new Set(movies.map((movie) => movie.genre))).map((genre) => (
+              <button
+                key={genre}
+                className={`genre-button ${selectedGenre === genre ? "active" : ""}`}
+                onClick={() => setSelectedGenre(genre)}
+              >
+                {genre}
+              </button>
+            ))}
+            <button
+              className={`genre-button ${selectedGenre === "Tất cả" ? "active" : ""}`}
+              onClick={() => setSelectedGenre("Tất cả")}
+            >
+              Tất cả
+            </button>
+          </div>
           {error ? (
             <p className="error">{error}</p>
           ) : (
             <div className="movies-grid">
               {filteredMovies.length > 0 ? (
                 <>
-                  {filteredMovies.map((movie, index) => (
-                    <AnimatedSection
-                      key={movie._id}
-                      animation="fade-up"
-                      delay={index * 100}
-                    >
-                      <div className="movie-item">
-                        <div className="movie-image-container">
-                          <img src={movie.imageUrl} alt={movie.title} />
+                  {filteredMovies
+                    .filter((movie) =>
+                      selectedGenre === "Tất cả" || movie.genre === selectedGenre
+                    )
+                    .map((movie, index) => (
+                      <AnimatedSection
+                        key={movie._id}
+                        animation="fade-up"
+                        delay={index * 100}
+                      >
+                        <div className="movie-item">
+                          <div className="movie-image-container">
+                            <img src={movie.imageUrl} alt={movie.title} />
+                            <button
+                              className={`favorite-button ${favorites.some((fav) => fav._id === movie._id) ? "active" : ""}`}
+                              onClick={() => handleFavoriteClick(movie)}
+                            >
+                              <FontAwesomeIcon icon={faHeart} />
+                            </button>
+                            <button
+                              className="trailer-button"
+                              onClick={() => handleTrailerClick(movie.videoUrl)}
+                            >
+                              <FontAwesomeIcon
+                                icon={faPlay}
+                                style={{ marginRight: "8px" }}
+                              />
+                              Trailer
+                            </button>
+                          </div>
+                          <div className="movie-title">
+                            <h3
+                              className="movie-title-link"
+                              onClick={() => navigate(`/movie/${movie._id}`)}
+                            >
+                              {movie.title}
+                            </h3>
+                            <p>Thể Loại: {movie.genre}</p>
+                            <p>Thời Lượng: {movie.description}</p>
+                            <p>
+                              Ngày phát hành:{" "}
+                              {new Date(movie.releaseDate).toLocaleDateString()}
+                            </p>
+                          </div>
                           <button
-                            className="trailer-button"
-                            onClick={() => handleTrailerClick(movie.videoUrl)}
+                            className="card-button"
+                            onClick={() => handleBuyTicketClick(movie)}
                           >
-                            <FontAwesomeIcon
-                              icon={faPlay}
-                              style={{ marginRight: "8px" }}
-                            />
-                            Trailer
+                            MUA VÉ
                           </button>
                         </div>
-                        <div className="movie-title">
-                          <h3>{movie.title}</h3>
-                          <p>Thể Loại: {movie.genre}</p>
-                          <p>Thời Lượng: {movie.description}</p>
-                          <p>
-                            Ngày phát hành:{" "}
-                            {new Date(movie.releaseDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <button
-                          className="card-button"
-                          onClick={() => handleBuyTicketClick(movie)}
-                        >
-                          MUA VÉ
-                        </button>
-                      </div>
-                    </AnimatedSection>
-                  ))}
+                      </AnimatedSection>
+                    ))}
                 </>
               ) : (
                 <p>Không có phim nào</p>
@@ -639,6 +734,45 @@ const Home = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {showFavorites && (
+        <div className="favorites-overlay" onClick={() => setShowFavorites(false)}>
+          <div className="favorites-list" onClick={(e) => e.stopPropagation()}>
+            <button className="close-favorites" onClick={() => setShowFavorites(false)}>
+              X
+            </button>
+            <h2>Danh sách yêu thích</h2>
+            {favorites.length > 0 ? (
+              <div className="favorites-grid">
+                {favorites.map((movie) => (
+                  <div key={movie._id} className="favorite-item">
+                    <div className="favorite-image-container">
+                      <img src={movie.imageUrl} alt={movie.title} className="favorite-image" />
+                      <button
+                        className="favorite-remove-button"
+                        onClick={() => handleRemoveFavorite(movie._id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                    <div className="favorite-title">
+                      <h3
+                        className="movie-title-link"
+                        onClick={() => navigate(`/movie/${movie._id}`)}
+                      >
+                        {movie.title}
+                      </h3>
+                      <p>Thể Loại: {movie.genre}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Không có phim nào trong danh sách yêu thích.</p>
+            )}
+          </div>
         </div>
       )}
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
