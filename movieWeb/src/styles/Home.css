@@ -27,6 +27,11 @@ body {
   color: var(--text-dark);
   transition: var(--transition);
 }
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
 h1,
 h2,
@@ -246,6 +251,110 @@ nav button:hover::after {
   position: relative;
 }
 
+/* poster */
+.poster-header h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: black;
+  text-align: center;
+  margin: 5px 0;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+/* phim sap chieu */
+.movie-row-section {
+  margin: 4rem 5%;
+  position: relative;
+}
+
+.movie-row-container {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  gap: 0.3rem;
+}
+
+.movie-row-slider {
+  display: flex;
+  gap: 1.5rem;
+  transition: transform 0.5s ease;
+  transform: translateX(calc(-100% * var(--upcoming-index, 0)));  
+}
+
+.movie-row-section .movie-row-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  background-color: white;
+}
+
+.movie-row-section .movie-row-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.movie-row-section .movie-poster {
+  position: relative;
+  width: 100%;
+  padding-top: 150%;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+}
+
+.movie-row-section .movie-poster img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.movie-row-card:hover .movie-poster img {
+  transform: scale(1.1);
+}
+
+.movie-row-section .movie-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.movie-row-section .movie-row-card:hover .movie-overlay {
+  opacity: 1;
+}
+
+.movie-row-section .movie-title1 {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0.5rem 0;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-row-section .movie-year {
+  font-size: 0.9rem;
+  text-align: center;
+  color: #666;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -322,6 +431,7 @@ nav button:hover::after {
   object-fit: cover;
 }
 
+/* phim dang chieu */
 .featured-movies-slider {
   display: flex;
   gap: 1.5rem;
@@ -451,6 +561,8 @@ nav button:hover::after {
   opacity: 0.9;
   transition: var(--transition);
 }
+
+
 
 .dark-mode .carousel-button {
   background-color: var(--secondary-color);
@@ -1286,3 +1398,204 @@ nav button:hover::after {
 .movie-tabs button:hover {
   color: #007bff;
 }
+
+
+/* the loai phim */
+.genre-filter {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 10px; 
+  justify-content: center; 
+  margin-bottom: 1.5rem;
+}
+
+.genre-button {
+  padding: 0.5rem 1.2rem;
+  border: none; 
+  border-radius: 20px; 
+  background-color: hsl(204, 88%, 42%);
+  color: white; 
+  font-size: 0.9rem; 
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+
+.genre-button:hover {
+  background-color: var(--gray-medium); 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.genre-button.active {
+  background-color: hsl(204, 88%, 42%); 
+  color: var(--text-light); 
+}
+
+.genre-button:focus {
+  outline: none; 
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+
+/* Nút trái tim trong movie-item */
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.favorite-button.active {
+  color: red; 
+}
+
+.favorite-button:hover {
+  color: red;
+}
+
+/* Danh sách yêu thích */
+.favorites-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: right;
+  align-items: right;
+  z-index: 1000;
+}
+
+.favorites-list {
+  position: relative;
+  background: white;
+  width: 350px;
+  max-height: 60%;
+  overflow-y: auto;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  margin-top: 65px;
+}
+
+/* Nút đóng danh sách yêu thích */
+.close-favorites {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: red;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.close-favorites:hover {
+  transform: scale(1.2);
+}
+
+/* Lưới danh sách yêu thích */
+.favorites-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Mỗi mục yêu thích */
+.favorite-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  align-items: center;
+  width: 100%; /* Thêm dòng này để đảm bảo chiều rộng không gây tràn */
+
+}
+
+.featured-movie-card .movie-poster {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Container hình ảnh */
+.favorite-image-container {
+  position: relative;
+  width: 60px;
+  height: 90px;
+  flex-shrink: 0;
+}
+
+/* Hình ảnh */
+.favorite-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+
+}
+
+/* Nút xóa (dấu -) */
+.favorite-remove-button {
+  position: absolute;
+  top: 5px; /* Cách mép trên 5px */
+  right: 5px; /* Cách mép phải 5px */
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.favorite-remove-button:hover {
+  background: darkred;
+  transform: scale(1.1); /* Phóng to nhẹ khi hover */
+}
+
+/* Biểu tượng trái tim trong header */
+.favorites-icon {
+    margin: 0 auto;
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: black;
+    transition: color 0.3s ease;
+  }
+  
+  .favorites-icon :hover {
+    color: red;
+  }
+  
+  .favorites-icon :active {
+    color: red;
+  }
+  
+  .favorites-count {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    padding: 2px 6px;
+  }
