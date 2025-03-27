@@ -92,11 +92,15 @@ const Showtime = () => {
     const fetchData = async () => {
       try {
         // Fetch movies
-        const moviesResponse = await axios.get("http://localhost:5000/api/movies");
+        const moviesResponse = await axios.get(
+          "http://localhost:5000/api/movies"
+        );
         setMovies(moviesResponse.data);
 
         // Fetch showtimes
-        const showtimesResponse = await axios.get("http://localhost:5000/api/showtimes");
+        const showtimesResponse = await axios.get(
+          "http://localhost:5000/api/showtimes"
+        );
         setShowtimes(showtimesResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -126,6 +130,7 @@ const Showtime = () => {
         return normalizedShowtimeDate === formattedSelectedDate;
       });
   
+
       // Map movies with their showtimes
       const moviesWithShowtimes = filteredShowtimes.map((showtime) => {
         const movie = showtime.movieId;
@@ -173,11 +178,15 @@ const Showtime = () => {
   };
 
   const handlePreviousMonth = () => {
-    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+    );
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    );
   };
 
   const dates = generateDates();
@@ -196,7 +205,10 @@ const Showtime = () => {
         <div className="month-navigation">
           <button onClick={handlePreviousMonth}>Tháng trước</button>
           <span>
-            {currentMonth.toLocaleDateString("vi-VN", { month: "long", year: "numeric" })}
+            {currentMonth.toLocaleDateString("vi-VN", {
+              month: "long",
+              year: "numeric",
+            })}
           </span>
           <button onClick={handleNextMonth}>Tháng sau</button>
         </div>
@@ -204,17 +216,26 @@ const Showtime = () => {
           {dates.slice(0, 7).map((date, index) => (
             <div
               key={index}
-              className={`date-item ${date.toDateString() === selectedDate.toDateString() ? "active" : ""}`}
+              className={`date-item ${
+                date.toDateString() === selectedDate.toDateString()
+                  ? "active"
+                  : ""
+              }`}
               onClick={() => handleDateClick(date)}
             >
               <div className="date-day">{date.getDate()}</div>
               <div className="date-info">
-                <div className="date-weekday">{date.toLocaleDateString("vi-VN", { weekday: "short" })}</div>
+                <div className="date-weekday">
+                  {date.toLocaleDateString("vi-VN", { weekday: "short" })}
+                </div>
               </div>
             </div>
           ))}
         </div>
-        <button className="view-full-calendar" onClick={() => setShowFullCalendar(true)}>
+        <button
+          className="view-full-calendar"
+          onClick={() => setShowFullCalendar(true)}
+        >
           Xem lịch đầy đủ
         </button>
 
@@ -222,14 +243,21 @@ const Showtime = () => {
         {showFullCalendar && (
           <div className="full-calendar-modal">
             <div className="full-calendar-content">
-              <button className="close-calendar" onClick={() => setShowFullCalendar(false)}>
+              <button
+                className="close-calendar"
+                onClick={() => setShowFullCalendar(false)}
+              >
                 Đóng
               </button>
               <div className="dates-grid-full">
                 {dates.map((date, index) => (
                   <div
                     key={index}
-                    className={`date-item ${date.toDateString() === selectedDate.toDateString() ? "active" : ""}`}
+                    className={`date-item ${
+                      date.toDateString() === selectedDate.toDateString()
+                        ? "active"
+                        : ""
+                    }`}
                     onClick={() => {
                       handleDateClick(date);
                       setShowFullCalendar(false); // Đóng modal sau khi chọn ngày
@@ -237,7 +265,9 @@ const Showtime = () => {
                   >
                     <div className="date-day">{date.getDate()}</div>
                     <div className="date-info">
-                      <div className="date-weekday">{date.toLocaleDateString("vi-VN", { weekday: "short" })}</div>
+                      <div className="date-weekday">
+                        {date.toLocaleDateString("vi-VN", { weekday: "short" })}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -256,14 +286,23 @@ const Showtime = () => {
               </div>
               <div className="movie-details">
                 <h2>{movie.title}</h2>
-                <p className="movie-description">{movie.description}</p>
+
+                <p className="movie-description">Mô tả: {movie.description}</p>
                 <p className="movie-genre">Thể loại: {movie.genre}</p>
-                <p className="movie-release-date">Ngày phát hành: {formatDate(movie.releaseDate)}</p>
+                <p className="movie-release-date">
+                  Ngày phát hành: {formatDate(movie.releaseDate)}
+                </p>
                 <div className="showtime-list">
                   {movie.showtime.map((time, index) => (
-                    <div key={index} className="showtime-item" onClick={() => handleBuyTicketClick(movie)}>
+                    <div
+                      key={index}
+                      className="showtime-item"
+                      onClick={() => handleBuyTicketClick(movie)}
+                    >
                       <span className="showtime-hour">{time.time}</span>
-                      <span className="seats-available">{time.seats} ghế trống</span>
+                      <span className="seats-available">
+                        {time.seats} ghế trống
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -272,7 +311,10 @@ const Showtime = () => {
           ))
         ) : (
           <div className="no-movies">
-            <p>Không có lịch chiếu cho ngày {formatDate(selectedDate)}. Vui lòng chọn ngày khác.</p>
+            <p>
+              Không có lịch chiếu cho ngày {formatDate(selectedDate)}. Vui lòng
+              chọn ngày khác.
+            </p>
           </div>
         )}
       </div>
@@ -309,8 +351,9 @@ const Showtime = () => {
                 {selectedShowtime.times.map((timeSlot) => (
                   <div
                     key={timeSlot._id}
-                    className={`seat ${timeSlot.isBooked ? "booked" : "available"
-                      }`}
+                    className={`seat ${
+                      timeSlot.isBooked ? "booked" : "available"
+                    }`}
                     onClick={() => handleSeatClick(selectedShowtime, timeSlot)}
                   >
                     <p>Giờ: {timeSlot.time}</p>
@@ -345,10 +388,7 @@ const Showtime = () => {
                   </tr>
                 </tbody>
               </table>
-              <button
-                className="confirm-button"
-                onClick={handleConfirmBooking}
-              >
+              <button className="confirm-button" onClick={handleConfirmBooking}>
                 ĐỒNG Ý
               </button>
             </div>

@@ -4,6 +4,7 @@ const { protect } = require('../middleware/authMiddleware');
 const Booking = require('../models/Booking');
 const axios = require('axios');
 const crypto = require('crypto');
+const moment = require('moment');
 
 // Thông tin mẫu từ MoMo
 const partnerCode = 'MOMO';
@@ -38,18 +39,53 @@ router.post('/pay', protect, async (req, res) => {
   }
 });
 
-// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking
+// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang page
+router.get('/seats/page', async (req, res) => {
+  const { movieTitle, date } = req.query;
+  try {
+    console.log('Query parameters:', { movieTitle, date });
+
+    // Lấy tất cả các bookings theo movieTitle và date
+    const bookings = await Booking.find({ movieTitle, date });
+
+    // Tính số ghế đã đặt theo từng khung giờ
+    const bookedSeatsByTime = bookings.reduce((acc, booking) => {
+      const timeSlot = acc.find((slot) => slot.time === booking.time);
+      if (timeSlot) {
+        timeSlot.bookedSeats += booking.seats.length;
+      } else {
+        acc.push({ time: booking.time, bookedSeats: booking.seats.length });
+      }
+      return acc;
+    }, []);
+
+    console.log('Booked seats by time:', bookedSeatsByTime);
+
+    res.json(bookedSeatsByTime);
+  } catch (error) {
+    console.error('Error fetching booked seats:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
 router.get('/seats', async (req, res) => {
   const { movieTitle, date, time } = req.query;
+  console.log('Received query parameters:', { movieTitle, date, time });
+
   try {
+    if (!date || isNaN(new Date(date).getTime())) {
+      throw new Error(`Invalid date format: ${date}`);
+    }
+
     const bookings = await Booking.find({ movieTitle, date, time });
     const bookedSeats = bookings.reduce((acc, booking) => {
       return acc.concat(booking.seats);
     }, []);
     res.json(bookedSeats);
   } catch (error) {
-    console.error('Lỗi khi lấy thông tin ghế:', error);
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    console.error('Error fetching booked seats:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 });
 

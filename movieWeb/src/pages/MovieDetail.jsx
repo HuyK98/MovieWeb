@@ -26,8 +26,19 @@ const MovieDetail = () => {
           console.error('bookingInfo hoặc các trường cần thiết là undefined');
           return;
         }
-        // Chuyển đổi định dạng ngày
-        const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    
+        // Kiểm tra và định dạng ngày
+        const formattedDate = moment(bookingInfo.date, moment.ISO_8601, true).isValid()
+          ? moment(bookingInfo.date).format('YYYY-MM-DD') // Xử lý định dạng ISO
+          : moment(bookingInfo.date, 'DD/MM/YYYY', true).isValid()
+          ? moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD') // Xử lý định dạng DD/MM/YYYY
+          : null;
+    
+        if (!formattedDate) {
+          console.error('Ngày không hợp lệ:', bookingInfo.date);
+          return;
+        }
+    
         const response = await axios.get('http://localhost:5000/api/payment/seats', {
           params: {
             movieTitle: bookingInfo.movieTitle,
@@ -35,6 +46,7 @@ const MovieDetail = () => {
             time: bookingInfo.time,
           },
         });
+    
         const bookedSeats = response.data;
         const allSeats = Array.from({ length: 70 }, (_, i) => ({
           id: i + 1,
@@ -126,7 +138,7 @@ const MovieDetail = () => {
                   <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
                   <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
                   <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
-                  <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
+                  <p><strong>Ngày chiếu:</strong> {moment(bookingInfo.date).format('DD/MM/YYYY')}</p>
                   <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
   
                 </div>

@@ -3,14 +3,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap");
 
 :root {
-  --primary-color: #b8860b; /* Gold */
-  --primary-dark: #8b6914; /* Darker gold */
+  --primary-color: #1b87f2; /* Gold */
+  --primary-dark: #0e63d2; /* Darker gold */
   --secondary-color: #1a1a2e; /* Deep blue */
   --text-light: #f0f0f0;
   --text-dark: #1a1a1a;
   --background-light: #ffffff;
   --background-dark: #0f0f1a;
-  --accent-color: #d4af37; /* Accent gold */
+  --accent-color: #2b88ec; /* Accent gold */
   --gray-light: #e0e0e0;
   --gray-medium: #b0b0b0;
   --gray-dark: #707070;
@@ -55,18 +55,30 @@ body.dark-mode {
   background-color: var(--background-dark);
 }
 
+.header,
+.poster-container,
+.featured-movies-container,
+.movie-tabs {
+  margin: 0 auto;
+  padding: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 /* Header styling */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 5%;
+  padding: 0.5rem 5%;
+  margin: 0;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow);
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 100;
   transition: var(--transition);
+  width: 100%;
 }
 
 .dark-mode header {
@@ -185,13 +197,13 @@ nav button:hover::after {
   position: relative;
   height: 600px;
   overflow: hidden;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
+  width: 100%; /* Thêm dòng này để đảm bảo chiều rộng không gây tràn */
 }
 
 .poster {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   transition: transform 0.5s ease;
   filter: brightness(0.85);
 }
@@ -236,7 +248,7 @@ nav button:hover::after {
 /* Featured movies section */
 .featured-movies-section,
 .movie-row-section {
-  margin: 4rem 5%;
+  margin-left: 5rem;
   position: relative;
 }
 
@@ -332,6 +344,9 @@ nav button:hover::after {
 
 /* Biểu tượng trái tim trong header */
 .favorites-icon {
+/* Featured movies slider */
+.featured-movies-container {
+  margin: 0 auto;
   position: relative;
   cursor: pointer;
   font-size: 1.5rem;
@@ -440,6 +455,16 @@ nav button:hover::after {
   background: #f9f9f9;
   border-radius: 8px;
   padding: 1rem;
+  align-items: center;
+  width: 100%; /* Thêm dòng này để đảm bảo chiều rộng không gây tràn */
+
+}
+
+.featured-movie-card .movie-poster {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -457,6 +482,7 @@ nav button:hover::after {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
+
 }
 
 /* Nút xóa (dấu -) */
@@ -514,9 +540,8 @@ nav button:hover::after {
 .movie-row-card {
   flex: 0 0 calc(20% - 1.2rem);
   transition: var(--transition);
-  border-radius: 8px;
   overflow: hidden;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.607);
   box-shadow: var(--shadow);
   position: relative;
 }
@@ -543,6 +568,7 @@ nav button:hover::after {
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
+  border-radius: 20px !important;
 }
 
 .movie-poster:hover img {
@@ -765,7 +791,8 @@ nav button:hover::after {
   color: rgb(0, 0, 0);
   margin-bottom: 20px;
   font-size: 1.8rem;
-  margin-right: 210px;
+  margin-right: 260px;
+  margin-top: 10px;
 }
 
 .movies-grid {
@@ -780,7 +807,9 @@ nav button:hover::after {
   display: flex;
   flex-direction: row; /* Đặt thành row để xếp ngang */
   align-items: center;  /* Canh giữa theo chiều dọc */
-  justify-content: space-between; /* Canh đều hai bên */  height: 80%;
+  justify-content: space-between; /* Canh đều hai bên */  
+  height: 90%;
+  width: 90%;
   background-color: white;
   border: none;
   border-radius: 0%;
@@ -792,6 +821,7 @@ nav button:hover::after {
   height: auto;
   overflow: hidden;
   position: relative;
+  border-radius: 20px !important;
 }
 .movie-image-container img {
   width: 100%;
@@ -886,7 +916,7 @@ nav button:hover::after {
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s ease;
-  margin-top: 2px; /* Đẩy nút xuống dưới cùng */
+  margin-top: -5px; /* Đẩy nút xuống dưới cùng */
   margin-bottom: 5px;
 }
 
@@ -1111,15 +1141,28 @@ nav button:hover::after {
   backdrop-filter: blur(5px);
 }
 
-.showtimes-content,
+.showtimes-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
+
 .booking-info {
   background-color: white;
   border-radius: 10px;
   padding: 2rem;
   width: 80%;
   max-width: 800px;
-  position: relative;
+  position: absolute; /* Đặt vị trí tuyệt đối để nằm đè lên phần tử cha */
+  top: 50%; /* Canh giữa theo chiều dọc */
+  left: 50%; /* Canh giữa theo chiều ngang */
+  transform: translate(-50%, -50%); /* Dịch chuyển để canh giữa */
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+  z-index: 1001; /* Đảm bảo nằm trên cùng */
 }
 
 .dark-mode .showtimes-content,
@@ -1311,7 +1354,7 @@ nav button:hover::after {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2rem;
   width: 90%;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -1467,7 +1510,7 @@ nav button:hover::after {
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 768px) {
   nav ul {
     gap: 1rem;
   }
@@ -1541,6 +1584,8 @@ nav button:hover::after {
 .movie-tabs {
   display: flex;
   justify-content: center;
+  position: relative;
+  width: 100%;
   margin: 20px 0;
 }
 
@@ -1549,9 +1594,10 @@ nav button:hover::after {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 30px;
   color: #333;
   transition: color 0.3s;
+  font-weight: bold;
 }
 
 .movie-tabs button.active {
