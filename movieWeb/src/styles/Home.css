@@ -335,19 +335,16 @@ nav button:hover::after {
   position: relative;
   cursor: pointer;
   font-size: 1.5rem;
-  color: black;
+  color: black; 
+  transition: color 0.3s ease;
 }
 
-.favorites-icon :hover {
+.favorites-icon:hover {
   color: red;
 }
 
-.favorites-icon :active {
-  background-color: red;
-}
-
-.favorites-icon :focus {
-  outline: none;
+.favorites-icon.active {
+  color: red; 
 }
 
 .favorites-count {

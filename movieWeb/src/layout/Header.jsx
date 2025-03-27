@@ -4,13 +4,14 @@ import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faHeart } from "@fortawesome/free-solid-svg-icons";
 
-const Header = ({ 
-  user, 
-  handleLogout, 
-  searchTerm, 
-  handleSearchChange, 
-  favorites = [], 
-  toggleFavorites 
+const Header = ({
+  user,
+  handleLogout,
+  searchTerm,
+  handleSearchChange,
+  favorites = [],
+  toggleFavorites,
+  showFavorites
 }) => {
   return (
     <header>
@@ -45,7 +46,10 @@ const Header = ({
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </div>
-      <div className="favorites-icon" onClick={toggleFavorites}>
+      <div
+        className={`favorites-icon ${showFavorites ? "active" : ""}`} 
+        onClick={toggleFavorites}
+      >
         <FontAwesomeIcon icon={faHeart} />
         {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
       </div>

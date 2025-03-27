@@ -348,6 +348,7 @@ const Home = () => {
         handleSearchChange={handleSearchChange}
         favorites={favorites}
         toggleFavorites={() => setShowFavorites(!showFavorites)}
+        showFavorites={showFavorites}
       />
 
       <div className="poster-container">
