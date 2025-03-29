@@ -2,23 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/PaymentInfo.css';
-import logo from "../assets/logo.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import momoIcon from "../assets/momo.ico";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSearch,
-  faSun,
-  faMoon,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
-
+import moment from "moment";
 const PaymentInfo = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,6 +71,12 @@ const PaymentInfo = () => {
         throw new Error('No token found');
       }
 
+      // Kiểm tra nếu người dùng chưa chọn phương thức thanh toán
+      if (!paymentMethod) {
+        alert('Vui lòng chọn phương thức thanh toán!');
+        return;
+      }
+
       if (paymentMethod === 'momo') {
         // Xử lý thanh toán qua ví MoMo
         const momoResponse = await axios.post('http://localhost:5000/api/payment/momo', {
@@ -123,6 +116,7 @@ const PaymentInfo = () => {
       alert('Thanh toán thất bại. Vui lòng thử lại.');
     }
   };
+
 
   return (
     <div>
@@ -183,7 +177,7 @@ const PaymentInfo = () => {
             <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
             <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
             <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
-            <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
+            <p><strong>Ngày chiếu:</strong> {moment(bookingInfo.date).format('DD/MM/YYYY')}</p>
             <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
           </div>
           <div className="button-container">

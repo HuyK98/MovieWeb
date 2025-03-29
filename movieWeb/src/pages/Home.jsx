@@ -18,6 +18,7 @@ import {
   faHeart,
   faChevronLeft,
   faChevronRight,
+
 } from "@fortawesome/free-solid-svg-icons";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
@@ -106,6 +107,7 @@ const Home = () => {
   const [currentTab, setCurrentTab] = useState("now-showing");
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
+  
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
 
   const [selectedGenre, setSelectedGenre] = useState("Tất cả");
@@ -159,6 +161,7 @@ const Home = () => {
   };
 
   const handleSeatClick = (showtime, timeSlot) => {
+    console.log("Debugging handleSeatClick - showtime.date:", showtime.date); // Log giá trị ngày
     setSelectedSeat(timeSlot);
     setSelectedShowtime({
       ...showtime,
@@ -178,6 +181,7 @@ const Home = () => {
     });
   };
 
+  // Xử lý sự kiện khi người dùng nhấp vào nút "Đồng ý" trong bookingInfo
   const handleConfirmBooking = () => {
     const isLoggedIn = localStorage.getItem("userInfo");
     if (!isLoggedIn) {

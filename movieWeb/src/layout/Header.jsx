@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 const Header = ({ 
   user, 
@@ -46,7 +47,7 @@ const Header = ({
         </button>
       </div>
       <div className="favorites-icon" onClick={toggleFavorites}>
-        <FontAwesomeIcon icon={faHeart} />
+        <FontAwesomeIcon icon={faBell} />
         {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
       </div>
     </header>

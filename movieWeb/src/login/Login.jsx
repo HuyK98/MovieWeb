@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
 import Header from "../layout/Header";
@@ -19,6 +19,8 @@ const Login = () => {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  const location = useLocation(); // Lấy thông tin state từ navigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,10 +42,21 @@ const Login = () => {
           { email, password }
         );
         localStorage.setItem("userInfo", JSON.stringify(response.data));
+        // Kiểm tra vai trò của người dùng
         if (response.data.role === "admin") {
           navigate("/admin");
         } else {
-          navigate("/");
+          // Kiểm tra xem có thông tin bookingInfo trong state không
+          const state = location.state;
+          if (state && state.bookingInfo) {
+            // Chuyển hướng đến trang movie-detail với thông tin bookingInfo
+            navigate("/movie-detail", {
+              state: { bookingInfo: state.bookingInfo },
+            });
+          } else {
+            // Nếu không có thông tin bookingInfo, chuyển hướng đến trang chính
+            navigate("/");
+          }
         }
       }
     } catch (err) {
@@ -63,21 +76,33 @@ const Login = () => {
     try {
       const { credential } = response;
 
-        // Kiểm tra xem credential có tồn tại và không rỗng
+      // Kiểm tra xem credential có tồn tại và không rỗng
       if (!credential) {
         setError("Token ID không hợp lệ. Vui lòng thử lại.");
         return;
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/google-login", {
-        tokenId: credential,
-      });
+        "http://localhost:5000/api/auth/google-login",
+        {
+          tokenId: credential,
+        }
+      );
       localStorage.setItem("userInfo", JSON.stringify(res.data));
       if (res.data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/");
+        // Kiểm tra xem có thông tin bookingInfo trong state không
+        const state = location.state;
+        if (state && state.bookingInfo) {
+          // Chuyển hướng đến trang movie-detail với thông tin bookingInfo
+          navigate("/movie-detail", {
+            state: { bookingInfo: state.bookingInfo },
+          });
+        } else {
+          // Nếu không có thông tin bookingInfo, chuyển hướng đến trang chính
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error("Google Login Failure:", response);

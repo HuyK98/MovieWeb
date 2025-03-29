@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import '../styles/MovieDetail.css';
+import React, { useState, useEffect } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import "../styles/MovieDetail.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import axios from 'axios';
-import moment from 'moment';
-
+import axios from "axios";
+import moment from "moment";
 
 const MovieDetail = () => {
   const location = useLocation();
@@ -22,31 +21,43 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        if (!bookingInfo || !bookingInfo.movieTitle || !bookingInfo.date || !bookingInfo.time) {
-          console.error('bookingInfo hoặc các trường cần thiết là undefined');
+        if (
+          !bookingInfo ||
+          !bookingInfo.movieTitle ||
+          !bookingInfo.date ||
+          !bookingInfo.time
+        ) {
+          console.error("bookingInfo hoặc các trường cần thiết là undefined");
           return;
         }
-    
+
         // Kiểm tra và định dạng ngày
-        const formattedDate = moment(bookingInfo.date, moment.ISO_8601, true).isValid()
-          ? moment(bookingInfo.date).format('YYYY-MM-DD') // Xử lý định dạng ISO
-          : moment(bookingInfo.date, 'DD/MM/YYYY', true).isValid()
-          ? moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD') // Xử lý định dạng DD/MM/YYYY
+        const formattedDate = moment(
+          bookingInfo.date,
+          moment.ISO_8601,
+          true
+        ).isValid()
+          ? moment(bookingInfo.date).format("YYYY-MM-DD") // Xử lý định dạng ISO
+          : moment(bookingInfo.date, "DD/MM/YYYY", true).isValid()
+          ? moment(bookingInfo.date, "DD/MM/YYYY").format("YYYY-MM-DD") // Xử lý định dạng DD/MM/YYYY
           : null;
-    
+
         if (!formattedDate) {
-          console.error('Ngày không hợp lệ:', bookingInfo.date);
+          console.error("Ngày không hợp lệ:", bookingInfo.date);
           return;
         }
-    
-        const response = await axios.get('http://localhost:5000/api/payment/seats', {
-          params: {
-            movieTitle: bookingInfo.movieTitle,
-            date: formattedDate,
-            time: bookingInfo.time,
-          },
-        });
-    
+
+        const response = await axios.get(
+          "http://localhost:5000/api/payment/seats",
+          {
+            params: {
+              movieTitle: bookingInfo.movieTitle,
+              date: formattedDate,
+              time: bookingInfo.time,
+            },
+          }
+        );
+
         const bookedSeats = response.data;
         const allSeats = Array.from({ length: 70 }, (_, i) => ({
           id: i + 1,
@@ -54,7 +65,7 @@ const MovieDetail = () => {
         }));
         setSeats(allSeats);
       } catch (error) {
-        console.error('Lỗi khi lấy thông tin ghế:', error);
+        console.error("Lỗi khi lấy thông tin ghế:", error);
       }
     };
 
@@ -79,9 +90,15 @@ const MovieDetail = () => {
   };
 
   const handleBooking = () => {
-    const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
-    const updatedBookingInfo = { ...bookingInfo, date: formattedDate };
-    navigate('/payment', { state: { bookingInfo: updatedBookingInfo, selectedSeats, totalPrice } });
+    // const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    if (!selectedSeats || selectedSeats.length === 0) { 
+      alert("Vui lòng chọn ít nhất một ghế trước khi tiếp tục!");
+      return;
+    }
+    const updatedBookingInfo = { ...bookingInfo };
+    navigate("/payment", {
+      state: { bookingInfo: updatedBookingInfo, selectedSeats, totalPrice },
+    });
   };
 
   const handleSearchChange = (e) => {
@@ -100,8 +117,8 @@ const MovieDetail = () => {
   };
 
   return (
-    <div className={`movie-detail-container ${darkMode ? "dark-mode" : ""}`}> 
-            <Header
+    <div className={`movie-detail-container ${darkMode ? "dark-mode" : ""}`}>
+      <Header
         user={user}
         handleLogout={handleLogout}
         searchTerm={searchTerm}
@@ -116,7 +133,13 @@ const MovieDetail = () => {
               {seats.map((seat) => (
                 <div
                   key={seat.id}
-                  className={`seat ${seat.isBooked ? 'booked' : selectedSeats.includes(seat.id) ? 'selected' : 'available'}`}
+                  className={`seat ${
+                    seat.isBooked
+                      ? "booked"
+                      : selectedSeats.includes(seat.id)
+                      ? "selected"
+                      : "available"
+                  }`}
                   onClick={() => handleSeatClick(seat)}
                 >
                   {seat.id}
@@ -125,8 +148,12 @@ const MovieDetail = () => {
             </div>
           </div>
           <div className="booking-oder">
-              <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
-              <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
+            <p>
+              <strong>Ghế ngồi:</strong> {selectedSeats.join(", ")}
+            </p>
+            <p>
+              <strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND
+            </p>
           </div>
           <div className="movie-info">
             <h2>Thông tin chi tiết về phim</h2>
@@ -134,19 +161,39 @@ const MovieDetail = () => {
               <>
                 <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
                 <div className="details">
-                  <p><strong>Tên phim:</strong> {bookingInfo.movieTitle}</p>
-                  <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
-                  <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
-                  <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
-                  <p><strong>Ngày chiếu:</strong> {moment(bookingInfo.date).format('DD/MM/YYYY')}</p>
-                  <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
-  
+                  <p>
+                    <strong>Tên phim:</strong> {bookingInfo.movieTitle}
+                  </p>
+                  <p>
+                    <strong>Thể loại:</strong> {bookingInfo.genre}
+                  </p>
+                  <p>
+                    <strong>Thời lượng:</strong> {bookingInfo.description}
+                  </p>
+                  <p>
+                    <strong>Rạp chiếu:</strong> {bookingInfo.cinema}
+                  </p>
+                  <p>
+                    <strong>Ngày chiếu:</strong>{" "}
+                    {moment(bookingInfo.date).format("DD/MM/YYYY")}
+                  </p>
+                  <p>
+                    <strong>Giờ chiếu:</strong> {bookingInfo.time}
+                  </p>
                 </div>
               </>
             )}
             <div className="button-container">
-              <button className='booking-btn' onClick={() => navigate('/')}>Quay lại</button>
-              <button className="booking-btn" type="button" onClick={handleBooking}>Tiếp tục</button>
+              <button className="booking-btn" onClick={() => navigate("/")}>
+                Quay lại
+              </button>
+              <button
+                className="booking-btn"
+                type="button"
+                onClick={handleBooking}
+              >
+                Tiếp tục
+              </button>
             </div>
           </div>
           <div className="legend">

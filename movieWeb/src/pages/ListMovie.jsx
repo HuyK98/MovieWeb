@@ -2,24 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
-import logo from "../assets/logo.jpg";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
   faTimes,
-  faSearch,
-  faSun,
-  faMoon,
+  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
+
 import Header from "../layout/Header";
+import Footer from "../layout/Footer";
+import ChatButton from "../components/ChatButton";
+import Chatbot from "../components/Chatbot";
+import moment from "moment";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -94,6 +90,13 @@ const ListMovie = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
+  // trừ các số ghế đã đặt
+  const [availableSeats, setAvailableSeats] = useState(70);
+  const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
+
+  const [selectedGenre, setSelectedGenre] = useState("Tất cả");
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -122,7 +125,8 @@ const ListMovie = () => {
 
   const handleDateClick = (date) => {
     const showtimeForDate = showtimes.find(
-      (showtime) => showtime.date === date
+      (showtime) =>
+        new Date(showtime.date).toDateString() === new Date(date).toDateString()
     );
     setSelectedShowtime(showtimeForDate);
     setSelectedSeat(null);
@@ -130,6 +134,10 @@ const ListMovie = () => {
 
   const handleSeatClick = (showtime, timeSlot) => {
     setSelectedSeat(timeSlot);
+    setSelectedShowtime({
+      ...showtime,
+      time: timeSlot.time, // Gán giá trị time từ timeSlot
+    });
     setBookingInfo({
       _id: selectedMovie._id,
       movieTitle: selectedMovie.title,
@@ -137,7 +145,7 @@ const ListMovie = () => {
       genre: selectedMovie.genre,
       description: selectedMovie.description,
       cinema: "Rạp CINEMA",
-      date: formatDate(showtime.date),
+      date: showtime.date,
       time: timeSlot.time,
       seat: timeSlot.seats,
       status: timeSlot.isBooked ? "Đã đặt" : "Ghế trống",
@@ -155,7 +163,8 @@ const ListMovie = () => {
 
   const formatDate = (dateString) => {
     const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-    return new Date(dateString).toLocaleDateString("vi-VN", options);
+    const date = new Date(dateString); // Chuyển đổi chuỗi ISO thành Date
+    return date.toLocaleDateString("vi-VN", options);
   };
 
   useEffect(() => {
@@ -264,6 +273,69 @@ const ListMovie = () => {
     document.body.classList.toggle("dark-mode");
   };
 
+  // Thêm useEffect để lấy dữ liệu từ bookings
+  useEffect(() => {
+    const fetchBookedSeats = async () => {
+      if (!selectedMovie || !selectedShowtime) {
+        console.warn("Missing required parameters for fetching booked seats.");
+        return;
+      }
+
+      try {
+        const formattedDate = moment(new Date(selectedShowtime.date)).format(
+          "YYYY-MM-DD"
+        );
+        console.log("fetchBookedSeats - movieTitle:", selectedMovie.title);
+        console.log("fetchBookedSeats - formattedDate:", formattedDate);
+
+        const response = await axios.get(
+          "http://localhost:5000/api/payment/seats/page",
+          {
+            params: {
+              movieTitle: selectedMovie.title,
+              date: formattedDate,
+            },
+          }
+        );
+
+        const bookedSeatsByTime = response.data;
+        console.log("Booked seats by time:", bookedSeatsByTime);
+
+        // Tính số ghế còn trống cho từng khung giờ
+        const totalSeats = 70; // Tổng số ghế
+        const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
+          time: slot.time,
+          availableSeats: totalSeats - slot.bookedSeats,
+        }));
+
+        console.log("Available seats by time:", availableSeatsByTime);
+
+        setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
+      } catch (error) {
+        console.error("Error fetching booked seats:", error);
+      }
+    };
+
+    fetchBookedSeats();
+  }, [selectedMovie, selectedShowtime]);
+
+  // Thêm hàm để xử lý sự kiện click vào ưu thích phim
+  const handleFavoriteClick = (movie) => {
+    setFavorites((prevFavorites) => {
+      if (prevFavorites.some((fav) => fav._id === movie._id)) {
+        // Nếu phim đã có trong danh sách yêu thích, xóa nó
+        return prevFavorites.filter((fav) => fav._id !== movie._id);
+      } else {
+        // Nếu chưa có, thêm vào danh sách yêu thích
+        return [...prevFavorites, movie];
+      }
+    });
+  };
+
+  const handleRemoveFavorite = (movieId) => {
+    setFavorites((prevFavorites) => prevFavorites.filter((movie) => movie._id !== movieId));
+  };
+
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
       <Header
@@ -271,11 +343,37 @@ const ListMovie = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        favorites={favorites}
+        toggleFavorites={() => setShowFavorites(!showFavorites)}
+        showFavorites={showFavorites}
       />
 
       <AnimatedSection animation="fade-right" delay={150}>
         <div className="card-items">
           <h2>Danh sách phim</h2>
+          <div className="genre-filter">
+            {Array.from(new Set(movies.map((movie) => movie.genre))).map(
+              (genre) => (
+                <button
+                  key={genre}
+                  className={`genre-button ${
+                    selectedGenre === genre ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedGenre(genre)}
+                >
+                  {genre}
+                </button>
+              )
+            )}
+            <button
+              className={`genre-button ${
+                selectedGenre === "Tất cả" ? "active" : ""
+              }`}
+              onClick={() => setSelectedGenre("Tất cả")}
+            >
+              Tất cả
+            </button>
+          </div>
           {error ? (
             <p className="error">{error}</p>
           ) : (
@@ -291,6 +389,16 @@ const ListMovie = () => {
                       <div className="movie-item">
                         <div className="movie-image-container">
                           <img src={movie.imageUrl} alt={movie.title} />
+                          <button
+                            className={`favorite-button ${
+                              favorites.some((fav) => fav._id === movie._id)
+                                ? "active"
+                                : ""
+                            }`}
+                            onClick={() => handleFavoriteClick(movie)}
+                          >
+                            <FontAwesomeIcon icon={faHeart} />
+                          </button>
                           <button
                             className="trailer-button"
                             onClick={() => handleTrailerClick(movie.videoUrl)}
@@ -368,21 +476,32 @@ const ListMovie = () => {
             </ul>
             {selectedShowtime && (
               <div className="seats">
-                {selectedShowtime.times.map((timeSlot) => (
-                  <div
-                    key={timeSlot._id}
-                    className={`seat ${
-                      timeSlot.isBooked ? "booked" : "available"
-                    }`}
-                    onClick={() => handleSeatClick(selectedShowtime, timeSlot)}
-                  >
-                    <p>Giờ: {timeSlot.time}</p>
-                    <p>{timeSlot.seats} ghế trống</p>
-                    <div className="seat-status">
-                      {timeSlot.isBooked ? "Đã đặt" : "Ghế trống"}
+                {selectedShowtime.times.map((timeSlot) => {
+                  // Tìm số ghế còn trống cho khung giờ hiện tại
+                  const booking = bookings.find(
+                    (b) => b.time === timeSlot.time
+                  );
+                  const availableSeats = booking ? booking.availableSeats : 70; // Nếu không có dữ liệu, mặc định là 70
+
+                  return (
+                    <div
+                      key={timeSlot._id}
+                      className={`seat ${
+                        timeSlot.isBooked ? "booked" : "available"
+                      }`}
+                      onClick={() =>
+                        handleSeatClick(selectedShowtime, timeSlot)
+                      }
+                    >
+                      <p>Giờ: {timeSlot.time}</p>
+                      <p>{availableSeats} ghế trống</p>{" "}
+                      {/* Hiển thị số ghế còn trống */}
+                      <div className="seat-status">
+                        {timeSlot.isBooked ? "Đã đặt" : "Ghế trống"}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -403,7 +522,7 @@ const ListMovie = () => {
                   </tr>
                   <tr>
                     <td>{bookingInfo.cinema}</td>
-                    <td>{bookingInfo.date}</td>
+                    <td>{formatDate(bookingInfo.date)}</td>
                     <td>{bookingInfo.time}</td>
                   </tr>
                 </tbody>
@@ -415,68 +534,48 @@ const ListMovie = () => {
           )}
         </div>
       )}
-
-      <footer className="footer">
-        <div className="footer-container">
-          <AnimatedSection animation="fade-up" delay={100}>
-            <div className="footer-section left">
-              <h3>CÁC RẠP Cinema</h3>
-              <ul>
-                <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-                <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-                <li>
-                  Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509
-                </li>
-                <li>
-                  Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456
-                </li>
-                <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-                <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
-              </ul>
-            </div>
-          </AnimatedSection>
-          <AnimatedSection animation="fade-up" delay={200}>
-            <div className="footer-section center">
-              <Link to="/">
-                <img src={logo} alt="Logo" className="logo" />
-              </Link>
-              <p>© 2021 Cinema Media. All Rights Reserved</p>
-              <button className="toggle-button" onClick={toggleDarkMode}>
-                {darkMode ? (
-                  <FontAwesomeIcon icon={faSun} />
-                ) : (
-                  <FontAwesomeIcon icon={faMoon} />
-                )}
-                {darkMode ? " Light Mode" : " Dark Mode"}
-              </button>
-            </div>
-          </AnimatedSection>
-          <AnimatedSection animation="fade-up" delay={150}>
-            <div className="footer-section right">
-              <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
-              <div className="social-links">
-                <a href="#" className="facebook">
-                  <FontAwesomeIcon icon={faFacebookF} />
-                </a>
-                <a href="#" className="youtube">
-                  <FontAwesomeIcon icon={faYoutube} />
-                </a>
-                <a href="#" className="tiktok">
-                  <FontAwesomeIcon icon={faTiktok} />
-                </a>
-                <a href="#" className="instagram">
-                  <FontAwesomeIcon icon={faInstagram} />
-                </a>
+      {/* // Thêm phần hiển thị danh sách yêu thích */}
+      {showFavorites && (
+        <div className="favorites-overlay" onClick={() => setShowFavorites(false)}>
+          <div className="favorites-list" onClick={(e) => e.stopPropagation()}>
+            <button className="close-favorites" onClick={() => setShowFavorites(false)}>
+              X
+            </button>
+            <h2>Danh sách yêu thích</h2>
+            {favorites.length > 0 ? (
+              <div className="favorites-grid">
+                {favorites.map((movie) => (
+                  <div key={movie._id} className="favorite-item">
+                    <div className="favorite-image-container">
+                      <img src={movie.imageUrl} alt={movie.title} className="favorite-image" />
+                      <button
+                        className="favorite-remove-button"
+                        onClick={() => handleRemoveFavorite(movie._id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                    <div className="favorite-title">
+                      <h3
+                        className="movie-title-link"
+                        onClick={() => navigate(`/movie/${movie._id}`)}
+                      >
+                        {movie.title}
+                      </h3>
+                      <p>Thể Loại: {movie.genre}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3>LIÊN HỆ</h3>
-              <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-              <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-              <p>Hotline: 1800 123 456</p>
-              <p>Email: info@cinemamedia.vn</p>
-            </div>
-          </AnimatedSection>
+            ) : (
+              <p>Không có phim nào trong danh sách yêu thích.</p>
+            )}
+          </div>
         </div>
-      </footer>
+      )}
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      <ChatButton />
+      <Chatbot />
     </div>
   );
 };

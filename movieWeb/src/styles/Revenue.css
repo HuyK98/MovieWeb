@@ -1,34 +1,80 @@
 .revenue-container {
-    padding: 25px;
-    margin-left: 280px;
-  }
-  
-  .summary {
-    margin-bottom: 20px;
-  }
-  
-  .summary h2, .summary h3 {
-    margin-top: 20px;
-  }
-  
-  .transactions table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .transactions th, .transactions td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  .transactions th {
-    background-color: #f2f2f2;
-  }
+  padding: 25px;
+  margin-left: 255px;
+}
 
-  .charts {
-    margin-top: 20px;
-  }
-  
-  .chart {
-    margin-bottom: 20px;
-  }
+.summary {
+  margin-bottom: 20px;
+}
+
+.summary h2,
+.summary h3 {
+  margin-top: 20px;
+}
+
+.transactions table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+}
+
+.transactions th,
+.transactions td {
+  border: 1px solid #ddd;
+  padding: 7px;
+}
+
+.transactions th {
+  background-color: #f2f2f2;
+}
+
+.charts {
+  margin-top: 20px;
+}
+
+.chart {
+  margin-bottom: 20px;
+}
+
+/* Đặt chiều rộng cho từng cột */
+.col-stt {
+  width: 1%; /* Cột STT nhỏ */
+  text-align: center;
+}
+
+.col-user {
+  width: 15%; /* Cột Người Dùng */
+}
+
+.col-email {
+  width: 20%; /* Cột Email */
+}
+
+.col-movie {
+  width: 20%; /* Cột Phim */
+}
+
+.col-cinema {
+  width: 11%; /* Cột Rạp */
+}
+
+.col-date {
+  width: 7%; /* Cột Ngày */
+}
+
+.col-time {
+  width: 5%; /* Cột Giờ */
+}
+
+.col-seats {
+  width: 10%; /* Cột Ghế */
+}
+
+.col-total {
+  width: 30%; /* Cột Tổng Tiền */
+}
+
+.col-payment {
+  width: 50%; /* Cột Phương Thức Thanh Toán */
+}
