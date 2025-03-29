@@ -104,12 +104,12 @@ const Login = () => {
     <GoogleOAuthProvider clientId={googleClientId}>
       <div>
         <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-        <Header
-        user={user}
-        handleLogout={handleLogout}
-        searchTerm={searchTerm}
-        handleSearchChange={handleSearchChange}
-      />
+          <Header
+            user={user}
+            handleLogout={handleLogout}
+            searchTerm={searchTerm}
+            handleSearchChange={handleSearchChange}
+          />
           <div className="login-page">
             <div
               className={`auth-container ${isRegister ? "active" : ""}`}

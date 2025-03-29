@@ -19,6 +19,7 @@ import {
   faTiktok,
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
+import Header from "../layout/Header";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -265,55 +266,12 @@ const ListMovie = () => {
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-      <header>
-        <Link to="/">
-          <img src={logo} alt="Logo" className="logo" />
-        </Link>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/showtimes">LỊCH CHIẾU THEO RẠP</Link>
-            </li>
-            <li>
-              <Link to="/movielist">PHIM</Link>
-            </li>
-            <li>
-              <Link to="/place">RẠP</Link>
-            </li>
-            <li>
-              <Link to="/about">GIÁ VÉ</Link>
-            </li>
-            <li>
-              <Link to="/news">TIN MỚI VÀ ƯU ĐÃI</Link>
-            </li>
-            {user ? (
-              <>
-                <li>
-                  <span>Xin chào, {user.name}</span>
-                </li>
-                <li>
-                  <button onClick={handleLogout}>Đăng xuất</button>
-                </li>
-              </>
-            ) : (
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-            )}
-          </ul>
-        </nav>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm kiếm phim..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <button>
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </div>
-      </header>
+      <Header
+        user={user}
+        handleLogout={handleLogout}
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+      />
 
       <AnimatedSection animation="fade-right" delay={150}>
         <div className="card-items">

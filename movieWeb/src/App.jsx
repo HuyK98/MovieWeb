@@ -17,8 +17,10 @@ import Showtimes from "./pages/Showtime";
 import Chat from "./admin/Chat";
 import ChatButton from "./components/ChatButton";
 import Chatbot from "./components/Chatbot";
-import FilmDetail from "./pages/FilmDetail";
 import ManageGenres from "./admin/ManageGenres";
+import FilmDetail from "./pages/FilmDetail";
+
+
 
 const App = () => {
   return (
@@ -42,8 +44,9 @@ const App = () => {
         <Route path="/admin/chat" element={<Chat />} />
         <Route path="/chat" element={<ChatButton />} />
         <Route path="/chatbot" element={<Chatbot />} />
-        <Route path="/movie/:movieId" element={<FilmDetail />} />
         <Route path="/admin/genres" element={<ManageGenres />} />
+        <Route path="/movie/:movieId" element={<FilmDetail />} />
+
       </Routes>
     </>
   );

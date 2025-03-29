@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Lỗi server" });
   }
 });
-    
+
 // 📌 **Lấy thông tin phim theo ID**
 router.get("/:id", async (req, res) => {
   const { id } = req.params; // Get the movie ID from the request parameters

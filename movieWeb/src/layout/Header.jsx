@@ -46,8 +46,9 @@ const Header = ({
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </div>
+
       <div
-        className={`favorites-icon ${showFavorites ? "active" : ""}`} 
+        className={`favorites-icon ${showFavorites ? "active" : ""}`}
         onClick={toggleFavorites}
       >
         <FontAwesomeIcon icon={faHeart} />

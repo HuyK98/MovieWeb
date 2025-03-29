@@ -777,7 +777,9 @@ nav button:hover::after {
   display: flex;
   flex-direction: row; /* Đặt thành row để xếp ngang */
   align-items: center;  /* Canh giữa theo chiều dọc */
-  justify-content: space-between; /* Canh đều hai bên */  height: 80%;
+  justify-content: space-between; /* Canh đều hai bên */  
+  height: 90%;
+  width: 90%;
   background-color: white;
   border: none;
   border-radius: 0%;
@@ -789,6 +791,7 @@ nav button:hover::after {
   height: auto;
   overflow: hidden;
   position: relative;
+  border-radius: 20px !important;
 }
 .movie-image-container img {
   width: 100%;
@@ -883,7 +886,7 @@ nav button:hover::after {
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s ease;
-  margin-top: 2px; /* Đẩy nút xuống dưới cùng */
+  margin-top: -5px; /* Đẩy nút xuống dưới cùng */
   margin-bottom: 5px;
 }
 
