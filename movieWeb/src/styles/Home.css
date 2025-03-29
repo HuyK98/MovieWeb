@@ -3,14 +3,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap");
 
 :root {
-  --primary-color: #b8860b; /* Gold */
-  --primary-dark: #8b6914; /* Darker gold */
+  --primary-color: hsl(204, 88%, 42%);; /* Gold */
+  --primary-dark: hsl(204, 88%, 52%);; /* Darker gold */
   --secondary-color: #1a1a2e; /* Deep blue */
   --text-light: #f0f0f0;
   --text-dark: #1a1a1a;
   --background-light: #ffffff;
   --background-dark: #0f0f1a;
-  --accent-color: #d4af37; /* Accent gold */
+  --accent-color: hsl(204, 88%, 62%);; /* Accent gold */
   --gray-light: #e0e0e0;
   --gray-medium: #b0b0b0;
   --gray-dark: #707070;
@@ -63,11 +63,14 @@ header {
   padding: 1rem 5%;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow);
-  position: sticky;
+  position: fixed; /* Giữ cố định trên cùng */
   top: 0;
-  z-index: 100;
+  left: 0;
+  width: 100%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
+  z-index: 1000; /* Đặt z-index cao hơn các phần tử khác */
   transition: var(--transition);
 }
+
 
 .dark-mode header {
   background-color: rgba(15, 15, 26, 0.95);
@@ -234,6 +237,10 @@ nav button:hover::after {
 }
 
 /* Featured movies section */
+.movie-tabs .active{
+  font-size: 2rem;
+  font-weight: bold;
+}
 .featured-movies-section,
 .movie-row-section {
   margin: 4rem 5%;
