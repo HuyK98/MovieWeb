@@ -42,29 +42,79 @@ router.post('/pay', protect, async (req, res) => {
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang page
 router.get('/seats/page', async (req, res) => {
   const { movieTitle, date } = req.query;
+
   try {
     console.log('Query parameters:', { movieTitle, date });
 
-    // Lấy tất cả các bookings theo movieTitle và date
-    const bookings = await Booking.find({ movieTitle, date });
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
 
-    // Tính số ghế đã đặt theo từng khung giờ
-    const bookedSeatsByTime = bookings.reduce((acc, booking) => {
-      const timeSlot = acc.find((slot) => slot.time === booking.time);
-      if (timeSlot) {
-        timeSlot.bookedSeats += booking.seats.length;
-      } else {
-        acc.push({ time: booking.time, bookedSeats: booking.seats.length });
-      }
-      return acc;
-    }, []);
+    // Tạo bộ lọc
+    const filter = { date: new Date(date) };
+    if (movieTitle) {
+      filter.movieTitle = movieTitle;
+    }
+
+    // Sử dụng Aggregation để nhóm dữ liệu theo time
+    const bookedSeatsByTime = await Booking.aggregate([
+      {
+        $match: filter, // Lọc theo ngày và (nếu có) movieTitle
+      },
+      {
+        $group: {
+          _id: { movieTitle: "$movieTitle", time: "$time" },
+          bookedSeats: { $sum: { $size: "$seats" } }, // Tổng số ghế đã đặt
+        },
+      },
+      {
+        $project: {
+          movieTitle: "$_id.movieTitle",
+          time: "$_id.time",
+          bookedSeats: 1,
+          _id: 0,
+        },
+      },
+    ]);
 
     console.log('Booked seats by time:', bookedSeatsByTime);
 
-    res.json(bookedSeatsByTime);
+    res.status(200).json(bookedSeatsByTime);
   } catch (error) {
     console.error('Error fetching booked seats:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
+router.get('/seats', async (req, res) => {
+  const { movieTitle, date, time } = req.query;
+  console.log('Received query parameters:', { movieTitle, date, time });
+
+  try {
+    if (!date || isNaN(new Date(date).getTime())) {
+      throw new Error(`Invalid date format: ${date}`);
+    }
+
+    const filter = { date: new Date(date) };
+    if (movieTitle) {
+      filter.movieTitle = movieTitle;
+    }
+    if (time) {
+      filter.time = time;
+    }
+
+    const bookings = await Booking.find(filter);
+    const bookedSeats = bookings.reduce((acc, booking) => {
+      return acc.concat(booking.seats);
+    }, []);
+
+    console.log('Booked seats:', bookedSeats);
+
+    res.json(bookedSeats);
+  } catch (error) {
+    console.error('Error fetching booked seats:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 });
 
@@ -408,4 +458,3 @@ router.get('/by-movie', async (req, res) => {
 // });
 
 module.exports = router;
-

@@ -109,6 +109,7 @@ const BillsManage = () => {
           <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
         </ul>
       </aside>
+      <h2 className="admin-bills-title">Quản lý hóa đơn</h2>
       <table className="admin-bills-table">
         <thead>
           <tr>

@@ -7,7 +7,7 @@ import "../styles/Showtime.css";
 import moment from "moment";
 
 const Showtime = () => {
-  const [movies, setMovies] = useState([]);
+  const [movie, setMovie] = useState(null);
   const [showtimes, setShowtimes] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [movieShowtimes, setMovieShowtimes] = useState([]);
@@ -22,11 +22,12 @@ const Showtime = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showFullCalendar, setShowFullCalendar] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   // trừ các số ghế đã đặt
   const [availableSeats, setAvailableSeats] = useState(70);
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
+  // edit lại style cho bookingInfo
+  const [bookingPosition, setBookingPosition] = useState({ top: 0, left: 0 });
 
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
@@ -75,43 +76,29 @@ const Showtime = () => {
     setBookingInfo(null);
   };
 
-    const handleCloseShowtimesPopup = (e) => {
-      // Nếu có sự kiện và nhấp vào bên trong nội dung popup, không đóng
-      if (e && e.target.closest(".showtimes-content")) {
-        return;
-      }
-      setShowPopup(false);
-      setSelectedMovie(null);
-      setSelectedShowtime(null);
-      setSelectedSeat(null);
-      setBookingInfo(null);
-    };
-  
-    useEffect(() => {
-      const handleKeyDown = (e) => {
-        if (e.key === "Escape") {
-          handleCloseShowtimesPopup();
-        }
-      };
-  
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }, []);
+  const handleSeatClick = (movie, showtime, timeSlot, event) => {
+    if (!movie) {
+      console.warn("Movie is undefined in handleSeatClick.");
+      return;
+    }
 
-  const handleSeatClick = (showtime, timeSlot) => {
+    const rect = event.target.getBoundingClientRect();
+    setBookingPosition({
+      top: rect.top + window.scrollY + rect.height + 10,
+      left: rect.left + window.scrollX,
+    });
+
     setSelectedSeat(timeSlot);
     setSelectedShowtime({
       ...showtime,
       time: timeSlot.time, // Gán giá trị time từ timeSlot
     });
     setBookingInfo({
-      _id: selectedMovie._id,
-      movieTitle: selectedMovie.title,
-      imageUrl: selectedMovie.imageUrl,
-      genre: selectedMovie.genre,
-      description: selectedMovie.description,
+      _id: movie._id,
+      movieTitle: movie.title,
+      imageUrl: movie.imageUrl,
+      genre: movie.genre,
+      description: movie.description,
       cinema: "Rạp CINEMA",
       date: showtime.date,
       time: timeSlot.time,
@@ -137,12 +124,14 @@ const Showtime = () => {
         const moviesResponse = await axios.get(
           "http://localhost:5000/api/movies"
         );
-        setMovies(moviesResponse.data);
+        console.log("Movies fetched:", moviesResponse.data);
+        setMovie(moviesResponse.data);
 
         // Fetch showtimes
         const showtimesResponse = await axios.get(
           "http://localhost:5000/api/showtimes"
         );
+        console.log("Showtimes fetched:", showtimesResponse.data);
         setShowtimes(showtimesResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -210,9 +199,24 @@ const Showtime = () => {
 
     if (showtimeForDate) {
       setSelectedShowtime(showtimeForDate);
+
+      // Cập nhật selectedMovie từ showtime
+      const selectedMovie = movie.find(
+        (m) => m._id === showtimeForDate.movieId._id
+      );
+      if (selectedMovie) {
+        setSelectedMovie(selectedMovie);
+        console.log("Selected movie:", selectedMovie);
+      } else {
+        console.warn("No movie found for the selected showtime.");
+        console.log("Showtime for date:", showtimeForDate);
+      }
     } else {
       console.warn("No showtime found for the selected date.");
+      console.log("Normalized date:", normalizedDate);
+      console.log("Showtimes:", showtimes);
       setSelectedShowtime(null); // Xóa showtime nếu không tìm thấy
+      setSelectedMovie(null); // Xóa selectedMovie nếu không tìm thấy
     }
 
     setSelectedDate(normalizedDate);
@@ -248,71 +252,54 @@ const Showtime = () => {
 
   const dates = generateDates();
 
-  useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (userInfo) {
-      setUser(userInfo);
-    }
-  }, []);
-
   // Thêm useEffect để lấy dữ liệu từ bookings
+  const fetchBookedSeats = async () => {
+    if (!selectedShowtime || !selectedShowtime.date) {
+      console.warn("Missing required parameters for fetching booked seats.");
+      return;
+    }
+
+    try {
+      const formattedDate = moment(selectedShowtime.date).format("YYYY-MM-DD");
+
+      const response = await axios.get(
+        "http://localhost:5000/api/payment/seats/page",
+        {
+          params: {
+            date: formattedDate, // Chỉ truyền ngày, không truyền movieTitle
+          },
+        }
+      );
+
+      const bookedSeatsByMovie = response.data;
+      console.log("Booked seats by movie:", bookedSeatsByMovie);
+
+      // Tính số ghế còn trống cho từng phim và từng khung giờ
+      const totalSeats = 70; // Tổng số ghế
+      const availableSeatsByMovie = bookedSeatsByMovie.reduce((acc, slot) => {
+        const key = `${slot.movieTitle}-${slot.time}`;
+        acc[key] = totalSeats - slot.bookedSeats;
+        return acc;
+      }, {});
+
+      console.log("Available seats by movie:", availableSeatsByMovie);
+
+      setBookings(availableSeatsByMovie); // Lưu danh sách số ghế còn trống theo từng phim
+    } catch (error) {
+      console.error("Error fetching booked seats:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookedSeats = async () => {
-      if (!selectedMovie || !selectedShowtime) {
-        console.warn("Missing required parameters for fetching booked seats.");
-        return;
-      }
-
-      try {
-        const formattedDate = moment(new Date(selectedShowtime.date)).format(
-          "YYYY-MM-DD"
-        );
-        console.log("fetchBookedSeats - movieTitle:", selectedMovie.title);
-        console.log("fetchBookedSeats - formattedDate:", formattedDate);
-
-        const response = await axios.get(
-          "http://localhost:5000/api/payment/seats/page",
-          {
-            params: {
-              movieTitle: selectedMovie.title,
-              date: formattedDate,
-            },
-          }
-        );
-
-        const bookedSeatsByTime = response.data;
-        console.log("Booked seats by time:", bookedSeatsByTime);
-
-        // Tính số ghế còn trống cho từng khung giờ
-        const totalSeats = 70; // Tổng số ghế
-        const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
-          time: slot.time,
-          availableSeats: totalSeats - slot.bookedSeats,
-        }));
-
-        console.log("Available seats by time:", availableSeatsByTime);
-
-        setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
-      } catch (error) {
-        console.error("Error fetching booked seats:", error);
-      }
-    };
-
-    fetchBookedSeats();
+    if (selectedMovie && selectedShowtime) {
+      console.log(
+        "Calling fetchBookedSeats with:",
+        selectedMovie,
+        selectedShowtime
+      );
+      fetchBookedSeats(selectedMovie); // Truyền selectedMovie thay vì movie
+    }
   }, [selectedMovie, selectedShowtime]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className="new-showtime-container">
@@ -321,48 +308,49 @@ const Showtime = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
-        isScrolled={isScrolled}
       />
-      <div className="home-content" >
-        <h1 className="page-title">Lịch Chiếu Phim</h1>
-        {/* Date selection */}
-        <div className="date-selector">
-          <div className="month-navigation">
-            <button onClick={handlePreviousMonth}>Tháng trước</button>
-            <span>
-              {currentMonth.toLocaleDateString("vi-VN", {
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            <button onClick={handleNextMonth}>Tháng sau</button>
-          </div>
-          <div className="dates-grid">
-            {dates.slice(0, 7).map((date, index) => (
-              <div
-                key={index}
-                className={`date-item ${date.toDateString() === selectedDate.toDateString()
-                    ? "active"
-                    : ""
-                  }`}
-                onClick={() => handleDateClick(date)}
-              >
-                <div className="date-day">{date.getDate()}</div>
-                <div className="date-info">
-                  <div className="date-weekday">
-                    {date.toLocaleDateString("vi-VN", { weekday: "short" })}
-                  </div>
+      <h1 className="page-title">Lịch Chiếu Phim</h1>
+      {/* Date selection */}
+      <div className="date-selector">
+        <div className="month-navigation">
+          <button onClick={handlePreviousMonth}>Tháng trước</button>
+          <span>
+            {currentMonth.toLocaleDateString("vi-VN", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+          <button onClick={handleNextMonth}>Tháng sau</button>
+        </div>
+        <div className="dates-grid">
+          {dates.slice(0, 7).map((date, index) => (
+            <div
+              key={index}
+              className={`date-item ${
+                date.toDateString() === selectedDate.toDateString()
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() => handleDateClick(date)}
+            >
+              <div className="date-day">{date.getDate()}</div>
+              <div className="date-info">
+                <div className="date-weekday">
+                  {date.toLocaleDateString("vi-VN", { weekday: "short" })}
                 </div>
               </div>
-            ))}
-          </div>
-          <button
-            className="view-full-calendar"
-            onClick={() => setShowFullCalendar(true)}
-          >
-            Xem lịch đầy đủ
-          </button>
+            </div>
+          ))}
         </div>
+        <button
+          className="view-full-calendar"
+          onClick={() => {
+            setShowFullCalendar(true);
+            fetchBookedSeats(selectedMovie); // Gọi hàm để lấy dữ liệu ghế đã đặt khi mở modal
+          }}
+        >
+          Xem lịch đầy đủ
+        </button>
 
         {/* Full calendar modal */}
         {showFullCalendar && (
@@ -378,10 +366,11 @@ const Showtime = () => {
                 {dates.map((date, index) => (
                   <div
                     key={index}
-                    className={`date-item ${date.toDateString() === selectedDate.toDateString()
+                    className={`date-item ${
+                      date.toDateString() === selectedDate.toDateString()
                         ? "active"
                         : ""
-                      }`}
+                    }`}
                     onClick={() => {
                       handleDateClick(date);
                       setShowFullCalendar(false); // Đóng modal sau khi chọn ngày
@@ -416,26 +405,37 @@ const Showtime = () => {
                   Ngày phát hành: {formatDate(movie.releaseDate)}
                 </p>
                 <div className="showtime-list">
-                  {movie.showtime.map((time, index) => {
-                    // Tìm số ghế còn trống cho khung giờ hiện tại
-                    const booking = bookings.find((b) => b.time === time.time);
-                    const availableSeats = booking
-                      ? booking.availableSeats
-                      : 70; // Nếu không có dữ liệu, mặc định là 70
+                  {movie.showtime.length > 0 ? (
+                    movie.showtime.map((timeSlot, index) => {
+                      const key = `${movie.title}-${timeSlot.time}`;
+                      const availableSeats = bookings[key] || 70; // Lấy số ghế còn trống từ bookings
 
-                    return (
-                      <div
-                        key={index}
-                        className="showtime-item"
-                        onClick={() => handleBuyTicketClick(movie)}
-                      >
-                        <span className="showtime-hour">{time.time}</span>
-                        <span className="seats-available">
-                          {availableSeats} ghế trống
-                        </span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          key={index}
+                          className={`seat ${
+                            timeSlot.isBooked ? "booked" : "available"
+                          }`}
+                          onClick={(event) =>
+                            !timeSlot.isBooked &&
+                            handleSeatClick(
+                              movie,
+                              selectedShowtime,
+                              timeSlot,
+                              event
+                            )
+                          }
+                        >
+                          <span className="showtime-hour">{timeSlot.time}</span>
+                          <span className="seats-available">
+                            {availableSeats} ghế trống
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p>Không có lịch chiếu nào được chọn.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -449,93 +449,43 @@ const Showtime = () => {
           </div>
         )}
       </div>
-      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
 
-      {showPopup && selectedMovie && (
-        <div className="showtimes-pop-up" onClick={handleCloseShowtimesPopup}>
-          <div className="showtimes-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={handleClosePopup}>
-              X
-            </button>
-            <h2>LỊCH CHIẾU - {selectedMovie.title}</h2>
-            <h1>Rạp CINEMA</h1>
-            <ul className="date-showtime">
-              {showtimes
-                .map((showtime) => showtime.date)
-                .filter((date, index, self) => self.indexOf(date) === index)
-                .map((date) => (
-                  <li
-                    key={date}
-                    onClick={() => handleDateClick(new Date(date))}
-                    className={
-                      selectedShowtime && selectedShowtime.date === date
-                        ? "selected"
-                        : ""
-                    }
-                  >
-                    {formatDate(date)}
-                  </li>
-                ))}
-            </ul>
-            {selectedShowtime && (
-              <div className="seats">
-                {selectedShowtime.times.map((timeSlot) => {
-                  // Tìm số ghế còn trống cho khung giờ hiện tại
-                  const booking = bookings.find(
-                    (b) => b.time === timeSlot.time
-                  );
-                  const availableSeats = booking ? booking.availableSeats : 70;
-
-                  return (
-                    <div
-                      key={timeSlot._id}
-                      className={`seat ${timeSlot.isBooked ? "booked" : "available"
-                        }`}
-                      onClick={() =>
-                        handleSeatClick(selectedShowtime, timeSlot)
-                      }
-                    >
-                      <p>Giờ: {timeSlot.time}</p>
-                      <p>{availableSeats} ghế trống</p>{" "}
-                      {/* Hiển thị số ghế còn trống */}
-                      <div className="seat-status">
-                        {timeSlot.isBooked ? "Đã đặt" : "Ghế trống"}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {bookingInfo && (
-            <div className="booking-info">
-              <button className="close-button" onClick={handleClosePopup}>
-                X
-              </button>
-              <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
-              <h2>{bookingInfo.movieTitle}</h2>
-              <table>
-                <tbody>
-                  <tr>
-                    <th>RẠP CHIẾU</th>
-                    <th>NGÀY CHIẾU</th>
-                    <th>GIỜ CHIẾU</th>
-                  </tr>
-                  <tr>
-                    <td>{bookingInfo.cinema}</td>
-                    <td>{formatDate(bookingInfo.date)}</td>
-                    <td>{bookingInfo.time}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <button className="confirm-button" onClick={handleConfirmBooking}>
-                ĐỒNG Ý
-              </button>
-            </div>
-          )}
+      {bookingInfo && (
+        <div
+          className="booking-info"
+          style={{
+            position: "absolute",
+            top: `${bookingPosition.top}px`,
+            left: `${bookingPosition.left}px`,
+            zIndex: 1000,
+          }}
+        >
+          <button className="close-button" onClick={() => setBookingInfo(null)}>
+            X
+          </button>
+          <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
+          <h2>{bookingInfo.movieTitle}</h2>
+          <table>
+            <tbody>
+              <tr>
+                <th>RẠP CHIẾU</th>
+                <th>NGÀY CHIẾU</th>
+                <th>GIỜ CHIẾU</th>
+              </tr>
+              <tr>
+                <td>{bookingInfo.cinema}</td>
+                <td>{formatDate(bookingInfo.date)}</td>
+                <td>{bookingInfo.time}</td>
+              </tr>
+            </tbody>
+          </table>
+          <button className="confirm-button" onClick={handleConfirmBooking}>
+            ĐỒNG Ý
+          </button>
         </div>
       )}
+      {/* Footer */}
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
     </div>
   );
 };
