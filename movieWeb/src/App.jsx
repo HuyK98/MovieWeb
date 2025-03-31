@@ -19,8 +19,8 @@ import ChatButton from "./components/ChatButton";
 import Chatbot from "./components/Chatbot";
 import ManageGenres from "./admin/ManageGenres";
 import FilmDetail from "./pages/FilmDetail";
-
-
+import BookingDetail from "./pages/BookingDetail";
+import BillsManage from "./admin/BillsManage";
 
 const App = () => {
   return (
@@ -46,7 +46,8 @@ const App = () => {
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/admin/genres" element={<ManageGenres />} />
         <Route path="/movie/:movieId" element={<FilmDetail />} />
-
+        <Route path="/booking/:bookingId" element={<BookingDetail />} />
+        <Route path="/admin/bills" element={<BillsManage />} />
       </Routes>
     </>
   );

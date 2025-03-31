@@ -3,18 +3,19 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
-const Header = ({
-  user,
-  handleLogout,
-  searchTerm,
-  handleSearchChange,
-  favorites = [],
+const Header = ({ 
+  user, 
+  handleLogout, 
+  searchTerm, 
+  handleSearchChange, 
+  favorites = [], 
   toggleFavorites,
-  showFavorites
+  isScrolled
 }) => {
   return (
-    <header>
+    <header className = {isScrolled ? "scrolled" : ""}>
       <Link to="/">
         <img src={logo} alt="Logo" className="logo" />
       </Link>
@@ -46,12 +47,8 @@ const Header = ({
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </div>
-
-      <div
-        className={`favorites-icon ${showFavorites ? "active" : ""}`}
-        onClick={toggleFavorites}
-      >
-        <FontAwesomeIcon icon={faHeart} />
+      <div className="favorites-icon" onClick={toggleFavorites}>
+        <FontAwesomeIcon icon={faBell} />
         {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
       </div>
     </header>

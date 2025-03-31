@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "../styles/CinemaIntro.css"; // Giữ file CSS riêng cho phần nội dung đặc thù
+import "../styles/CinemaIntro.css"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faSun, faMoon, faMapMarkerAlt, faPhone, faGift } from "@fortawesome/free-solid-svg-icons";
-import { faFacebookF, faYoutube, faTiktok, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import logo from "../assets/logo.jpg";
+import {  faMapMarkerAlt, faPhone, faGift } from "@fortawesome/free-solid-svg-icons";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import cinemaImage1 from "../assets/cinema.jpeg";
@@ -16,6 +14,7 @@ const CinemaIntro = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [user, setUser] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -33,11 +32,31 @@ const CinemaIntro = () => {
   };
 
   useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+    useEffect(() => {
+      const handleScroll = () => {
+        if (window.scrollY > 50) {
+          setIsScrolled(true);
+        } else {
+          setIsScrolled(false);
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
   const slides = [
     { id: 1, image: cinemaImage1, caption: "Trải nghiệm xem phim đỉnh cao" },
@@ -52,8 +71,10 @@ const CinemaIntro = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={isScrolled}
       />
       {/* Nội dung chính của CinemaIntro */}
+    <div className="home-content">
       <main className="cinema-main">
         <div className="cinema-intro-section fade-in">
           <div className="slider-container">
@@ -115,6 +136,7 @@ const CinemaIntro = () => {
         </div>
       </main>
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />        
+    </div>
     </div>
   );
 };

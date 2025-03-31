@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/PriceList.css";
 import Header from "../layout/Header";
@@ -8,6 +8,7 @@ const PriceList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  const [setIsScrolled] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -24,6 +25,27 @@ const PriceList = () => {
     navigate("/");
   };
 
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
+  // scroll to top when navigating to a new page
+    useEffect(() => {
+      const handleScroll = () => {
+        if (window.scrollY > 50) {
+          setIsScrolled(true);
+        } else {
+          setIsScrolled(false);
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
       <Header
@@ -31,9 +53,11 @@ const PriceList = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={setIsScrolled}
       />
 
       {/* Nội dung chính của PriceList */}
+    <div className="home-content">
       <main className="price-main">
         <div className="price-banner">
           <h1>GIÁ VÉ RẠP CINEMA GÒ VẤP</h1>
@@ -133,6 +157,7 @@ const PriceList = () => {
         </div>
       </main>
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+    </div>
     </div>
   );
 };

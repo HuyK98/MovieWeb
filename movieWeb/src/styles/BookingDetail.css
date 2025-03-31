@@ -1,0 +1,165 @@
+/* BookingDetail.css */
+.bd-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    margin-top: 100px;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .bd-title {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  .bd-id {
+    font-size: 1rem;
+    color: #666;
+    background-color: #f5f5f5;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+  }
+  
+  .bd-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .bd-movie-section {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .bd-movie-poster {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+  }
+  
+  .bd-poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .bd-movie-details {
+    padding: 1.5rem;
+  }
+  
+  .bd-booking-section {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .bd-user-info,
+  .bd-reservation-info,
+  .bd-payment-info {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .bd-section-title {
+    font-size: 1.2rem;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .bd-info-item {
+    display: flex;
+    margin-bottom: 0.8rem;
+  }
+  
+  .bd-label {
+    font-weight: 600;
+    min-width: 140px;
+    color: #555;
+  }
+  
+  .bd-value {
+    color: #333;
+    flex: 1;
+  }
+  
+  .bd-price {
+    font-weight: 600;
+    color: #e63946;
+  }
+  
+  .bd-footer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .bd-back-btn {
+    background-color: #3a86ff;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .bd-back-btn:hover {
+    background-color: #2563eb;
+  }
+
+  .bd-save-btn {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .bd-save-btn:hover {
+    background-color: #218838;
+  }
+  
+  .bd-not-found {
+    text-align: center;
+    padding: 3rem;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .bd-content {
+      flex-direction: column;
+    }
+    
+    .bd-movie-section,
+    .bd-booking-section {
+      min-width: 100%;
+    }
+  }

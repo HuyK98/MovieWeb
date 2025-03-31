@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { FaFilm, FaUser, FaTicketAlt, FaChartLine, FaSignOutAlt, FaCogs } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaFilm, FaUser, FaChartLine, FaSignOutAlt, FaCogs } from "react-icons/fa";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { MdSchedule, MdTheaters, MdCategory, MdOutlineAddCircle, MdRemoveRedEye } from "react-icons/md";
 import logo from "../assets/logo.jpg";
 import "../styles/AdminDashboard.css";
@@ -61,7 +63,11 @@ const AdminDashboard = () => {
           <li><Link to="/admin/schedules" className="menu-item"><MdSchedule className="icon" /> Quản lý lịch chiếu</Link></li>
           <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
           <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
-          <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
+          <li>
+            <Link to="/admin/bills" className="menu-item">
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" /> Quản lý hóa đơn
+            </Link>
+          </li>
           <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
           <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
         </ul>

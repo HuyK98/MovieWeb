@@ -55,6 +55,10 @@ body.dark-mode {
   background-color: var(--background-dark);
 }
 
+.home-content {
+  margin-top: 100px;
+}
+
 /* Header styling */
 header {
   display: flex;
@@ -63,18 +67,26 @@ header {
   padding: 1rem 5%;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow);
-  position: fixed; /* Giữ cố định trên cùng */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
-  z-index: 1000; /* Đặt z-index cao hơn các phần tử khác */
-  transition: var(--transition);
+  width: 100%; 
+  z-index: 1000; 
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+header:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
 .dark-mode header {
-  background-color: rgba(15, 15, 26, 0.95);
+  background-color: rgba(15, 15, 26, 0.8);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode header.scrolled {
+  background-color: rgba(15, 15, 26, 0.8);
 }
 
 .logo {
@@ -466,8 +478,8 @@ nav button:hover::after {
 /* Nút xóa (dấu -) */
 .favorite-remove-button {
   position: absolute;
-  top: 5px; /* Cách mép trên 5px */
-  right: 5px; /* Cách mép phải 5px */
+  top: -8px;
+  right: -10px;
   background: red;
   color: white;
   border: none;
@@ -1220,6 +1232,10 @@ nav button:hover::after {
   background-color: #fff;
 }
 
+.seat.available.active {
+  border: 2px solid var(--primary-color); 
+}
+
 .seat.booked {
   background-color: rgba(255, 0, 0, 0.1);
   opacity: 0.6;
@@ -1309,15 +1325,16 @@ nav button:hover::after {
 .footer {
   background-color: var(--secondary-color);
   color: var(--text-light);
-  padding: 3rem 0;
-  margin-top: 10rem;
+  padding: 1.5rem 0;
+  margin-top: 40px;
+  position: relative;
 }
 
 .footer-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 2rem;
-  width: 90%;
+  gap: 1rem;
+  width: 80%;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -1330,7 +1347,7 @@ nav button:hover::after {
 .footer-section h3 {
   color: var(--primary-color);
   margin-bottom: 1.5rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   letter-spacing: 1px;
   position: relative;
   padding-bottom: 0.5rem;
@@ -1569,3 +1586,33 @@ nav button:hover::after {
 .movie-tabs button:hover {
   color: #007bff;
 }
+
+.favorite-image-container {
+  position: relative;
+}
+
+/* favorite and bill icon */
+.favorite-icon,
+.bill-icon {
+  position: absolute;
+  top: -10px;
+  left: -20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  padding: 5px;
+  font-size: 25px;
+  color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bill-icon {
+  color: #007bff;
+}
+
+.favorite-icon {
+  color: #ff0000;
+}
+

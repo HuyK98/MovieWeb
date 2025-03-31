@@ -22,6 +22,7 @@ const Showtime = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showFullCalendar, setShowFullCalendar] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // trừ các số ghế đã đặt
   const [availableSeats, setAvailableSeats] = useState(70);
@@ -73,6 +74,31 @@ const Showtime = () => {
     setSelectedSeat(null);
     setBookingInfo(null);
   };
+
+    const handleCloseShowtimesPopup = (e) => {
+      // Nếu có sự kiện và nhấp vào bên trong nội dung popup, không đóng
+      if (e && e.target.closest(".showtimes-content")) {
+        return;
+      }
+      setShowPopup(false);
+      setSelectedMovie(null);
+      setSelectedShowtime(null);
+      setSelectedSeat(null);
+      setBookingInfo(null);
+    };
+  
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") {
+          handleCloseShowtimesPopup();
+        }
+      };
+  
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }, []);
 
   const handleSeatClick = (showtime, timeSlot) => {
     setSelectedSeat(timeSlot);
@@ -222,6 +248,13 @@ const Showtime = () => {
 
   const dates = generateDates();
 
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
   // Thêm useEffect để lấy dữ liệu từ bookings
   useEffect(() => {
     const fetchBookedSeats = async () => {
@@ -268,6 +301,19 @@ const Showtime = () => {
     fetchBookedSeats();
   }, [selectedMovie, selectedShowtime]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="new-showtime-container">
       <Header
@@ -275,46 +321,48 @@ const Showtime = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={isScrolled}
       />
-      <h1 className="page-title">Lịch Chiếu Phim</h1>
-      {/* Date selection */}
-      <div className="date-selector">
-        <div className="month-navigation">
-          <button onClick={handlePreviousMonth}>Tháng trước</button>
-          <span>
-            {currentMonth.toLocaleDateString("vi-VN", {
-              month: "long",
-              year: "numeric",
-            })}
-          </span>
-          <button onClick={handleNextMonth}>Tháng sau</button>
-        </div>
-        <div className="dates-grid">
-          {dates.slice(0, 7).map((date, index) => (
-            <div
-              key={index}
-              className={`date-item ${
-                date.toDateString() === selectedDate.toDateString()
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => handleDateClick(date)}
-            >
-              <div className="date-day">{date.getDate()}</div>
-              <div className="date-info">
-                <div className="date-weekday">
-                  {date.toLocaleDateString("vi-VN", { weekday: "short" })}
+      <div className="home-content" >
+        <h1 className="page-title">Lịch Chiếu Phim</h1>
+        {/* Date selection */}
+        <div className="date-selector">
+          <div className="month-navigation">
+            <button onClick={handlePreviousMonth}>Tháng trước</button>
+            <span>
+              {currentMonth.toLocaleDateString("vi-VN", {
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+            <button onClick={handleNextMonth}>Tháng sau</button>
+          </div>
+          <div className="dates-grid">
+            {dates.slice(0, 7).map((date, index) => (
+              <div
+                key={index}
+                className={`date-item ${date.toDateString() === selectedDate.toDateString()
+                    ? "active"
+                    : ""
+                  }`}
+                onClick={() => handleDateClick(date)}
+              >
+                <div className="date-day">{date.getDate()}</div>
+                <div className="date-info">
+                  <div className="date-weekday">
+                    {date.toLocaleDateString("vi-VN", { weekday: "short" })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button
+            className="view-full-calendar"
+            onClick={() => setShowFullCalendar(true)}
+          >
+            Xem lịch đầy đủ
+          </button>
         </div>
-        <button
-          className="view-full-calendar"
-          onClick={() => setShowFullCalendar(true)}
-        >
-          Xem lịch đầy đủ
-        </button>
 
         {/* Full calendar modal */}
         {showFullCalendar && (
@@ -330,11 +378,10 @@ const Showtime = () => {
                 {dates.map((date, index) => (
                   <div
                     key={index}
-                    className={`date-item ${
-                      date.toDateString() === selectedDate.toDateString()
+                    className={`date-item ${date.toDateString() === selectedDate.toDateString()
                         ? "active"
                         : ""
-                    }`}
+                      }`}
                     onClick={() => {
                       handleDateClick(date);
                       setShowFullCalendar(false); // Đóng modal sau khi chọn ngày
@@ -405,8 +452,8 @@ const Showtime = () => {
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
 
       {showPopup && selectedMovie && (
-        <div className="showtimes-pop-up">
-          <div className="showtimes-content">
+        <div className="showtimes-pop-up" onClick={handleCloseShowtimesPopup}>
+          <div className="showtimes-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-button" onClick={handleClosePopup}>
               X
             </button>
@@ -437,14 +484,13 @@ const Showtime = () => {
                   const booking = bookings.find(
                     (b) => b.time === timeSlot.time
                   );
-                  const availableSeats = booking ? booking.availableSeats : 70; // Nếu không có dữ liệu, mặc định là 70
+                  const availableSeats = booking ? booking.availableSeats : 70;
 
                   return (
                     <div
                       key={timeSlot._id}
-                      className={`seat ${
-                        timeSlot.isBooked ? "booked" : "available"
-                      }`}
+                      className={`seat ${timeSlot.isBooked ? "booked" : "available"
+                        }`}
                       onClick={() =>
                         handleSeatClick(selectedShowtime, timeSlot)
                       }

@@ -18,6 +18,7 @@ const FilmDetail = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [darkMode, setDarkMode] = useState(false);
     const [bookingPosition, setBookingPosition] = useState({ top: 0, left: 0 });
+    const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,6 +54,20 @@ const FilmDetail = () => {
 
         fetchMovieDetails();
     }, [movieId]);
+
+        //scroll header
+        useEffect(() => {
+            const handleScroll = () => {
+              if (window.scrollY > 50) {
+                setIsScrolled(true);
+              } else {
+                setIsScrolled(false);
+              }
+            };
+        
+            window.addEventListener("scroll", handleScroll);
+            return () => window.removeEventListener("scroll", handleScroll);
+          }, []);
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
@@ -131,12 +146,14 @@ const FilmDetail = () => {
     };
 
     return (
+    <div className="home-content">
         <div className="film-detail-container">
             <Header
                 user={user}
                 handleLogout={handleLogout}
                 searchTerm={searchTerm}
                 handleSearchChange={handleSearchChange}
+                isScrolled={isScrolled}
             />
             {movie ? (
                 <>
@@ -271,6 +288,7 @@ const FilmDetail = () => {
                 <p className="loading-message">Không tìm thấy thông tin phim.</p>
             )}
             <Footer class="FilmDetail-Footer" toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+        </div>
         </div>
     );
 };
