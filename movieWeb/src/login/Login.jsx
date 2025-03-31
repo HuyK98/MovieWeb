@@ -19,6 +19,7 @@ const Login = () => {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const location = useLocation(); // Lấy thông tin state từ navigate
 
@@ -125,6 +126,20 @@ const Login = () => {
     navigate("/");
   };
 
+  //scroll header
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <div>
@@ -134,146 +149,149 @@ const Login = () => {
             handleLogout={handleLogout}
             searchTerm={searchTerm}
             handleSearchChange={handleSearchChange}
+            isScrolled={isScrolled}
           />
-          <div className="login-page">
-            <div
-              className={`auth-container ${isRegister ? "active" : ""}`}
-              id="auth-container"
-            >
-              <div className="form-container sign-up">
-                <form onSubmit={handleSubmit}>
-                  <h1>Tạo Tài Khoản</h1>
-                  <div className="social-icons">
-                    <GoogleLogin
-                      clientId={googleClientId}
-                      buttonText="Đăng nhập bằng Google"
-                      onSuccess={handleGoogleLoginSuccess}
-                      onFailure={handleGoogleLoginFailure}
-                      cookiePolicy={"single_host_origin"}
-                      render={(renderProps) => (
-                        <a
-                          href="#"
-                          className="icon"
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
-                        >
-                          <FaGooglePlusG />
-                        </a>
-                      )}
+          <div className="home-content">
+            <div className="login-page">
+              <div
+                className={`auth-container ${isRegister ? "active" : ""}`}
+                id="auth-container"
+              >
+                <div className="form-container sign-up">
+                  <form onSubmit={handleSubmit}>
+                    <h1>Tạo Tài Khoản</h1>
+                    <div className="social-icons">
+                      <GoogleLogin
+                        clientId={googleClientId}
+                        buttonText="Đăng nhập bằng Google"
+                        onSuccess={handleGoogleLoginSuccess}
+                        onFailure={handleGoogleLoginFailure}
+                        cookiePolicy={"single_host_origin"}
+                        render={(renderProps) => (
+                          <a
+                            href="#"
+                            className="icon"
+                            onClick={renderProps.onClick}
+                            disabled={renderProps.disabled}
+                          >
+                            <FaGooglePlusG />
+                          </a>
+                        )}
+                      />
+                    </div>
+                    <span>hoặc sử dụng email của bạn để đăng ký</span>
+                    <input
+                      type="text"
+                      placeholder="Tên"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
                     />
-                  </div>
-                  <span>hoặc sử dụng email của bạn để đăng ký</span>
-                  <input
-                    type="text"
-                    placeholder="Tên"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="number"
-                    placeholder="Số điện thoại"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                  {error && <p className="error">{error}</p>}
-                  {success && <p className="success">{success}</p>}
-                  <button type="submit">Đăng Ký</button>
-                </form>
-              </div>
-              <div className="form-container sign-in">
-                <form onSubmit={handleSubmit}>
-                  <h1>Đăng Nhập</h1>
-                  <div className="social-icons">
-                    <GoogleLogin
-                      clientId={googleClientId}
-                      buttonText="Đăng nhập bằng Google"
-                      onSuccess={handleGoogleLoginSuccess}
-                      onFailure={handleGoogleLoginFailure}
-                      cookiePolicy={"single_host_origin"}
-                      render={(renderProps) => (
-                        <a
-                          href="#"
-                          className="icon"
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
-                        >
-                          <FaGooglePlusG />
-                        </a>
-                      )}
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
-                  </div>
-                  <span>hoặc sử dụng email và mật khẩu của bạn</span>
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  {error && <p className="error">{error}</p>}
-                  <a href="#">Quên mật khẩu?</a>
-                  <button type="submit">Đăng Nhập</button>
-                </form>
-              </div>
-              <div className="toggle-container">
-                <div className="toggle">
-                  <div className="toggle-panel toggle-left">
-                    <h1>Chào Mừng Trở Lại!</h1>
-                    <p>
-                      Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng
-                      thông tin cá nhân của bạn
-                    </p>
-                    <button
-                      className="hidden"
-                      id="login"
-                      onClick={() => setIsRegister(false)}
-                    >
-                      Đăng Nhập
-                    </button>
-                  </div>
-                  <div className="toggle-panel toggle-right">
-                    <h1>Xin Chào, Bạn!</h1>
-                    <p>
-                      Nhập thông tin cá nhân của bạn và bắt đầu hành trình với
-                      chúng tôi
-                    </p>
-                    <button
-                      className="hidden"
-                      id="register"
-                      onClick={() => setIsRegister(true)}
-                    >
-                      Đăng Ký
-                    </button>
+                    <input
+                      type="password"
+                      placeholder="Mật khẩu"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="number"
+                      placeholder="Số điện thoại"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                    />
+                    {error && <p className="error">{error}</p>}
+                    {success && <p className="success">{success}</p>}
+                    <button type="submit">Đăng Ký</button>
+                  </form>
+                </div>
+                <div className="form-container sign-in">
+                  <form onSubmit={handleSubmit}>
+                    <h1>Đăng Nhập</h1>
+                    <div className="social-icons">
+                      <GoogleLogin
+                        clientId={googleClientId}
+                        buttonText="Đăng nhập bằng Google"
+                        onSuccess={handleGoogleLoginSuccess}
+                        onFailure={handleGoogleLoginFailure}
+                        cookiePolicy={"single_host_origin"}
+                        render={(renderProps) => (
+                          <a
+                            href="#"
+                            className="icon"
+                            onClick={renderProps.onClick}
+                            disabled={renderProps.disabled}
+                          >
+                            <FaGooglePlusG />
+                          </a>
+                        )}
+                      />
+                    </div>
+                    <span>hoặc sử dụng email và mật khẩu của bạn</span>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Mật khẩu"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    {error && <p className="error">{error}</p>}
+                    <a href="#">Quên mật khẩu?</a>
+                    <button type="submit">Đăng Nhập</button>
+                  </form>
+                </div>
+                <div className="toggle-container">
+                  <div className="toggle">
+                    <div className="toggle-panel toggle-left">
+                      <h1>Chào Mừng Trở Lại!</h1>
+                      <p>
+                        Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng
+                        thông tin cá nhân của bạn
+                      </p>
+                      <button
+                        className="hidden"
+                        id="login"
+                        onClick={() => setIsRegister(false)}
+                      >
+                        Đăng Nhập
+                      </button>
+                    </div>
+                    <div className="toggle-panel toggle-right">
+                      <h1>Xin Chào, Bạn!</h1>
+                      <p>
+                        Nhập thông tin cá nhân của bạn và bắt đầu hành trình với
+                        chúng tôi
+                      </p>
+                      <button
+                        className="hidden"
+                        id="register"
+                        onClick={() => setIsRegister(true)}
+                      >
+                        Đăng Ký
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
         </div>
-        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
       </div>
     </GoogleOAuthProvider>
   );

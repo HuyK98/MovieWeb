@@ -5,6 +5,8 @@ import { MdSchedule, MdTheaters, MdCategory, MdOutlineAddCircle, MdRemoveRedEye 
 import logo from "../assets/logo.jpg";
 import "../styles/AdminDashboard.css";
 import Chat from "./Chat";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -62,6 +64,11 @@ const AdminDashboard = () => {
           <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
           <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
           <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
+          <li>
+            <Link to="/admin/bills" className="menu-item">
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" /> Quản lý hóa đơn
+            </Link>
+          </li>
           <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
           <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
         </ul>

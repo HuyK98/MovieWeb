@@ -22,6 +22,7 @@ const FilmDetail = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,22 +34,24 @@ const FilmDetail = () => {
           `http://localhost:5000/api/movies/${movieId}`
         );
         setMovie(movieResponse.data);
-  
+
         const showtimeResponse = await axios.get(
           `http://localhost:5000/api/showtimes?movieId=${movieId}`
         );
         const showtimeData = showtimeResponse.data;
         setShowtimes(showtimeData);
-  
+
         // Tự động chọn ngày đầu tiên nếu có lịch chiếu
         if (showtimeData.length > 0) {
-          const uniqueDates = [...new Set(showtimeData.map((item) => item.date))];
+          const uniqueDates = [
+            ...new Set(showtimeData.map((item) => item.date)),
+          ];
           setSelectedDate(uniqueDates[0]);
           const initialShowtime = showtimeData.find(
             (showtime) => showtime.date === uniqueDates[0]
           );
           setSelectedShowtime(initialShowtime);
-  
+
           // Fetch thông tin ghế đã đặt cho ngày đầu tiên
           const formattedDate = moment(new Date(initialShowtime.date)).format(
             "YYYY-MM-DD"
@@ -62,27 +65,43 @@ const FilmDetail = () => {
               },
             }
           );
-  
+
           const bookedSeatsByTime = bookedSeatsResponse.data || [];
           const totalSeats = 70; // Tổng số ghế
           const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
             time: slot.time,
             availableSeats: totalSeats - slot.bookedSeats,
           }));
-  
+
           setBookings(availableSeatsByTime);
         }
-  
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setError("Không thể tải thông tin phim hoặc ghế. Vui lòng thử lại sau.");
+        setError(
+          "Không thể tải thông tin phim hoặc ghế. Vui lòng thử lại sau."
+        );
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [movieId]);
+
+  //scroll header
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -169,174 +188,185 @@ const FilmDetail = () => {
   };
 
   return (
-    <div className="film-detail-container">
-      <Header
-        user={user}
-        handleLogout={handleLogout}
-        searchTerm={searchTerm}
-        handleSearchChange={handleSearchChange}
-      />
-      {movie ? (
-        <>
-          <div className="film-header">
-            <h1>{movie.title}</h1>
-          </div>
-
-          <div className="film-content">
-            {/* Poster Section */}
-            <div className="film-poster-container">
-              <img
-                src={movie.imageUrl}
-                alt={movie.title}
-                className="film-poster"
-              />
+    <div className="home-content">
+      <div className="film-detail-container">
+        <Header
+          user={user}
+          handleLogout={handleLogout}
+          searchTerm={searchTerm}
+          handleSearchChange={handleSearchChange}
+        />
+        {movie ? (
+          <>
+            <div className="film-header">
+              <h1>{movie.title}</h1>
             </div>
 
-            {/* Details and Showtimes Section */}
-            <div className="film-details-showtimes-container">
-              {/* Details Section */}
-              <div className="film-main-content">
-                <div className="film-info-container">
-                  <div className="film-details">
-                    <div className="detail-item">
-                      <span className="detail-label">Thể Loại:</span>
-                      <span className="detail-value">{movie.genre}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Mô tả:</span>
-                      <span className="detail-value">{movie.description}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Ngày Phát Hành:</span>
-                      <span className="detail-value">
-                        {formatDate(movie.releaseDate)}
-                      </span>
+            <div className="film-content">
+              {/* Poster Section */}
+              <div className="film-poster-container">
+                <img
+                  src={movie.imageUrl}
+                  alt={movie.title}
+                  className="film-poster"
+                />
+              </div>
+
+              {/* Details and Showtimes Section */}
+              <div className="film-details-showtimes-container">
+                {/* Details Section */}
+                <div className="film-main-content">
+                  <div className="film-info-container">
+                    <div className="film-details">
+                      <div className="detail-item">
+                        <span className="detail-label">Thể Loại:</span>
+                        <span className="detail-value">{movie.genre}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Mô tả:</span>
+                        <span className="detail-value">
+                          {movie.description}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Ngày Phát Hành:</span>
+                        <span className="detail-value">
+                          {formatDate(movie.releaseDate)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Showtimes Section */}
-              <div className="film-showtimes-section">
-                <h3>Lịch chiếu:</h3>
-                <div className="date-selection">
-                  {showtimes
-                    .map((showtime) => showtime.date)
-                    .filter((date, index, self) => self.indexOf(date) === index)
-                    .map((date) => (
-                      <button
-                        key={date}
-                        onClick={() => handleDateClick(date)}
-                        className={selectedDate === date ? "selected" : ""}
-                      >
-                        {formatDate(date)}
-                      </button>
-                    ))}
-                </div>
-
-                {selectedShowtime ? (
-                  <div className="showtime-list">
-                    {selectedShowtime.times.map((timeSlot, index) => {
-                      // Tìm số ghế còn trống cho khung giờ hiện tại
-                      const booking = bookings.find(
-                        (b) => b.time === timeSlot.time
-                      );
-                      const availableSeats = booking
-                        ? booking.availableSeats
-                        : 70; // Hiển thị thông báo nếu không có dữ liệu
-
-                      return (
-                        <div
-                          key={index}
-                          className={`showtime-item ${
-                            timeSlot.isBooked ? "booked" : "available"
-                          }`}
-                          onClick={(event) =>
-                            !timeSlot.isBooked &&
-                            handleSeatClick(selectedShowtime, timeSlot, event)
-                          }
+                {/* Showtimes Section */}
+                <div className="film-showtimes-section">
+                  <h3>Lịch chiếu:</h3>
+                  <div className="date-selection">
+                    {showtimes
+                      .map((showtime) => showtime.date)
+                      .filter(
+                        (date, index, self) => self.indexOf(date) === index
+                      )
+                      .map((date) => (
+                        <button
+                          key={date}
+                          onClick={() => handleDateClick(date)}
+                          className={selectedDate === date ? "selected" : ""}
                         >
-                          <span className="showtime-hour">{timeSlot.time}</span>
-                          <span className="seats-available">
-                            {timeSlot.isBooked
-                              ? "Đã đặt"
-                              : `${availableSeats} ghế trống`}
-                          </span>
-                        </div>
-                      );
-                    })}
+                          {formatDate(date)}
+                        </button>
+                      ))}
                   </div>
-                ) : (
-                  <p className="no-showtimes">
-                    Vui lòng chọn ngày để xem lịch chiếu.
-                  </p>
-                )}
+
+                  {selectedShowtime ? (
+                    <div className="showtime-list">
+                      {selectedShowtime.times.map((timeSlot, index) => {
+                        // Tìm số ghế còn trống cho khung giờ hiện tại
+                        const booking = bookings.find(
+                          (b) => b.time === timeSlot.time
+                        );
+                        const availableSeats = booking
+                          ? booking.availableSeats
+                          : 70; // Hiển thị thông báo nếu không có dữ liệu
+
+                        return (
+                          <div
+                            key={index}
+                            className={`showtime-item ${
+                              timeSlot.isBooked ? "booked" : "available"
+                            }`}
+                            onClick={(event) =>
+                              !timeSlot.isBooked &&
+                              handleSeatClick(selectedShowtime, timeSlot, event)
+                            }
+                          >
+                            <span className="showtime-hour">
+                              {timeSlot.time}
+                            </span>
+                            <span className="seats-available">
+                              {timeSlot.isBooked
+                                ? "Đã đặt"
+                                : `${availableSeats} ghế trống`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="no-showtimes">
+                      Vui lòng chọn ngày để xem lịch chiếu.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Trailer Section */}
-          <div className="trailer-section">
-            <span className="section-title">TRAILER</span>
-            <div className="video-container">
-              <iframe
-                src={movie.videoUrl}
-                title="Movie Trailer"
-                frameBorder="0"
-                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="trailer-video"
-              ></iframe>
+            {/* Trailer Section */}
+            <div className="trailer-section">
+              <span className="section-title">TRAILER</span>
+              <div className="video-container">
+                <iframe
+                  src={movie.videoUrl}
+                  title="Movie Trailer"
+                  frameBorder="0"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="trailer-video"
+                ></iframe>
+              </div>
             </div>
-          </div>
 
-          {/* Booking Info Section */}
-          {bookingInfo && (
-            <div
-              className="booking-info"
-              style={{
-                position: "absolute",
-                top: `${bookingPosition.top}px`,
-                left: `${bookingPosition.left}px`,
-                zIndex: 1000,
-              }}
-            >
-              <button
-                className="close-button"
-                onClick={() => setBookingInfo(null)}
+            {/* Booking Info Section */}
+            {bookingInfo && (
+              <div
+                className="booking-info"
+                style={{
+                  position: "absolute",
+                  top: `${bookingPosition.top}px`,
+                  left: `${bookingPosition.left}px`,
+                  zIndex: 1000,
+                }}
               >
-                X
-              </button>
-              <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
-              <h2>{bookingInfo.movieTitle}</h2>
-              <table>
-                <tbody>
-                  <tr>
-                    <th>RẠP CHIẾU</th>
-                    <th>NGÀY CHIẾU</th>
-                    <th>GIỜ CHIẾU</th>
-                  </tr>
-                  <tr>
-                    <td>{bookingInfo.cinema}</td>
-                    <td>{bookingInfo.date}</td>
-                    <td>{bookingInfo.time}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <button className="confirm-button" onClick={handleConfirmBooking}>
-                ĐỒNG Ý
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <p className="loading-message">Không tìm thấy thông tin phim.</p>
-      )}
-      <Footer
-        class="FilmDetail-Footer"
-        toggleDarkMode={toggleDarkMode}
-        darkMode={darkMode}
-      />
+                <button
+                  className="close-button"
+                  onClick={() => setBookingInfo(null)}
+                >
+                  X
+                </button>
+                <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
+                <h2>{bookingInfo.movieTitle}</h2>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>RẠP CHIẾU</th>
+                      <th>NGÀY CHIẾU</th>
+                      <th>GIỜ CHIẾU</th>
+                    </tr>
+                    <tr>
+                      <td>{bookingInfo.cinema}</td>
+                      <td>{bookingInfo.date}</td>
+                      <td>{bookingInfo.time}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button
+                  className="confirm-button"
+                  onClick={handleConfirmBooking}
+                >
+                  ĐỒNG Ý
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="loading-message">Không tìm thấy thông tin phim.</p>
+        )}
+        <Footer
+          class="FilmDetail-Footer"
+          toggleDarkMode={toggleDarkMode}
+          darkMode={darkMode}
+        />
+      </div>
     </div>
   );
 };

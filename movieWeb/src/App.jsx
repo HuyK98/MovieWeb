@@ -6,6 +6,9 @@ import AdminDashboard from './admin/AdminDashboard';
 import ScheduleList from './admin/ScheduleList';
 import UserList from './admin/UserList';
 import Revenue from './admin//Revenue';
+import BillsManage from "./admin/BillsManage";
+import ManageGenres from "./admin/ManageGenres";
+import Chat from "./admin/Chat";
 import Login from "./login/Login";
 import MovieDetail from './pages/MovieDetail';
 import PaymentInfo from './pages/PaymentInfo';
@@ -14,11 +17,11 @@ import PriceList from "./pages/PriceList";
 import NewsAndOffers from "./pages/NewsAndOffers";
 import CinemaIntro from "./pages/CinemaIntro";
 import Showtimes from "./pages/Showtime";
-import Chat from "./admin/Chat";
+import FilmDetail from "./pages/FilmDetail";
+import BookingDetail from "./pages/BookingDetail";
 import ChatButton from "./components/ChatButton";
 import Chatbot from "./components/Chatbot";
-import ManageGenres from "./admin/ManageGenres";
-import FilmDetail from "./pages/FilmDetail";
+
 
 
 const App = () => {
@@ -33,6 +36,7 @@ const App = () => {
         <Route path="/admin/schedules" element={<ScheduleList />} />
         <Route path="/admin/users" element={<UserList />} />
         <Route path="/admin/revenue" element={<Revenue />} />
+        <Route path="/admin/bills" element={<BillsManage />} />
         <Route path="/movie-detail" element={<MovieDetail />} />
         <Route path="/payment" element={<PaymentInfo />} />
         <Route path="/movielist" element={<ListMovie />} />
@@ -45,7 +49,7 @@ const App = () => {
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/admin/genres" element={<ManageGenres />} />
         <Route path="/movie/:movieId" element={<FilmDetail />} />
-
+        <Route path="/booking/:bookingId" element={<BookingDetail />} />
       </Routes>
     </>
   );

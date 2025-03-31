@@ -11,10 +11,11 @@ const Header = ({
   searchTerm, 
   handleSearchChange, 
   favorites = [], 
-  toggleFavorites 
+  toggleFavorites,
+  isScrolled
 }) => {
   return (
-    <header>
+    <header className = {isScrolled ? "scrolled" : ""}>
       <Link to="/">
         <img src={logo} alt="Logo" className="logo" />
       </Link>

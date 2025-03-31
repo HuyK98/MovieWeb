@@ -22,12 +22,60 @@ const Showtime = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showFullCalendar, setShowFullCalendar] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
 
   // trừ các số ghế đã đặt
   const [availableSeats, setAvailableSeats] = useState(70);
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
   // edit lại style cho bookingInfo
   const [bookingPosition, setBookingPosition] = useState({ top: 0, left: 0 });
+
+
+  const handleCloseShowtimesPopup = (e) => {
+    // Nếu có sự kiện và nhấp vào bên trong nội dung popup, không đóng
+    if (e && e.target.closest(".showtimes-content")) {
+      return;
+    }
+    setShowPopup(false);
+    setSelectedMovie(null);
+    setSelectedShowtime(null);
+    setSelectedSeat(null);
+    setBookingInfo(null);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCloseShowtimesPopup();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
@@ -308,7 +356,10 @@ const Showtime = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={isScrolled}
+
       />
+      <div className="home-content" >
       <h1 className="page-title">Lịch Chiếu Phim</h1>
       {/* Date selection */}
       <div className="date-selector">
@@ -486,6 +537,7 @@ const Showtime = () => {
       )}
       {/* Footer */}
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+    </div>
     </div>
   );
 };

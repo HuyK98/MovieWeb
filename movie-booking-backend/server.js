@@ -8,6 +8,7 @@ const movieRoutes = require("./routes/movieRoutes");
 const Movie = require("./models/Movie");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
+const billRoutes = require('./routes/billRoutes'); 
 const WebSocket = require('ws');
 // Create a WebSocket server on port 8080
 const wss = new WebSocket.Server({ port: 8080 });
@@ -65,6 +66,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/bills', billRoutes);
 
 
 app.get("/", (req, res) => {

@@ -17,6 +17,7 @@ const MovieDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -91,7 +92,7 @@ const MovieDetail = () => {
 
   const handleBooking = () => {
     // const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
-    if (!selectedSeats || selectedSeats.length === 0) { 
+    if (!selectedSeats || selectedSeats.length === 0) {
       alert("Vui lòng chọn ít nhất một ghế trước khi tiếp tục!");
       return;
     }
@@ -116,6 +117,20 @@ const MovieDetail = () => {
     document.body.classList.toggle("dark-mode");
   };
 
+  //scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className={`movie-detail-container ${darkMode ? "dark-mode" : ""}`}>
       <Header
@@ -123,93 +138,99 @@ const MovieDetail = () => {
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={isScrolled}
       />
-      <div className="movie-detail-container">
-        <div className="content">
-          <p className="map-seats">SƠ ĐỒ GHẾ NGỒI</p>
-          <div className="seating-chart">
-            <div className="screen">Màn hình chiếu</div>
-            <div className="seats">
-              {seats.map((seat) => (
-                <div
-                  key={seat.id}
-                  className={`seat ${
-                    seat.isBooked
-                      ? "booked"
-                      : selectedSeats.includes(seat.id)
-                      ? "selected"
-                      : "available"
-                  }`}
-                  onClick={() => handleSeatClick(seat)}
+      <div className="home-content">
+        <div className="movie-detail-container">
+          <div className="content">
+            <p className="map-seats">SƠ ĐỒ GHẾ NGỒI</p>
+            <div className="seating-chart">
+              <div className="screen">Màn hình chiếu</div>
+              <div className="seats">
+                {seats.map((seat) => (
+                  <div
+                    key={seat.id}
+                    className={`seat ${
+                      seat.isBooked
+                        ? "booked"
+                        : selectedSeats.includes(seat.id)
+                        ? "selected"
+                        : "available"
+                    }`}
+                    onClick={() => handleSeatClick(seat)}
+                  >
+                    {seat.id}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="booking-oder">
+              <p>
+                <strong>Ghế ngồi:</strong> {selectedSeats.join(", ")}
+              </p>
+              <p>
+                <strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND
+              </p>
+            </div>
+            <div className="movie-info">
+              <h2>Thông tin chi tiết về phim</h2>
+              {bookingInfo && (
+                <>
+                  <img
+                    src={bookingInfo.imageUrl}
+                    alt={bookingInfo.movieTitle}
+                  />
+                  <div className="details">
+                    <p>
+                      <strong>Tên phim:</strong> {bookingInfo.movieTitle}
+                    </p>
+                    <p>
+                      <strong>Thể loại:</strong> {bookingInfo.genre}
+                    </p>
+                    <p>
+                      <strong>Thời lượng:</strong> {bookingInfo.description}
+                    </p>
+                    <p>
+                      <strong>Rạp chiếu:</strong> {bookingInfo.cinema}
+                    </p>
+                    <p>
+                      <strong>Ngày chiếu:</strong>{" "}
+                      {moment(bookingInfo.date).format("DD/MM/YYYY")}
+                    </p>
+                    <p>
+                      <strong>Giờ chiếu:</strong> {bookingInfo.time}
+                    </p>
+                  </div>
+                </>
+              )}
+              <div className="button-container">
+                <button className="booking-btn" onClick={() => navigate("/")}>
+                  Quay lại
+                </button>
+                <button
+                  className="booking-btn"
+                  type="button"
+                  onClick={handleBooking}
                 >
-                  {seat.id}
-                </div>
-              ))}
+                  Tiếp tục
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="booking-oder">
-            <p>
-              <strong>Ghế ngồi:</strong> {selectedSeats.join(", ")}
-            </p>
-            <p>
-              <strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND
-            </p>
-          </div>
-          <div className="movie-info">
-            <h2>Thông tin chi tiết về phim</h2>
-            {bookingInfo && (
-              <>
-                <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
-                <div className="details">
-                  <p>
-                    <strong>Tên phim:</strong> {bookingInfo.movieTitle}
-                  </p>
-                  <p>
-                    <strong>Thể loại:</strong> {bookingInfo.genre}
-                  </p>
-                  <p>
-                    <strong>Thời lượng:</strong> {bookingInfo.description}
-                  </p>
-                  <p>
-                    <strong>Rạp chiếu:</strong> {bookingInfo.cinema}
-                  </p>
-                  <p>
-                    <strong>Ngày chiếu:</strong>{" "}
-                    {moment(bookingInfo.date).format("DD/MM/YYYY")}
-                  </p>
-                  <p>
-                    <strong>Giờ chiếu:</strong> {bookingInfo.time}
-                  </p>
-                </div>
-              </>
-            )}
-            <div className="button-container">
-              <button className="booking-btn" onClick={() => navigate("/")}>
-                Quay lại
-              </button>
-              <button
-                className="booking-btn"
-                type="button"
-                onClick={handleBooking}
-              >
-                Tiếp tục
-              </button>
-            </div>
-          </div>
-          <div className="legend">
-            <div className="available">
-              <span></span> <p>Ghế trống</p>
-            </div>
-            <div className="selected">
-              <span></span> <p>Ghế đang chọn</p>
-            </div>
-            <div className="booked">
-              <span></span> <p>Ghế đã đặt</p>
+            <div className="legend">
+              <div className="available">
+                <span></span> <p>Ghế trống</p>
+              </div>
+              <div className="selected">
+                <span></span> <p>Ghế đang chọn</p>
+              </div>
+              <div className="booked">
+                <span></span> <p>Ghế đã đặt</p>
+              </div>
             </div>
           </div>
         </div>
+        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
       </div>
-      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
     </div>
   );
 };

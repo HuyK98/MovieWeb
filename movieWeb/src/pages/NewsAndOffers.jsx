@@ -4,7 +4,12 @@ import "../styles/NewsAndOffers.css"; // File CSS riêng cho phần nội dung �
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
-import { faFacebookF, faYoutube, faTiktok, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import {
+  faFacebookF,
+  faYoutube,
+  faTiktok,
+  faInstagram,
+} from "@fortawesome/free-brands-svg-icons";
 import offer1Image from "../assets/offer1.png";
 import offer2Image from "../assets/offer2.png";
 import offer3Image from "../assets/offer3.png";
@@ -21,6 +26,7 @@ const NewsAndOffers = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -36,6 +42,27 @@ const NewsAndOffers = () => {
     setUser(null);
     navigate("/");
   };
+
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
+  //scroll header
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const offers = [
     {
@@ -90,47 +117,66 @@ const NewsAndOffers = () => {
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-            <Header
+      <Header
         user={user}
         handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
+        isScrolled={isScrolled}
       />
       {/* Nội dung chính của NewsAndOffers */}
-      <main className="news-offers-main">
-        <div className="offers-section">
-          <h2>KHUYẾN MÃI MỚI</h2>
-          <div className="offers-grid">
-            {offers.map((offer, index) => (
-              <div key={index} className="offer-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
-                <img src={offer.image} alt={offer.title} className="offer-image" />
-                <div className="offer-content">
-                  <h3>{offer.title}</h3>
-                  <p>{offer.description}</p>
-                  <button className="cta-button">Xem Chi Tiết</button>
+      <div className="home-content">
+        <main className="news-offers-main">
+          <div className="offers-section">
+            <h2>KHUYẾN MÃI MỚI</h2>
+            <div className="offers-grid">
+              {offers.map((offer, index) => (
+                <div
+                  key={index}
+                  className="offer-item"
+                  style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
+                >
+                  <img
+                    src={offer.image}
+                    alt={offer.title}
+                    className="offer-image"
+                  />
+                  <div className="offer-content">
+                    <h3>{offer.title}</h3>
+                    <p>{offer.description}</p>
+                    <button className="cta-button">Xem Chi Tiết</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="news-section">
-          <h2>TIN BÊN LỀ</h2>
-          <div className="news-grid">
-            {news.map((item, index) => (
-              <div key={index} className="news-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
-                <img src={item.image} alt={item.title} className="news-image" />
-                <div className="news-content">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                  <button className="cta-button">Xem Thêm</button>
+          <div className="news-section">
+            <h2>TIN BÊN LỀ</h2>
+            <div className="news-grid">
+              {news.map((item, index) => (
+                <div
+                  key={index}
+                  className="news-item"
+                  style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="news-image"
+                  />
+                  <div className="news-content">
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                    <button className="cta-button">Xem Thêm</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
-      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} /> 
+        </main>
+        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      </div>
     </div>
   );
 };

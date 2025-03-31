@@ -3,12 +3,14 @@
   font-family: Arial, Helvetica, sans-serif;
   margin-left: 100px;
   font-size: 25px;
+  padding-bottom: 40px;
 }
 .payment-info-container h2 {
   color: black;
   font-weight: bold;
   font-size: 24px;
   margin-right: 550px;
+  margin-bottom: 20px;
 }
 
 .payment-details {
@@ -40,7 +42,7 @@
   margin-left: 10px;
   margin-top: -5px;
   padding: 8px;
-  margin-bottom: 125px;
+  margin-bottom: 120px;
 }
 
 .payment-methods label {
