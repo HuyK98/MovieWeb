@@ -3,14 +3,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap");
 
 :root {
-  --primary-color: hsl(204, 88%, 42%);; /* Gold */
-  --primary-dark: hsl(204, 88%, 52%);; /* Darker gold */
+  --primary-color: hsl(204, 88%, 42%); /* Gold */
+  --primary-dark: hsl(204, 88%, 52%); /* Darker gold */
   --secondary-color: #1a1a2e; /* Deep blue */
   --text-light: #f0f0f0;
   --text-dark: #1a1a1a;
   --background-light: #ffffff;
   --background-dark: #0f0f1a;
-  --accent-color: hsl(204, 88%, 62%);; /* Accent gold */
+  --accent-color: hsl(204, 88%, 62%); /* Accent gold */
   --gray-light: #e0e0e0;
   --gray-medium: #b0b0b0;
   --gray-dark: #707070;
@@ -28,7 +28,8 @@ body {
   transition: var(--transition);
 }
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -54,7 +55,7 @@ body.dark-mode {
 .dark-mode .home-container {
   background-color: var(--background-dark);
 }
-/*header giữ nguyên */
+
 .home-content {
   margin-top: 100px;
 }
@@ -67,11 +68,11 @@ header {
   padding: 1rem 5%;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow);
-  position: fixed; /* Giữ cố định trên cùng */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Đảm bảo header chiếm toàn bộ chiều rộng */
-  z-index: 1000; /* Đặt z-index cao hơn các phần tử khác */
+  width: 100%;
+  z-index: 1000;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -249,7 +250,7 @@ nav button:hover::after {
 }
 
 /* Featured movies section */
-.movie-tabs .active{
+.movie-tabs .active {
   font-size: 2rem;
   font-weight: bold;
 }
@@ -314,38 +315,38 @@ nav button:hover::after {
 /* the loai phim */
 .genre-filter {
   display: flex;
-  flex-wrap: wrap; 
-  gap: 10px; 
-  justify-content: center; 
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
   margin-bottom: 1.5rem;
 }
 
 .genre-button {
   padding: 0.5rem 1.2rem;
-  border: none; 
-  border-radius: 20px; 
+  border: none;
+  border-radius: 20px;
   background-color: hsl(204, 88%, 42%);
-  color: white; 
-  font-size: 0.9rem; 
+  color: white;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .genre-button:hover {
-  background-color: var(--gray-medium); 
-  transform: translateY(-2px); 
+  background-color: var(--gray-medium);
+  transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .genre-button.active {
-  background-color: hsl(204, 88%, 42%); 
-  color: var(--text-light); 
+  background-color: hsl(204, 88%, 42%);
+  color: var(--text-light);
 }
 
 .genre-button:focus {
-  outline: none; 
+  outline: none;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
@@ -354,7 +355,7 @@ nav button:hover::after {
   position: relative;
   cursor: pointer;
   font-size: 1.5rem;
-  color: black; 
+  color: black;
   transition: color 0.3s ease;
 }
 
@@ -363,7 +364,7 @@ nav button:hover::after {
 }
 
 .favorites-icon.active {
-  color: red; 
+  color: red;
 }
 
 .favorites-count {
@@ -391,7 +392,7 @@ nav button:hover::after {
 }
 
 .favorite-button.active {
-  color: red; 
+  color: red;
 }
 
 .favorite-button:hover {
@@ -478,8 +479,8 @@ nav button:hover::after {
 /* Nút xóa (dấu -) */
 .favorite-remove-button {
   position: absolute;
-  top: -8px; /* Cách mép trên 5px */
-  right: -10px; /* Cách mép phải 5px */
+  top: -8px;
+  right: -10px;
   background: red;
   color: white;
   border: none;
@@ -696,7 +697,7 @@ nav button:hover::after {
   display: flex;
   gap: 1.5rem;
   transition: transform 0.5s ease;
-  transform: translateX(calc(-100% * var(--upcoming-index, 0)));  
+  transform: translateX(calc(-100% * var(--upcoming-index, 0)));
 }
 
 .movie-row-section .movie-row-card {
@@ -795,15 +796,14 @@ nav button:hover::after {
 .movie-item {
   display: flex;
   flex-direction: row; /* Đặt thành row để xếp ngang */
-  align-items: center;  /* Canh giữa theo chiều dọc */
-  justify-content: space-between; /* Canh đều hai bên */  
+  align-items: center; /* Canh giữa theo chiều dọc */
+  justify-content: space-between; /* Canh đều hai bên */
   height: 90%;
   width: 90%;
   background-color: white;
   border: none;
   border-radius: 0%;
 }
-
 
 .movie-image-container {
   width: 100%;
@@ -871,7 +871,6 @@ nav button:hover::after {
   cursor: pointer;
 }
 
-
 /* Nội dung phim */
 .movie-item h3 {
   margin-top: 5px;
@@ -888,7 +887,7 @@ nav button:hover::after {
   font-size: 0.9rem;
   color: black;
 }
-.movie-title{
+.movie-title {
   padding: 5 20px;
   text-align: left;
   margin-left: -100px;
@@ -1028,10 +1027,6 @@ nav button:hover::after {
 
 .seat.available {
   background-color: #fff;
-}
-
-.seat.available.active {
-  border: 2px solid var(--primary-color); 
 }
 
 .seat.booked {
@@ -1234,6 +1229,10 @@ nav button:hover::after {
 
 .seat.available {
   background-color: #fff;
+}
+
+.seat.available.active {
+  border: 2px solid var(--primary-color);
 }
 
 .seat.booked {
@@ -1586,7 +1585,6 @@ nav button:hover::after {
 .movie-tabs button:hover {
   color: #007bff;
 }
-
 
 .favorite-image-container {
   position: relative;

@@ -196,22 +196,19 @@ const Showtime = () => {
         selectedDate.getFullYear(),
         selectedDate.getMonth(),
         selectedDate.getDate()
-      )
-        .toISOString()
-        .split("T")[0];
-
+      ).toISOString().split("T")[0];
+  
       const filteredShowtimes = showtimes.filter((showtime) => {
         const showtimeDate = new Date(showtime.date);
         const normalizedShowtimeDate = new Date(
           showtimeDate.getFullYear(),
           showtimeDate.getMonth(),
           showtimeDate.getDate()
-        )
-          .toISOString()
-          .split("T")[0];
-
+        ).toISOString().split("T")[0];
+  
         return normalizedShowtimeDate === formattedSelectedDate;
       });
+  
 
       // Map movies with their showtimes
       const moviesWithShowtimes = filteredShowtimes.map((showtime) => {
@@ -221,10 +218,10 @@ const Showtime = () => {
           showtime: showtime.times,
         };
       });
-
+  
       setMovieShowtimes(moviesWithShowtimes);
     };
-
+  
     if (showtimes.length > 0) {
       processShowtimesData();
     }
@@ -450,6 +447,7 @@ const Showtime = () => {
               </div>
               <div className="movie-details">
                 <h2>{movie.title}</h2>
+
                 <p className="movie-description">Mô tả: {movie.description}</p>
                 <p className="movie-genre">Thể loại: {movie.genre}</p>
                 <p className="movie-release-date">

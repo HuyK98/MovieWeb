@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/NewsAndOffers.css"; // File CSS riêng cho phần nội dung đặc thù
 import logo from "../assets/logo.jpg";
