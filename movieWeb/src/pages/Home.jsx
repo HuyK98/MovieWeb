@@ -371,7 +371,7 @@ const Home = () => {
         });
     
         const bookedSeatsByTime = response.data;
-        console.log('Booked seats by time:', bookedSeatsByTime);
+        // console.log('Booked seats by time:', bookedSeatsByTime);
     
         // Tính số ghế còn trống cho từng khung giờ
         const totalSeats = 70; // Tổng số ghế
@@ -380,7 +380,7 @@ const Home = () => {
           availableSeats: totalSeats - slot.bookedSeats,
         }));
     
-        console.log('Available seats by time:', availableSeatsByTime);
+        // console.log('Available seats by time:', availableSeatsByTime);
     
         setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
       } catch (error) {
