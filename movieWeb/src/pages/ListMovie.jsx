@@ -275,7 +275,7 @@ const ListMovie = () => {
   useEffect(() => {
     const fetchBookedSeats = async () => {
       if (!selectedMovie || !selectedShowtime) {
-        console.warn("Missing required parameters for fetching booked seats.");
+        // console.warn("Missing required parameters for fetching booked seats.");
         return;
       }
 

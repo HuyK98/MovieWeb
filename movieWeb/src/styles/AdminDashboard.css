@@ -34,7 +34,7 @@
   font-size: 12px; /* Giảm kích thước chữ */
 }
 
-.sidebar.collapsed .logo {
+.sidebar.collapsed .logo-admin {
   width: 75px;
   align-items: center;
 }
@@ -97,7 +97,7 @@
   justify-content: center; /* Logo vẫn căn giữa khi thu gọn */
 }
 
-.logo {
+.logo-admin {
   width: 289px;
   height: 100px;
   margin: 0;

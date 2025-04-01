@@ -25,6 +25,16 @@ const FilmDetail = () => {
   const [isscroll, setIsScrolled] = useState(false); // Thêm state để theo dõi trạng thái cuộn
   const navigate = useNavigate();
 
+
+
+  // Lấy thông tin người dùng từ localStorage khi component được mount
+  useEffect(() => {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      if (userInfo) {
+        setUser(userInfo);
+      }
+    }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

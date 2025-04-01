@@ -1,28 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "../styles/CinemaIntro.css"; // Giữ file CSS riêng cho phần nội dung đặc thù
+import "../styles/CinemaIntro.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSearch,
-  faSun,
-  faMoon,
-  faMapMarkerAlt,
-  faPhone,
-  faGift,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
-import logo from "../assets/logo.jpg";
+import { faMapMarkerAlt, faPhone, faGift } from "@fortawesome/free-solid-svg-icons";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import cinemaImage1 from "../assets/cinema.jpeg";
 import cinemaImage2 from "../assets/cinema1.jpeg";
 import cinemaImage3 from "../assets/cinema2.jpg";
-import "../styles/CinemaIntro.css";
 
 const CinemaIntro = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -36,27 +21,6 @@ const CinemaIntro = () => {
     document.body.classList.toggle("dark-mode", !darkMode);
   };
 
-  useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (userInfo) {
-      setUser(userInfo);
-    }
-  }, []);
-
-  // Thêm useEffect để cuộn trang khi người dùng cuộn
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -68,10 +32,30 @@ const CinemaIntro = () => {
   };
 
   useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const slides = [
@@ -94,17 +78,10 @@ const CinemaIntro = () => {
         <main className="cinema-main">
           <div className="cinema-intro-section fade-in">
             <div className="slider-container">
-              <div
-                className="slider"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
+              <div className="slider" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                 {slides.map((slide) => (
                   <div key={slide.id} className="slide">
-                    <img
-                      src={slide.image}
-                      alt={`Slide ${slide.id}`}
-                      className="slide-image"
-                    />
+                    <img src={slide.image} alt={`Slide ${slide.id}`} className="slide-image" />
                     <div className="slide-caption">{slide.caption}</div>
                   </div>
                 ))}
@@ -123,36 +100,19 @@ const CinemaIntro = () => {
               <div className="contact-card">
                 <h3>Lotte Cinema Gò Vấp</h3>
                 <div className="contact-item">
-                  <FontAwesomeIcon
-                    icon={faMapMarkerAlt}
-                    className="contact-icon"
-                  />
-                  <p>
-                    <strong>Địa chỉ:</strong> Lotte Mart, 242 Nguyễn Văn Lượng,
-                    Phường 10, Gò Vấp, Hồ Chí Minh 700000, Vietnam
-                  </p>
+                  <FontAwesomeIcon icon={faMapMarkerAlt} className="contact-icon" />
+                  <p><strong>Địa chỉ:</strong> Lotte Mart, 242 Nguyễn Văn Lượng, Phường 10, Gò Vấp, Hồ Chí Minh 700000, Vietnam</p>
                 </div>
                 <div className="contact-item">
                   <FontAwesomeIcon icon={faPhone} className="contact-icon" />
-                  <p>
-                    <strong>Hotline:</strong> 0867 460 053
-                  </p>
+                  <p><strong>Hotline:</strong> 0867 460 053</p>
                 </div>
                 <div className="contact-item">
                   <FontAwesomeIcon icon={faGift} className="contact-icon" />
-                  <p>
-                    <strong>Dịch vụ đặc biệt:</strong> Mua phiếu quà tặng, vé số
-                    lượng lớn, đặt phòng chiếu tổ chức hội nghị, trưng bày quảng
-                    cáo
-                  </p>
+                  <p><strong>Dịch vụ đặc biệt:</strong> Mua phiếu quà tặng, vé số lượng lớn, đặt phòng chiếu tổ chức hội nghị, trưng bày quảng cáo</p>
                 </div>
                 <div className="contact-note">
-                  <p>
-                    <em>
-                      Liên hệ <strong>0867 460 053</strong> để nhận ưu đãi tốt
-                      nhất!
-                    </em>
-                  </p>
+                  <p><em>Liên hệ <strong>0867 460 053</strong> để nhận ưu đãi tốt nhất!</em></p>
                 </div>
                 <Link to="/contact" className="contact-button">
                   Liên hệ ngay

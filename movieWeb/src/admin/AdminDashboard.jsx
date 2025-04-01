@@ -39,7 +39,7 @@ const AdminDashboard = () => {
       <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
-            <img src={logo} alt="Logo" className="logo" />
+            <img src={logo} alt="Logo" className="logo-admin" />
           </Link>
           <button
             className="collapse-button"
