@@ -1,6 +1,12 @@
 .revenue-container {
   padding: 25px;
   margin-left: 255px;
+  transition: margin-left 0.3s ease; /* Hiệu ứng mượt khi sidebar collapse */
+  overflow-x: auto; /* Hiển thị thanh cuộn ngang nếu dữ liệu tràn */
+}
+
+.admin-dashboard.collapsed .revenue-container {
+  margin-left: 100px; /* Khi sidebar bị thu gọn */
 }
 
 .summary {
@@ -10,6 +16,104 @@
 .summary h2,
 .summary h3 {
   margin-top: 20px;
+}
+
+/* Container của bảng */
+.transactions {
+  overflow-x: auto; /* Hiển thị thanh cuộn ngang nếu dữ liệu tràn */
+  margin-top: 20px;
+}
+
+.transactions table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px; /* Đặt chiều rộng tối thiểu để tránh bảng bị co lại quá nhỏ */
+}
+
+.transactions th,
+.transactions td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  /* text-align: left; */
+  white-space: nowrap; /* Đảm bảo nội dung không bị xuống dòng */
+}
+
+.transactions th {
+  background-color: #f2f2f2;
+}
+
+.charts {
+  margin-top: 20px;
+}
+
+.chart {
+  margin-bottom: 20px;
+}
+
+/* Đặt chiều rộng logic cho từng cột */
+.col-stt {
+  width: 5%; /* Cột STT nhỏ */
+  text-align: center;
+}
+
+.col-user {
+  width: 15%; /* Cột Người Dùng */
+}
+
+.col-email {
+  width: 25%; /* Cột Email */
+}
+
+.col-movie {
+  width: 25%; /* Cột Phim */
+}
+
+.col-cinema {
+  width: 10%; /* Cột Rạp */
+}
+
+.col-date {
+  width: 7%; /* Cột Ngày */
+}
+
+.col-time {
+  width: 5%; /* Cột Giờ */
+  text-align: center;
+}
+
+.col-seats {
+  width: 10%; /* Cột Ghế */
+}
+
+.col-total {
+  width: 15%; /* Cột Tổng Tiền */
+}
+
+.col-payment {
+  width: 10%; /* Cột Phương Thức Thanh Toán */
+}
+
+/*Thêm CSS để căn chỉnh dropdown và ô tìm kiếm: */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filters label {
+  font-weight: bold;
+}
+
+.filters select,
+.filters input {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.filters input {
+  width: 300px; /* Chiều rộng ô tìm kiếm */
 }
 
 .transactions table {
@@ -27,54 +131,4 @@
 
 .transactions th {
   background-color: #f2f2f2;
-}
-
-.charts {
-  margin-top: 20px;
-}
-
-.chart {
-  margin-bottom: 20px;
-}
-
-/* Đặt chiều rộng cho từng cột */
-.col-stt {
-  width: 1%; /* Cột STT nhỏ */
-  text-align: center;
-}
-
-.col-user {
-  width: 15%; /* Cột Người Dùng */
-}
-
-.col-email {
-  width: 20%; /* Cột Email */
-}
-
-.col-movie {
-  width: 20%; /* Cột Phim */
-}
-
-.col-cinema {
-  width: 11%; /* Cột Rạp */
-}
-
-.col-date {
-  width: 7%; /* Cột Ngày */
-}
-
-.col-time {
-  width: 5%; /* Cột Giờ */
-}
-
-.col-seats {
-  width: 10%; /* Cột Ghế */
-}
-
-.col-total {
-  width: 30%; /* Cột Tổng Tiền */
-}
-
-.col-payment {
-  width: 50%; /* Cột Phương Thức Thanh Toán */
 }

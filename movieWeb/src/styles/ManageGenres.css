@@ -1,10 +1,13 @@
 .manage-genres {
   flex-grow: 1;
   padding: 40px;
-  margin-left: 250px;
+  margin-left: 210px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.admin-dashboard.collapsed .manage-genres {
+  margin-left: 60px;
 }
 
 .manage-genres h1 {

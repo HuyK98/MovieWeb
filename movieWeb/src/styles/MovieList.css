@@ -10,6 +10,11 @@
   gap: 20px; 
   margin-left: 270px;
 }
+
+.admin-dashboard.collapsed .movies-list {
+  margin-left: 100px; /* Adjust this value based on your sidebar width */
+}
+
 .card-items h2 {
   margin-left: 250px;
 

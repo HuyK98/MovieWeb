@@ -18,6 +18,7 @@ import {
   FaTicketAlt,
   FaSignOutAlt,
   FaChartLine,
+  FaBars,
 } from "react-icons/fa";
 import {
   MdRemoveRedEye,
@@ -27,6 +28,8 @@ import {
   MdCategory,
 } from "react-icons/md";
 import logo from "../assets/logo.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 // Đăng ký các thành phần cần thiết của Chart.js
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Legend);
@@ -40,6 +43,11 @@ const Revenue = () => {
   const [revenueByMovie, setRevenueByMovie] = useState([]);
   const [error, setError] = useState(null);
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
+
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(""); // Lưu tháng được chọn
+  const [searchTerm, setSearchTerm] = useState(""); // Lưu từ khóa tìm kiếm
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -60,6 +68,17 @@ const Revenue = () => {
           "http://localhost:5000/api/payment/transactions"
         );
         setTransactions(response.data);
+
+        // Tự động chọn tháng hiện tại khi load trang
+        const currentMonth = new Date().getMonth() + 1;
+        setSelectedMonth(currentMonth.toString());
+
+        // Lọc dữ liệu theo tháng hiện tại
+        const filtered = response.data.filter((transaction) => {
+          const month = new Date(transaction.date).getMonth() + 1;
+          return month === currentMonth;
+        });
+        setFilteredTransactions(filtered);
       } catch (error) {
         console.error("Error fetching transactions:", error);
         setError("Không thể tải dữ liệu giao dịch.");
@@ -175,84 +194,214 @@ const Revenue = () => {
     return new Date(dateString).toLocaleDateString("vi-VN", options);
   };
 
+  // Phân loại giao dịch theo tháng
+  const groupTransactionsByMonth = (transactions) => {
+    return transactions.reduce((acc, transaction) => {
+      const month = new Date(transaction.date).getMonth() + 1; // Lấy tháng (1-12)
+      if (!acc[month]) acc[month] = [];
+      acc[month].push(transaction);
+      return acc;
+    }, {});
+  };
+
+  const transactionsByMonth = groupTransactionsByMonth(transactions);
+
+  // Lọc giao dịch theo tháng và từ khóa tìm kiếm
+  useEffect(() => {
+    let filtered = transactions;
+
+    // Lọc theo tháng
+    if (selectedMonth) {
+      filtered = transactions.filter((transaction) => {
+        const month = new Date(transaction.date).getMonth() + 1;
+        return month === parseInt(selectedMonth);
+      });
+    }
+
+    // Lọc theo từ khóa tìm kiếm
+    if (searchTerm) {
+      filtered = filtered.filter((transaction) => {
+        const searchString = `
+          ${transaction.user.name} 
+          ${transaction.user.email} 
+          ${transaction.movieTitle} 
+          ${transaction.cinema} 
+          ${transaction.date} 
+          ${transaction.time} 
+          ${transaction.seats.join(", ")}
+        `.toLowerCase();
+        return searchString.includes(searchTerm.toLowerCase());
+      });
+    }
+
+    setFilteredTransactions(filtered);
+  }, [selectedMonth, searchTerm, transactions]);
+
   return (
-    <div className="admin-dashboard">
+    <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <button
+            className="collapse-button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <FaBars />
+          </button>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/admin" className="menu-item">
-              <FaCogs className="icon" /> General
+            <Link
+              to="/admin"
+              className={`menu-item ${
+                location.pathname === "/admin" ? "active" : ""
+              }`}
+            >
+              <FaCogs className="icon" />
+              {!isSidebarCollapsed && "General"}
             </Link>
           </li>
 
           <li>
             <div
               onClick={() => setIsMoviesOpen(!isMoviesOpen)}
-              className="menu-item"
+              className={`menu-item ${isMoviesOpen ? "active" : ""}`}
             >
-              <FaFilm className="icon" /> Quản lý phim{" "}
-              {isMoviesOpen ? "▲" : "▼"}
+              <FaFilm className="icon" />
+              {!isSidebarCollapsed &&
+                `Quản lý phim ${isMoviesOpen ? "▲" : "▼"}`}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies">
-                    <MdRemoveRedEye className="icon-sub" /> Danh sách phim
+                  <Link
+                    to="/admin/movies"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movies" ? "active" : ""
+                    }`}
+                  >
+                    <MdRemoveRedEye className="icon-sub" />
+                    {!isSidebarCollapsed && "Danh sách phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie">
-                    <MdOutlineAddCircle className="icon-sub" /> Thêm phim
+                  <Link
+                    to="/admin/add-movie"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/add-movie" ? "active" : ""
+                    }`}
+                  >
+                    <MdOutlineAddCircle className="icon-sub" />
+                    {!isSidebarCollapsed && "Thêm phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail">
-                    <MdTheaters className="icon-sub" /> Xem chi tiết phim
+                  <Link
+                    to="/admin/movie-detail"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movie-detail"
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    <MdTheaters className="icon-sub" />
+                    {!isSidebarCollapsed && "Xem chi tiết phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime">
-                    <MdSchedule className="icon-sub" /> Thêm lịch chiếu
+                  <Link
+                    to="/admin/chat"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/chat" ? "active" : ""
+                    }`}
+                  >
+                    <FaUser className="icon" />
+                    {!isSidebarCollapsed && "Chat với người dùng"}
                   </Link>
                 </li>
               </ul>
             )}
           </li>
+
           <li>
-            <Link to="/admin/schedules" className="menu-item">
-              <MdSchedule className="icon" /> Quản lý lịch chiếu
+            <Link
+              to="/admin/schedules"
+              className={`menu-item ${
+                location.pathname === "/admin/schedules" ? "active" : ""
+              }`}
+            >
+              <MdSchedule className="icon" />
+              {!isSidebarCollapsed && "Quản lý lịch chiếu"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/genres" className="menu-item">
-              <MdCategory className="icon" /> Quản lý thể loại phim
+            <Link
+              to="/admin/genres"
+              className={`menu-item ${
+                location.pathname === "/admin/genres" ? "active" : ""
+              }`}
+            >
+              <MdCategory className="icon" />
+              {!isSidebarCollapsed && "Quản lý thể loại phim"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/users" className="menu-item">
-              <FaUser className="icon" /> Quản lý người dùng
+            <Link
+              to="/admin/users"
+              className={`menu-item ${
+                location.pathname === "/admin/users" ? "active" : ""
+              }`}
+            >
+              <FaUser className="icon" />
+              {!isSidebarCollapsed && "Quản lý người dùng"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/tickets" className="menu-item">
-              <FaTicketAlt className="icon" /> Quản lý vé
+            <Link
+              to="/admin/tickets"
+              className={`menu-item ${
+                location.pathname === "/admin/tickets" ? "active" : ""
+              }`}
+            >
+              <FaTicketAlt className="icon" />
+              {!isSidebarCollapsed && "Quản lý vé"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/revenue" className="menu-item">
-              <FaChartLine className="icon" /> Quản lý doanh thu
+            <Link
+              to="/admin/bills"
+              className={`menu-item ${
+                location.pathname === "/admin/bills" ? "active" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+              {!isSidebarCollapsed && "Quản lý hóa đơn"}
             </Link>
           </li>
           <li>
-            <Link to="/logout" className="menu-item logout">
-              <FaSignOutAlt className="icon" /> Đăng xuất
+            <Link
+              to="/admin/revenue"
+              className={`menu-item ${
+                location.pathname === "/admin/revenue" ? "active" : ""
+              }`}
+            >
+              <FaChartLine className="icon" />
+              {!isSidebarCollapsed && "Quản lý doanh thu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className={`menu-item logout ${
+                location.pathname === "/logout" ? "active" : ""
+              }`}
+            >
+              <FaSignOutAlt className="icon" />
+              {!isSidebarCollapsed && "Đăng xuất"}
             </Link>
           </li>
         </ul>
@@ -334,8 +483,35 @@ const Revenue = () => {
             />
           </div>
         </div>
+
         <div className="transactions">
           <h2>Chi Tiết Giao Dịch</h2>
+          {/* Bộ lọc tháng */}
+          <div className="filters">
+            <label htmlFor="month-select">Chọn Tháng:</label>
+            <select
+              id="month-select"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              {/* <option value="">Tất cả</option> */}
+              {[...Array(12).keys()].map((month) => (
+                <option key={month + 1} value={month + 1}>
+                  Tháng {month + 1}
+                </option>
+              ))}
+            </select>
+
+            {/* Ô tìm kiếm */}
+            <label htmlFor="search-input">Tìm Kiếm:</label>
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Nhập tên, email, phim, rạp, ngày, giờ, ghế..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           <table>
             <thead>
               <tr>
@@ -352,7 +528,7 @@ const Revenue = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction) => (
+              {filteredTransactions.map((transaction, index) => (
                 <tr key={transaction._id}>
                   <td className="col-stt">
                     {transactions.indexOf(transaction) + 1}

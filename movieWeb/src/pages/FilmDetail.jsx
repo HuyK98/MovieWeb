@@ -123,7 +123,7 @@ const FilmDetail = () => {
       genre: movie.genre,
       description: movie.description,
       cinema: "Rạp CINEMA",
-      date: formatDate(showtime.date),
+      date: showtime.date,
       time: timeSlot.time,
       seat: timeSlot.seats,
       status: timeSlot.isBooked ? "Đã đặt" : "Ghế trống",
@@ -333,7 +333,7 @@ const FilmDetail = () => {
                   </tr>
                   <tr>
                     <td>{bookingInfo.cinema}</td>
-                    <td>{bookingInfo.date}</td>
+                    <td>{formatDate(bookingInfo.date)}</td>
                     <td>{bookingInfo.time}</td>
                   </tr>
                 </tbody>

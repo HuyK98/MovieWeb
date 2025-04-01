@@ -1,10 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { FaFilm, FaUser, FaTicketAlt, FaChartLine, FaSignOutAlt, FaCogs } from "react-icons/fa";
-import { MdSchedule, MdTheaters, MdCategory, MdOutlineAddCircle, MdRemoveRedEye } from "react-icons/md";
+import {
+  FaFilm,
+  FaUser,
+  FaTicketAlt,
+  FaChartLine,
+  FaSignOutAlt,
+  FaCogs,
+  FaBars,
+} from "react-icons/fa";
+import {
+  MdSchedule,
+  MdTheaters,
+  MdCategory,
+  MdOutlineAddCircle,
+  MdRemoveRedEye,
+} from "react-icons/md";
 import "../../styles/AddMovies.css";
 import logo from "../../assets/logo.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 const AddMovie = () => {
   const [title, setTitle] = useState("");
@@ -16,7 +32,7 @@ const AddMovie = () => {
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
-
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
 
   const toggleMoviesMenu = () => {
     setIsMoviesOpen(!isMoviesOpen);
@@ -59,11 +75,15 @@ const AddMovie = () => {
     formData.append("video", video); // Đảm bảo tên trường là "video"
 
     try {
-      const response = await axios.post("http://localhost:5000/api/movies/add", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/movies/add",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       alert("Phim đã thêm thành công!");
       navigate("/admin/movies");
     } catch (error) {
@@ -72,50 +92,185 @@ const AddMovie = () => {
     }
   };
 
+  // Kiểm tra nếu `location.pathname` thuộc submenu "Quản lý phim"
+  useEffect(() => {
+    if (
+      location.pathname === "/admin/movies" ||
+      location.pathname === "/admin/add-movie" ||
+      location.pathname === "/admin/movie-detail" ||
+      location.pathname === "/admin/chat"
+    ) {
+      setIsMoviesOpen(true); // Giữ trạng thái mở
+    }
+  }, [location.pathname]);
+
   return (
-    <div className="admin-dashboard">
+    <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <button
+            className="collapse-button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <FaBars />
+          </button>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/admin" className="menu-item">
-              <FaCogs className="icon" /> General
+            <Link
+              to="/admin"
+              className={`menu-item ${
+                location.pathname === "/admin" ? "active" : ""
+              }`}
+            >
+              <FaCogs className="icon" />
+              {!isSidebarCollapsed && "General"}
             </Link>
           </li>
 
           <li>
-            <div onClick={() => setIsMoviesOpen(!isMoviesOpen)} className="menu-item">
-              <FaFilm className="icon" /> Quản lý phim {isMoviesOpen ? "▲" : "▼"}
+            <div
+              onClick={() => setIsMoviesOpen(!isMoviesOpen)}
+              className={`menu-item ${isMoviesOpen ? "active" : ""}`}
+            >
+              <FaFilm className="icon" />
+              {!isSidebarCollapsed &&
+                `Quản lý phim ${isMoviesOpen ? "▲" : "▼"}`}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies"><MdRemoveRedEye className="icon-sub" /> Danh sách phim</Link>
+                  <Link
+                    to="/admin/movies"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movies" ? "active" : ""
+                    }`}
+                  >
+                    <MdRemoveRedEye className="icon-sub" />
+                    {!isSidebarCollapsed && "Danh sách phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie"><MdOutlineAddCircle className="icon-sub" /> Thêm phim</Link>
+                  <Link
+                    to="/admin/add-movie"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/add-movie" ? "active" : ""
+                    }`}
+                  >
+                    <MdOutlineAddCircle className="icon-sub" />
+                    {!isSidebarCollapsed && "Thêm phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
+                  <Link
+                    to="/admin/movie-detail"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movie-detail"
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    <MdTheaters className="icon-sub" />
+                    {!isSidebarCollapsed && "Xem chi tiết phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
-                </li>          
+                  <Link
+                    to="/admin/chat"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/chat" ? "active" : ""
+                    }`}
+                  >
+                    <FaUser className="icon" />
+                    {!isSidebarCollapsed && "Chat với người dùng"}
+                  </Link>
+                </li>
               </ul>
             )}
           </li>
-          <li><Link to="/admin/schedules" className="menu-item"><MdSchedule className="icon" /> Quản lý lịch chiếu</Link></li>
-          <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
-          <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
-          <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
-          <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
-          <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
+
+          <li>
+            <Link
+              to="/admin/schedules"
+              className={`menu-item ${
+                location.pathname === "/admin/schedules" ? "active" : ""
+              }`}
+            >
+              <MdSchedule className="icon" />
+              {!isSidebarCollapsed && "Quản lý lịch chiếu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/genres"
+              className={`menu-item ${
+                location.pathname === "/admin/genres" ? "active" : ""
+              }`}
+            >
+              <MdCategory className="icon" />
+              {!isSidebarCollapsed && "Quản lý thể loại phim"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/users"
+              className={`menu-item ${
+                location.pathname === "/admin/users" ? "active" : ""
+              }`}
+            >
+              <FaUser className="icon" />
+              {!isSidebarCollapsed && "Quản lý người dùng"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/tickets"
+              className={`menu-item ${
+                location.pathname === "/admin/tickets" ? "active" : ""
+              }`}
+            >
+              <FaTicketAlt className="icon" />
+              {!isSidebarCollapsed && "Quản lý vé"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/bills"
+              className={`menu-item ${
+                location.pathname === "/admin/bills" ? "active" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+              {!isSidebarCollapsed && "Quản lý hóa đơn"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/revenue"
+              className={`menu-item ${
+                location.pathname === "/admin/revenue" ? "active" : ""
+              }`}
+            >
+              <FaChartLine className="icon" />
+              {!isSidebarCollapsed && "Quản lý doanh thu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className={`menu-item logout ${
+                location.pathname === "/logout" ? "active" : ""
+              }`}
+            >
+              <FaSignOutAlt className="icon" />
+              {!isSidebarCollapsed && "Đăng xuất"}
+            </Link>
+          </li>
         </ul>
       </aside>
       <div className="add-container">
@@ -160,7 +315,9 @@ const AddMovie = () => {
             required
           />
 
-          {preview && <img src={preview} alt="Preview" className="preview-img" />}
+          {preview && (
+            <img src={preview} alt="Preview" className="preview-img" />
+          )}
 
           <label>Chọn video:</label>
           <input
@@ -170,7 +327,9 @@ const AddMovie = () => {
             required
           />
 
-          <button className="add-btn" type="submit">Thêm Phim</button>
+          <button className="add-btn" type="submit">
+            Thêm Phim
+          </button>
         </form>
       </div>
     </div>
