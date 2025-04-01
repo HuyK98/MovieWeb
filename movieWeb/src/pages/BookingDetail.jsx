@@ -42,6 +42,7 @@ const BookingDetail = () => {
       },
     };
 
+    console.log("Dữ liệu hóa đơn gửi đến API:", billData);
     try {
       const response = await fetch('http://localhost:5000/api/bills/create', {
         method: 'POST',

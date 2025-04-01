@@ -85,7 +85,6 @@ const FilmDetail = () => {
     fetchData();
   }, [movieId]);
 
-    //scroll header
     useEffect(() => {
       const handleScroll = () => {
         if (window.scrollY > 50) {
