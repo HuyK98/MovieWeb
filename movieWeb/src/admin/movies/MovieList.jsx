@@ -4,9 +4,24 @@ import { Link } from "react-router-dom";
 import "../../styles/MovieList.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
-import { FaCogs, FaFilm, FaUser, FaTicketAlt, FaSignOutAlt, FaChartLine } from "react-icons/fa";
-import { MdRemoveRedEye, MdOutlineAddCircle, MdTheaters, MdSchedule, MdCategory } from "react-icons/md";
+import {
+  FaCogs,
+  FaFilm,
+  FaUser,
+  FaTicketAlt,
+  FaSignOutAlt,
+  FaChartLine,
+  FaBars,
+} from "react-icons/fa";
+import {
+  MdRemoveRedEye,
+  MdOutlineAddCircle,
+  MdTheaters,
+  MdSchedule,
+  MdCategory,
+} from "react-icons/md";
 import logo from "../../assets/logo.jpg";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
@@ -16,17 +31,32 @@ const MovieList = () => {
   const [editMovie, setEditMovie] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddShowtimeModal, setShowAddShowtimeModal] = useState(false);
-  const [selectedMovieForShowtime, setSelectedMovieForShowtime] = useState(null);
-  const [showtimeDate, setShowtimeDate] = useState('');
-  const [showtimeTime, setShowtimeTime] = useState('');
+  const [selectedMovieForShowtime, setSelectedMovieForShowtime] =
+    useState(null);
+  const [showtimeDate, setShowtimeDate] = useState("");
+  const [showtimeTime, setShowtimeTime] = useState("");
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [movieToDelete, setMovieToDelete] = useState(null);
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
+
+  // Kiểm tra nếu `location.pathname` thuộc submenu "Quản lý phim"
+  useEffect(() => {
+    if (
+      location.pathname === "/admin/movies" ||
+      location.pathname === "/admin/add-movie" ||
+      location.pathname === "/admin/movie-detail" ||
+      location.pathname === "/admin/chat"
+    ) {
+      setIsMoviesOpen(true); // Giữ trạng thái mở
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/movies");
-        console.log("Movies fetched:", response.data);
+        // console.log("Movies fetched:", response.data);
         if (Array.isArray(response.data)) {
           setMovies(response.data);
         } else {
@@ -58,7 +88,9 @@ const MovieList = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/movies/${movieToDelete._id}`);
+      const response = await axios.delete(
+        `http://localhost:5000/api/movies/${movieToDelete._id}`
+      );
       console.log("Delete response:", response.data);
       setMovies(movies.filter((movie) => movie._id !== movieToDelete._id));
       setShowDeleteConfirmModal(false);
@@ -96,7 +128,11 @@ const MovieList = () => {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       console.log("Update response:", response.data);
-      setMovies(movies.map((movie) => (movie._id === editMovie._id ? response.data : movie)));
+      setMovies(
+        movies.map((movie) =>
+          movie._id === editMovie._id ? response.data : movie
+        )
+      );
       setShowEditModal(false);
       setEditMovie(null);
     } catch (err) {
@@ -123,24 +159,24 @@ const MovieList = () => {
   const handleCloseAddShowtimeModal = () => {
     setShowAddShowtimeModal(false);
     setSelectedMovieForShowtime(null);
-    setShowtimeDate('');
-    setShowtimeTime('');
+    setShowtimeDate("");
+    setShowtimeTime("");
   };
 
   const handleAddShowtimeSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/showtimes', {
+      const response = await axios.post("http://localhost:5000/api/showtimes", {
         movieId: selectedMovieForShowtime._id,
         date: showtimeDate,
         time: showtimeTime,
-        seats: 70 // thêm số ghế mặc định hoặc lấy từ input
+        seats: 70, // thêm số ghế mặc định hoặc lấy từ input
       });
-      alert('Lịch chiếu đã được thêm thành công!');
+      alert("Lịch chiếu đã được thêm thành công!");
       handleCloseAddShowtimeModal();
     } catch (error) {
-      console.error('Lỗi khi thêm lịch chiếu:', error);
-      alert('Có lỗi xảy ra!');
+      console.error("Lỗi khi thêm lịch chiếu:", error);
+      alert("Có lỗi xảy ra!");
     }
   };
 
@@ -176,50 +212,172 @@ const MovieList = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="admin-dashboard">
+    <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <button
+            className="collapse-button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <FaBars />
+          </button>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/admin" className="menu-item">
-              <FaCogs className="icon" /> General
+            <Link
+              to="/admin"
+              className={`menu-item ${
+                location.pathname === "/admin" ? "active" : ""
+              }`}
+            >
+              <FaCogs className="icon" />
+              {!isSidebarCollapsed && "General"}
             </Link>
           </li>
 
           <li>
-            <div onClick={() => setIsMoviesOpen(!isMoviesOpen)} className="menu-item">
-              <FaFilm className="icon" /> Quản lý phim {isMoviesOpen ? "▲" : "▼"}
+            <div
+              onClick={() => setIsMoviesOpen(!isMoviesOpen)}
+              className={`menu-item ${isMoviesOpen ? "active" : ""}`}
+            >
+              <FaFilm className="icon" />
+              {!isSidebarCollapsed &&
+                `Quản lý phim ${isMoviesOpen ? "▲" : "▼"}`}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies"><MdRemoveRedEye className="icon-sub" /> Danh sách phim</Link>
+                  <Link
+                    to="/admin/movies"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movies" ? "active" : ""
+                    }`}
+                  >
+                    <MdRemoveRedEye className="icon-sub" />
+                    {!isSidebarCollapsed && "Danh sách phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie"><MdOutlineAddCircle className="icon-sub" /> Thêm phim</Link>
+                  <Link
+                    to="/admin/add-movie"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/add-movie" ? "active" : ""
+                    }`}
+                  >
+                    <MdOutlineAddCircle className="icon-sub" />
+                    {!isSidebarCollapsed && "Thêm phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
+                  <Link
+                    to="/admin/movie-detail"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movie-detail"
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    <MdTheaters className="icon-sub" />
+                    {!isSidebarCollapsed && "Xem chi tiết phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
+                  <Link
+                    to="/admin/chat"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/chat" ? "active" : ""
+                    }`}
+                  >
+                    <FaUser className="icon" />
+                    {!isSidebarCollapsed && "Chat với người dùng"}
+                  </Link>
                 </li>
               </ul>
             )}
           </li>
 
-          <li><Link to="/admin/schedules" className="menu-item"><MdSchedule className="icon" /> Quản lý lịch chiếu</Link></li>
-          <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
-          <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
-          <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
-          <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
-          <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
+          <li>
+            <Link
+              to="/admin/schedules"
+              className={`menu-item ${
+                location.pathname === "/admin/schedules" ? "active" : ""
+              }`}
+            >
+              <MdSchedule className="icon" />
+              {!isSidebarCollapsed && "Quản lý lịch chiếu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/genres"
+              className={`menu-item ${
+                location.pathname === "/admin/genres" ? "active" : ""
+              }`}
+            >
+              <MdCategory className="icon" />
+              {!isSidebarCollapsed && "Quản lý thể loại phim"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/users"
+              className={`menu-item ${
+                location.pathname === "/admin/users" ? "active" : ""
+              }`}
+            >
+              <FaUser className="icon" />
+              {!isSidebarCollapsed && "Quản lý người dùng"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/tickets"
+              className={`menu-item ${
+                location.pathname === "/admin/tickets" ? "active" : ""
+              }`}
+            >
+              <FaTicketAlt className="icon" />
+              {!isSidebarCollapsed && "Quản lý vé"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/bills"
+              className={`menu-item ${
+                location.pathname === "/admin/bills" ? "active" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+              {!isSidebarCollapsed && "Quản lý hóa đơn"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/revenue"
+              className={`menu-item ${
+                location.pathname === "/admin/revenue" ? "active" : ""
+              }`}
+            >
+              <FaChartLine className="icon" />
+              {!isSidebarCollapsed && "Quản lý doanh thu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className={`menu-item logout ${
+                location.pathname === "/logout" ? "active" : ""
+              }`}
+            >
+              <FaSignOutAlt className="icon" />
+              {!isSidebarCollapsed && "Đăng xuất"}
+            </Link>
+          </li>
         </ul>
       </aside>
       <div className="card-items">
@@ -237,27 +395,39 @@ const MovieList = () => {
                       className="trailer-button"
                       onClick={() => handleTrailerClick(movie.videoUrl)}
                     >
-                      <FontAwesomeIcon icon={faPlay} style={{ marginRight: "8px" }} />
+                      <FontAwesomeIcon
+                        icon={faPlay}
+                        style={{ marginRight: "8px" }}
+                      />
                       Trailer
                     </button>
                   </div>
                   <h3>{movie.title}</h3>
                   <p>Thể Loại: {movie.genre}</p>
                   <p>Thời Lượng: {movie.description}</p>
-                  <p>Ngày phát hành: {new Date(movie.releaseDate).toLocaleDateString()}</p>
+                  <p>
+                    Ngày phát hành:{" "}
+                    {new Date(movie.releaseDate).toLocaleDateString()}
+                  </p>
                   <div className="movie-buttons">
                     <button
                       className="edit-button"
                       onClick={() => handleEditClick(movie)}
                     >
-                      <FontAwesomeIcon icon={faEdit} style={{ marginRight: "8px" }} />
+                      <FontAwesomeIcon
+                        icon={faEdit}
+                        style={{ marginRight: "8px" }}
+                      />
                       Edit
                     </button>
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteClick(movie)}
                     >
-                      <FontAwesomeIcon icon={faTrash} style={{ marginRight: "8px" }} />
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        style={{ marginRight: "8px" }}
+                      />
                       Delete
                     </button>
                     <button
@@ -280,29 +450,39 @@ const MovieList = () => {
       {showEditModal && editMovie && (
         <div className="modal">
           <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>X</button>
+            <button className="close-button" onClick={handleCloseModal}>
+              X
+            </button>
             <h2>Chỉnh sửa phim</h2>
             <form onSubmit={handleUpdateSubmit} className="movie-form">
               <label>Tiêu đề phim:</label>
               <input
                 type="text"
                 value={editMovie.title}
-                onChange={(e) => setEditMovie({ ...editMovie, title: e.target.value })}
+                onChange={(e) =>
+                  setEditMovie({ ...editMovie, title: e.target.value })
+                }
                 required
               />
 
               <label>Mô tả:</label>
               <textarea
                 value={editMovie.description}
-                onChange={(e) => setEditMovie({ ...editMovie, description: e.target.value })}
+                onChange={(e) =>
+                  setEditMovie({ ...editMovie, description: e.target.value })
+                }
                 required
               />
 
               <label>Ngày phát hành:</label>
               <input
                 type="date"
-                value={new Date(editMovie.releaseDate).toISOString().split("T")[0]}
-                onChange={(e) => setEditMovie({ ...editMovie, releaseDate: e.target.value })}
+                value={
+                  new Date(editMovie.releaseDate).toISOString().split("T")[0]
+                }
+                onChange={(e) =>
+                  setEditMovie({ ...editMovie, releaseDate: e.target.value })
+                }
                 required
               />
 
@@ -310,18 +490,34 @@ const MovieList = () => {
               <input
                 type="text"
                 value={editMovie.genre}
-                onChange={(e) => setEditMovie({ ...editMovie, genre: e.target.value })}
+                onChange={(e) =>
+                  setEditMovie({ ...editMovie, genre: e.target.value })
+                }
                 required
               />
 
               <label>Chọn ảnh mới (nếu muốn thay đổi):</label>
-              <input type="file" accept="image/*" onChange={handleImageChange} />
-              <img src={editMovie.imageUrl} alt="Current" className="preview-img" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              <img
+                src={editMovie.imageUrl}
+                alt="Current"
+                className="preview-img"
+              />
 
               <label>Chọn video mới (nếu muốn thay đổi):</label>
-              <input type="file" accept="video/mp4" onChange={handleVideoChange} />
+              <input
+                type="file"
+                accept="video/mp4"
+                onChange={handleVideoChange}
+              />
 
-              <button className="add-btn" type="submit">Cập nhật</button>
+              <button className="add-btn" type="submit">
+                Cập nhật
+              </button>
               <button
                 className="cancel-btn"
                 type="button"
@@ -338,7 +534,9 @@ const MovieList = () => {
       {showAddShowtimeModal && selectedMovieForShowtime && (
         <div className="modal">
           <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>X</button>
+            <button className="close-button" onClick={handleCloseModal}>
+              X
+            </button>
             <h2>Thêm Lịch Chiếu - {selectedMovieForShowtime.title}</h2>
             <form onSubmit={handleAddShowtimeSubmit} className="showtime-form">
               <label>Ngày chiếu:</label>
@@ -357,7 +555,9 @@ const MovieList = () => {
                 required
               />
 
-              <button className="add-btn" type="submit">Thêm Lịch Chiếu</button>
+              <button className="add-btn" type="submit">
+                Thêm Lịch Chiếu
+              </button>
               <button
                 className="cancel-btn"
                 type="button"
@@ -376,8 +576,12 @@ const MovieList = () => {
           <div className="modal-content">
             <h2>Bạn có chắc chắn xóa không?</h2>
             <div className="confirm-buttons">
-              <button className="confirm-btn" onClick={handleConfirmDelete}>Yes</button>
-              <button className="cancel-btn" onClick={handleCancelDelete}>No</button>
+              <button className="confirm-btn" onClick={handleConfirmDelete}>
+                Yes
+              </button>
+              <button className="cancel-btn" onClick={handleCancelDelete}>
+                No
+              </button>
             </div>
           </div>
         </div>

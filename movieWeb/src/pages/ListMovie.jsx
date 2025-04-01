@@ -94,7 +94,7 @@ const ListMovie = () => {
   const [favorites, setFavorites] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
 
-  const [iscroll, setIsScroll] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {

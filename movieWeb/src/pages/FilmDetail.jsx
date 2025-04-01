@@ -22,7 +22,7 @@ const FilmDetail = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
-  const [isscroll, setIsScroll] = useState(false); // Thêm state để theo dõi trạng thái cuộn
+  const [isscroll, setIsScrolled] = useState(false); // Thêm state để theo dõi trạng thái cuộn
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -124,7 +124,7 @@ const FilmDetail = () => {
       genre: movie.genre,
       description: movie.description,
       cinema: "Rạp CINEMA",
-      date: formatDate(showtime.date),
+      date: showtime.date,
       time: timeSlot.time,
       seat: timeSlot.seats,
       status: timeSlot.isBooked ? "Đã đặt" : "Ghế trống",
@@ -334,7 +334,7 @@ const FilmDetail = () => {
                   </tr>
                   <tr>
                     <td>{bookingInfo.cinema}</td>
-                    <td>{bookingInfo.date}</td>
+                    <td>{formatDate(bookingInfo.date)}</td>
                     <td>{bookingInfo.time}</td>
                   </tr>
                 </tbody>

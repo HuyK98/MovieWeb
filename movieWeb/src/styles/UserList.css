@@ -1,6 +1,11 @@
 .user-list {
   flex: 1;
   padding: 20px;
+  margin-left: -10px;
+}
+
+.admin-dashboard.collapsed .user-list {
+  margin-left: -150px;
 }
 
 .table-container {

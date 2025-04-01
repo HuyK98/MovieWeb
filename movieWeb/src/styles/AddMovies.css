@@ -3,12 +3,16 @@
   height: 80vh;
 }
 .add-container {
-  width: 1500px;
+  flex: 1;
   margin-left: 280px;
-  padding: 20px;
+  padding: 25px;
   background: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-dashboard.collapsed .add-container {
+  margin-left: 110px;
 }
 
 h2 {
@@ -57,9 +61,9 @@ h2 {
 }
 
 .preview-img {
-  max-width: 50%;
-  height: 20%;
-  margin-bottom: 15px;
+  width: 400px;
+  height: 700px;
+  object-fit: cover; /* Cắt hình ảnh để vừa khung */
   border-radius: 4px;
 }
 .add-btn {

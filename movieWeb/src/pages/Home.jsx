@@ -397,7 +397,7 @@ const Home = () => {
   useEffect(() => {
     const fetchBookedSeats = async () => {
       if (!selectedMovie || !selectedShowtime) {
-        console.warn('Missing required parameters for fetching booked seats.');
+        // console.warn('Missing required parameters for fetching booked seats.');
         return;
       }
 
@@ -614,7 +614,7 @@ const Home = () => {
           </AnimatedSection>
         )}
 
-        <AnimatedSection animation="fade-right" delay={100}>
+        <AnimatedSection animation="fade-right" delay={10}>
           <div className="card-items">
             <h2>Danh sách phim</h2>
             <div className="genre-filter">

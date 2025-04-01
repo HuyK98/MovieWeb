@@ -1,9 +1,14 @@
 .admin-bills-container {
   padding: 20px;
-  padding-left: 300px;
+  margin-left: 240px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: margin-left 0.3s ease; /* Hiệu ứng mượt khi sidebar collapse */
+}
+
+.admin-dashboard.collapsed .admin-bills-container {
+  font-size: 20px;
+  margin-left: 100px;
 }
 
 .admin-bills-title {

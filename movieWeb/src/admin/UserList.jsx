@@ -1,36 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { FaFilm, FaUser, FaTicketAlt, FaChartLine, FaSignOutAlt, FaCogs } from "react-icons/fa";
-import { MdSchedule, MdTheaters, MdCategory, MdOutlineAddCircle, MdRemoveRedEye } from "react-icons/md";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import {
+  FaFilm,
+  FaUser,
+  FaTicketAlt,
+  FaChartLine,
+  FaSignOutAlt,
+  FaCogs,
+  FaBars,
+} from "react-icons/fa";
+import {
+  MdSchedule,
+  MdTheaters,
+  MdCategory,
+  MdOutlineAddCircle,
+  MdRemoveRedEye,
+} from "react-icons/md";
 import "../styles/UserList.css";
 import logo from "../assets/logo.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editRole, setEditRole] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editRole, setEditRole] = useState("");
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).token : null;
+        const token = localStorage.getItem("userInfo")
+          ? JSON.parse(localStorage.getItem("userInfo")).token
+          : null;
         if (!token) {
-          throw new Error('No token found');
+          throw new Error("No token found");
         }
 
-        const response = await axios.get('http://localhost:5000/api/auth/users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/auth/users",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setUsers(response.data);
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách người dùng:', error);
+        console.error("Lỗi khi lấy danh sách người dùng:", error);
       }
     };
     fetchUsers();
@@ -46,35 +68,45 @@ const UserList = () => {
 
   const handleSaveUser = async () => {
     try {
-      const token = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).token : null;
+      const token = localStorage.getItem("userInfo")
+        ? JSON.parse(localStorage.getItem("userInfo")).token
+        : null;
       if (!token) {
-        throw new Error('No token found');
+        throw new Error("No token found");
       }
 
-      const response = await axios.put(`http://localhost:5000/api/auth/users/${editUser._id}`, {
-        name: editName,
-        email: editEmail,
-        phone: editPhone,
-        role: editRole,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.put(
+        `http://localhost:5000/api/auth/users/${editUser._id}`,
+        {
+          name: editName,
+          email: editEmail,
+          phone: editPhone,
+          role: editRole,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setUsers(users.map((user) => (user._id === editUser._id ? response.data : user)));
+      setUsers(
+        users.map((user) => (user._id === editUser._id ? response.data : user))
+      );
       setEditUser(null);
     } catch (error) {
-      console.error('Lỗi khi chỉnh sửa người dùng:', error);
-      alert('Có lỗi xảy ra!');
+      console.error("Lỗi khi chỉnh sửa người dùng:", error);
+      alert("Có lỗi xảy ra!");
     }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
-      const token = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).token : null;
+      const token = localStorage.getItem("userInfo")
+        ? JSON.parse(localStorage.getItem("userInfo")).token
+        : null;
       if (!token) {
-        throw new Error('No token found');
+        throw new Error("No token found");
       }
 
       await axios.delete(`http://localhost:5000/api/auth/users/${userId}`, {
@@ -82,59 +114,181 @@ const UserList = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      alert('Người dùng đã được xóa thành công!');
+      alert("Người dùng đã được xóa thành công!");
       setUsers(users.filter((user) => user._id !== userId));
     } catch (error) {
-      console.error('Lỗi khi xóa người dùng:', error);
-      alert('Có lỗi xảy ra!');
+      console.error("Lỗi khi xóa người dùng:", error);
+      alert("Có lỗi xảy ra!");
     }
   };
 
   return (
-    <div className="admin-dashboard">
+    <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <button
+            className="collapse-button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <FaBars />
+          </button>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/admin" className="menu-item">
-              <FaCogs className="icon" /> General
+            <Link
+              to="/admin"
+              className={`menu-item ${
+                location.pathname === "/admin" ? "active" : ""
+              }`}
+            >
+              <FaCogs className="icon" />
+              {!isSidebarCollapsed && "General"}
             </Link>
           </li>
 
           <li>
-            <div onClick={() => setIsMoviesOpen(!isMoviesOpen)} className="menu-item">
-              <FaFilm className="icon" /> Quản lý phim {isMoviesOpen ? "▲" : "▼"}
+            <div
+              onClick={() => setIsMoviesOpen(!isMoviesOpen)}
+              className={`menu-item ${isMoviesOpen ? "active" : ""}`}
+            >
+              <FaFilm className="icon" />
+              {!isSidebarCollapsed &&
+                `Quản lý phim ${isMoviesOpen ? "▲" : "▼"}`}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies"><MdRemoveRedEye className="icon-sub" /> Danh sách phim</Link>
+                  <Link
+                    to="/admin/movies"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movies" ? "active" : ""
+                    }`}
+                  >
+                    <MdRemoveRedEye className="icon-sub" />
+                    {!isSidebarCollapsed && "Danh sách phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie"><MdOutlineAddCircle className="icon-sub" /> Thêm phim</Link>
+                  <Link
+                    to="/admin/add-movie"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/add-movie" ? "active" : ""
+                    }`}
+                  >
+                    <MdOutlineAddCircle className="icon-sub" />
+                    {!isSidebarCollapsed && "Thêm phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
+                  <Link
+                    to="/admin/movie-detail"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movie-detail"
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    <MdTheaters className="icon-sub" />
+                    {!isSidebarCollapsed && "Xem chi tiết phim"}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
+                  <Link
+                    to="/admin/chat"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/chat" ? "active" : ""
+                    }`}
+                  >
+                    <FaUser className="icon" />
+                    {!isSidebarCollapsed && "Chat với người dùng"}
+                  </Link>
                 </li>
               </ul>
             )}
           </li>
 
-          <li><Link to="/admin/schedules" className="menu-item"><MdSchedule className="icon" /> Quản lý lịch chiếu</Link></li>
-          <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
-          <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
-          <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
-          <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
-          <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
+          <li>
+            <Link
+              to="/admin/schedules"
+              className={`menu-item ${
+                location.pathname === "/admin/schedules" ? "active" : ""
+              }`}
+            >
+              <MdSchedule className="icon" />
+              {!isSidebarCollapsed && "Quản lý lịch chiếu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/genres"
+              className={`menu-item ${
+                location.pathname === "/admin/genres" ? "active" : ""
+              }`}
+            >
+              <MdCategory className="icon" />
+              {!isSidebarCollapsed && "Quản lý thể loại phim"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/users"
+              className={`menu-item ${
+                location.pathname === "/admin/users" ? "active" : ""
+              }`}
+            >
+              <FaUser className="icon" />
+              {!isSidebarCollapsed && "Quản lý người dùng"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/tickets"
+              className={`menu-item ${
+                location.pathname === "/admin/tickets" ? "active" : ""
+              }`}
+            >
+              <FaTicketAlt className="icon" />
+              {!isSidebarCollapsed && "Quản lý vé"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/bills"
+              className={`menu-item ${
+                location.pathname === "/admin/bills" ? "active" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+              {!isSidebarCollapsed && "Quản lý hóa đơn"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/revenue"
+              className={`menu-item ${
+                location.pathname === "/admin/revenue" ? "active" : ""
+              }`}
+            >
+              <FaChartLine className="icon" />
+              {!isSidebarCollapsed && "Quản lý doanh thu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className={`menu-item logout ${
+                location.pathname === "/logout" ? "active" : ""
+              }`}
+            >
+              <FaSignOutAlt className="icon" />
+              {!isSidebarCollapsed && "Đăng xuất"}
+            </Link>
+          </li>
         </ul>
       </aside>
       <div className="user-list">
@@ -158,8 +312,12 @@ const UserList = () => {
                   <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td>
-                    <button onClick={() => handleEditUser(user)}>Chỉnh sửa</button>
-                    <button onClick={() => handleDeleteUser(user._id)}>Xóa</button>
+                    <button onClick={() => handleEditUser(user)}>
+                      Chỉnh sửa
+                    </button>
+                    <button onClick={() => handleDeleteUser(user._id)}>
+                      Xóa
+                    </button>
                   </td>
                 </tr>
               ))}

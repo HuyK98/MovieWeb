@@ -8,6 +8,7 @@ import {
   FaTicketAlt,
   FaSignOutAlt,
   FaChartLine,
+  FaBars,
 } from "react-icons/fa";
 import {
   MdRemoveRedEye,
@@ -18,6 +19,8 @@ import {
 } from "react-icons/md";
 import "../styles/ScheduleList.css";
 import logo from "../assets/logo.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 const ScheduleList = () => {
   const [showtimes, setShowtimes] = useState([]);
@@ -27,6 +30,7 @@ const ScheduleList = () => {
   const toggleMoviesMenu = () => {
     setIsMoviesOpen(!isMoviesOpen);
   };
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
 
   useEffect(() => {
     const fetchShowtimes = async () => {
@@ -104,84 +108,177 @@ const ScheduleList = () => {
     }
   };
 
+  //định ngày theo ngày Việt NamNam
+  const formatDate = (dateString) => {
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("vi-VN", options);
+  };
+
   return (
-    <div className="admin-dashboard">
+    <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <button
+            className="collapse-button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <FaBars />
+          </button>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/admin" className="menu-item">
-              <FaCogs className="icon" /> General
+            <Link
+              to="/admin"
+              className={`menu-item ${
+                location.pathname === "/admin" ? "active" : ""
+              }`}
+            >
+              <FaCogs className="icon" />
+              {!isSidebarCollapsed && "General"}
             </Link>
           </li>
 
           <li>
             <div
               onClick={() => setIsMoviesOpen(!isMoviesOpen)}
-              className="menu-item"
+              className={`menu-item ${isMoviesOpen ? "active" : ""}`}
             >
-              <FaFilm className="icon" /> Quản lý phim{" "}
-              {isMoviesOpen ? "▲" : "▼"}
+              <FaFilm className="icon" />
+              {!isSidebarCollapsed &&
+                `Quản lý phim ${isMoviesOpen ? "▲" : "▼"}`}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies">
-                    <MdRemoveRedEye className="icon-sub" /> Danh sách phim
+                  <Link
+                    to="/admin/movies"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movies" ? "active" : ""
+                    }`}
+                  >
+                    <MdRemoveRedEye className="icon-sub" />
+                    {!isSidebarCollapsed && "Danh sách phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie">
-                    <MdOutlineAddCircle className="icon-sub" /> Thêm phim
+                  <Link
+                    to="/admin/add-movie"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/add-movie" ? "active" : ""
+                    }`}
+                  >
+                    <MdOutlineAddCircle className="icon-sub" />
+                    {!isSidebarCollapsed && "Thêm phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail">
-                    <MdTheaters className="icon-sub" /> Xem chi tiết phim
+                  <Link
+                    to="/admin/movie-detail"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/movie-detail"
+                        ? "active"
+                        : ""
+                    }`}
+                  >
+                    <MdTheaters className="icon-sub" />
+                    {!isSidebarCollapsed && "Xem chi tiết phim"}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime">
-                    <MdSchedule className="icon-sub" /> Thêm lịch chiếu
+                  <Link
+                    to="/admin/chat"
+                    className={`submenu-item ${
+                      location.pathname === "/admin/chat" ? "active" : ""
+                    }`}
+                  >
+                    <FaUser className="icon" />
+                    {!isSidebarCollapsed && "Chat với người dùng"}
                   </Link>
                 </li>
               </ul>
             )}
           </li>
+
           <li>
-            <Link to="/admin/schedules" className="menu-item">
-              <MdSchedule className="icon" /> Quản lý lịch chiếu
+            <Link
+              to="/admin/schedules"
+              className={`menu-item ${
+                location.pathname === "/admin/schedules" ? "active" : ""
+              }`}
+            >
+              <MdSchedule className="icon" />
+              {!isSidebarCollapsed && "Quản lý lịch chiếu"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/genres" className="menu-item">
-              <MdCategory className="icon" /> Quản lý thể loại phim
+            <Link
+              to="/admin/genres"
+              className={`menu-item ${
+                location.pathname === "/admin/genres" ? "active" : ""
+              }`}
+            >
+              <MdCategory className="icon" />
+              {!isSidebarCollapsed && "Quản lý thể loại phim"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/users" className="menu-item">
-              <FaUser className="icon" /> Quản lý người dùng
+            <Link
+              to="/admin/users"
+              className={`menu-item ${
+                location.pathname === "/admin/users" ? "active" : ""
+              }`}
+            >
+              <FaUser className="icon" />
+              {!isSidebarCollapsed && "Quản lý người dùng"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/tickets" className="menu-item">
-              <FaTicketAlt className="icon" /> Quản lý vé
+            <Link
+              to="/admin/tickets"
+              className={`menu-item ${
+                location.pathname === "/admin/tickets" ? "active" : ""
+              }`}
+            >
+              <FaTicketAlt className="icon" />
+              {!isSidebarCollapsed && "Quản lý vé"}
             </Link>
           </li>
           <li>
-            <Link to="/admin/revenue" className="menu-item">
-              <FaChartLine className="icon" /> Quản lý doanh thu
+            <Link
+              to="/admin/bills"
+              className={`menu-item ${
+                location.pathname === "/admin/bills" ? "active" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+              {!isSidebarCollapsed && "Quản lý hóa đơn"}
             </Link>
           </li>
           <li>
-            <Link to="/logout" className="menu-item logout">
-              <FaSignOutAlt className="icon" /> Đăng xuất
+            <Link
+              to="/admin/revenue"
+              className={`menu-item ${
+                location.pathname === "/admin/revenue" ? "active" : ""
+              }`}
+            >
+              <FaChartLine className="icon" />
+              {!isSidebarCollapsed && "Quản lý doanh thu"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/logout"
+              className={`menu-item logout ${
+                location.pathname === "/logout" ? "active" : ""
+              }`}
+            >
+              <FaSignOutAlt className="icon" />
+              {!isSidebarCollapsed && "Đăng xuất"}
             </Link>
           </li>
         </ul>
@@ -204,7 +301,7 @@ const ScheduleList = () => {
                 <tr key={showtime._id}>
                   <td>{showtimes.indexOf(showtime) + 1}</td>
                   <td>{showtime.movieId ? showtime.movieId.title : "N/A"}</td>
-                  <td>{showtime.date}</td>
+                  <td>{formatDate(showtime.date)}</td>
                   <td>
                     <ul>
                       {showtime.times.map((time) => (
@@ -214,12 +311,17 @@ const ScheduleList = () => {
                             type="time"
                             value={editTimes[time._id] || ""}
                             onChange={(e) =>
-                              setEditTimes((prev) => ({ ...prev, [time._id]: e.target.value }))
+                              setEditTimes((prev) => ({
+                                ...prev,
+                                [time._id]: e.target.value,
+                              }))
                             }
                             placeholder="Giờ chiếu mới"
                           />
                           <button
-                            onClick={() => handleEditTime(showtime._id, time._id)}
+                            onClick={() =>
+                              handleEditTime(showtime._id, time._id)
+                            }
                           >
                             Chỉnh sửa
                           </button>
