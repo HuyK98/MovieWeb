@@ -15,39 +15,21 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// API để lấy danh sách hóa đơn theo tên người dùng
+// API để lấy danh sách hóa đơn theo tên người dùng và phương thức thanh toán
 router.get('/', async (req, res) => {
   try {
-    const { name } = req.query; 
+    const { name, paymentMethod } = req.query;
 
-    // Nếu có tham số `name`, lọc hóa đơn theo `user.name`
-    const bills = name
-      ? await Bill.find({ "user.name": name }) 
-      : await Bill.find(); 
+    // Tạo query để lọc theo tên người dùng và phương thức thanh toán
+    const query = {};
+    if (name) query["user.name"] = name;
+    if (paymentMethod) query["booking.paymentMethod"] = paymentMethod;
 
+    const bills = await Bill.find(query);
     res.status(200).json(bills);
   } catch (error) {
     console.error('Lỗi khi lấy danh sách hóa đơn:', error);
     res.status(500).json({ message: 'Lỗi khi lấy danh sách hóa đơn.', error });
-  }
-});
-
-// API để lấy hóa đơn theo paymentMethod
-router.get('/bills', async (req, res) => {
-  try {
-    const { paymentMethod } = req.query;
-    let query = {};
-    
-    // Nếu có paymentMethod trong query, thêm vào điều kiện tìm kiếm
-    if (paymentMethod) {
-      query["booking.paymentMethod"] = paymentMethod;
-    }
-
-    const bills = await Bill.find(query);
-    res.json(bills);
-  } catch (error) {
-    console.error('Error fetching bills:', error);
-    res.status(500).json({ message: 'Error fetching bills' });
   }
 });
 

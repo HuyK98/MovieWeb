@@ -16,7 +16,10 @@ const FavoritesAndBookings = ({
   const [currentUser, setCurrentUser] = useState(null);
   const [userBookings, setUserBookings] = useState([]);
   const [momoBills, setMomoBills] = useState([]);
-  const [allBills, setAllBills] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
   // Lấy thông tin người dùng từ localStorage khi component được mount
   useEffect(() => {
@@ -24,10 +27,10 @@ const FavoritesAndBookings = ({
     console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
 
     if (!userInfo) {
-      navigate("/login"); // Chuyển hướng đến trang đăng nhập nếu không có thông tin người dùng
+      navigate("/login");
     } else {
-      setCurrentUser(userInfo); // Cập nhật state nếu có thông tin người dùng
-      sessionStorage.setItem("sessionActive", "true"); // Đánh dấu phiên làm việc đang hoạt động
+      setCurrentUser(userInfo);
+      sessionStorage.setItem("sessionActive", "true");
     }
   }, [navigate]);
 
@@ -57,36 +60,88 @@ const FavoritesAndBookings = ({
 
   // Cập nhật useEffect để fetch tất cả hóa đơn
   useEffect(() => {
-    const fetchAllBills = async () => {
+    const fetchAllBookings = async () => {
       if (currentUser) {
         try {
-          // Lấy tất cả hóa đơn của người dùng
-          const allBillsResponse = await axios.get("http://localhost:5000/api/bills", {
+          const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
+
+          // Fetch bookings with "cash" payment method
+          const cashResponse = await axios.get("http://localhost:5000/api/bookings", {
             params: {
-              name: currentUser.name,
-            }
+              userId: currentUser._id,
+              paymentMethod: "cash",
+            },
           });
 
-          // Lọc hóa đơn MOMO và hóa đơn khác
-          const bills = allBillsResponse.data;
-          const momoPayments = bills.filter(bill => bill.booking.paymentMethod === 'momo');
-          const otherPayments = bills.filter(bill => bill.booking.paymentMethod !== 'momo');
+          // Loại bỏ các mục đã bị xóa
+          const filteredCashBookings = cashResponse.data.filter(
+            (booking) => !deletedItems.includes(booking._id)
+          );
 
-          setUserBookings(otherPayments);
-          setMomoBills(momoPayments);
+          // Fetch bookings with "momo" payment method
+          const momoResponse = await axios.get("http://localhost:5000/api/bookings", {
+            params: {
+              userId: currentUser._id,
+              paymentMethod: "momo",
+            },
+          });
 
-          console.log("Hóa đơn MOMO:", momoPayments);
-          console.log("Hóa đơn khác:", otherPayments);
+          // Loại bỏ các mục đã bị xóa
+          const filteredMomoBookings = momoResponse.data.filter(
+            (booking) => !deletedItems.includes(booking._id)
+          );
 
+          // Save bookings to state
+          setUserBookings(filteredCashBookings);
+          setMomoBills(filteredMomoBookings);
         } catch (error) {
-          console.error("Lỗi khi lấy danh sách hóa đơn:", error);
+          console.error("Lỗi khi lấy danh sách bookings:", error);
         }
       }
     };
 
-    fetchAllBills();
+    fetchAllBookings();
   }, [currentUser]);
-  
+
+  // Hàm xử lý xóa hóa đơn khỏi danh sách
+  const handleRemoveFromList = (id, type) => {
+    // Lưu ID của mục đã xóa vào localStorage
+    const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
+    deletedItems.push(id);
+    localStorage.setItem("deletedItems", JSON.stringify(deletedItems));
+
+    // Xóa mục khỏi danh sách hiển thị
+    if (type === "cash") {
+      setUserBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking._id !== id)
+      );
+    } else if (type === "momo") {
+      setMomoBills((prevBills) =>
+        prevBills.filter((booking) => booking._id !== id)
+      );
+    }
+  };
+
+  const handleToggleMenu = (id) => {
+    setSelectedMenu((prev) => (prev === id ? null : id));
+  };
+
+  const handleOpenModal = (id, type) => {
+    setSelectedBooking(id);
+    setSelectedType(type);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    handleRemoveFromList(selectedBooking, selectedType);
+    setShowConfirmModal(false);
+  };
+
+  const handleMarkAsRead = (id) => {
+    // Thêm logic để đánh dấu là đã đọc
+    console.log(`Đánh dấu booking ${id} là đã đọc`);
+    setSelectedMenu(null);
+  };
 
   return (
     <div>
@@ -123,7 +178,7 @@ const FavoritesAndBookings = ({
                       >
                         {movie.title}
                       </h3>
-                      <p>Thể Loại: {movie.genre}</p>
+                      <p>Thể Loại: {movie?.genre}</p>
                     </div>
                   </div>
                 ))}
@@ -135,67 +190,126 @@ const FavoritesAndBookings = ({
             {/* Hiển thị danh sách hóa đơn */}
             {userBookings.length > 0 ? (
               userBookings.map((booking, index) => (
-                <div key={index} className="favorite-item">
+                <div key={booking._id} className="favorite-item">
                   <div className="favorite-image-container">
                     <img
-                      src={booking.movie.imageUrl}
-                      alt={booking.movie.title}
+                      src={booking.imageUrl}
                       className="favorite-image"
                     />
                     <div className="bill-icon">
                       <FontAwesomeIcon icon={faShoppingCart} />
                     </div>
+                    {/* Nút "..." */}
+                    <div className="menu-icon">
+                      <button
+                        className="menu-button"
+                        onClick={() => handleToggleMenu(booking._id)}
+                      >
+                        ...
+                      </button>
+                      {selectedMenu === booking._id && (
+                        <div className="menu-list">
+                          <button
+                            className="menu-item"
+                            onClick={() => handleOpenModal(booking._id, "cash")}
+                          >
+                            Xóa khỏi danh sách
+                          </button>
+                          <button
+                            className="menu-item"
+                            onClick={() => handleMarkAsRead(booking._id)}
+                          >
+                            Đánh dấu là đã đọc
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="favorite-title">
                     <h3
                       className="movie-title-link"
-                      onClick={() => navigate(`/booking/${index}`)}
+                      onClick={() => navigate(`/booking/${booking._id}`)}
                     >
-                      {booking.movie.title}
+                      {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {moment(booking.booking.date).format("DD/MM/YYYY")}</p>
-                    <p>Ghế: {booking.booking.seats.join(", ")}</p>
+                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
+                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
+                    <p><strong>Phương thức:</strong> Tiền mặt</p>
+                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p>Không có hóa đơn nào.</p>
+              <p>Không có bookings nào thanh toán bằng Tiền mặt.</p>
             )}
 
             {/* Hiển thị danh sách hóa đơn MOMO */}
             {momoBills.length > 0 ? (
               momoBills.map((booking, index) => (
-                <div key={index} className="favorite-item">
+                <div key={booking._id} className="favorite-item">
                   <div className="favorite-image-container">
                     <img
-                      src={booking.movie.imageUrl}
-                      alt={booking.movie.title}
+                      src={booking.movie?.imageUrl}
                       className="favorite-image"
                     />
                     <div className="bill-icon">
                       <FontAwesomeIcon icon={faShoppingCart} />
                     </div>
+                    <div className="menu-icon">
+                      <button
+                        className="menu-button"
+                        onClick={() => handleToggleMenu(booking._id)}
+                      >
+                        ...
+                      </button>
+                      {selectedMenu === booking._id && (
+                        <div className="menu-list">
+                          <button
+                            className="menu-item"
+                            onClick={() => handleOpenModal(booking._id, "cash")}
+                          >
+                            Xóa khỏi danh sách
+                          </button>
+                          <button
+                            className="menu-item"
+                            onClick={() => handleMarkAsRead(booking._id)}
+                          >
+                            Đánh dấu là đã đọc
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="favorite-title">
                     <h3
                       className="movie-title-link"
-                      onClick={() => navigate(`/booking/${index}?paymentMethod=${booking.booking.paymentMethod}`)}
+                      onClick={() => navigate(`/booking/${booking._id}`)}
                     >
-                      {booking.movie.title}
+                      {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {moment(booking.booking.date).format("DD/MM/YYYY")}</p>
-                    <p>Ghế: {booking.booking.seats.join(", ")}</p>
+                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
+                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
+                    <p><strong>Phương thức:</strong> MOMO</p>
+                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p>Không có hóa đơn nào thanh toán bằng MOMO.</p>
+              <p>Không có bookings nào thanh toán bằng MOMO.</p>
             )}
+          </div>
+        </div>
+      )}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p>Bạn có chắc chắn muốn xóa đơn hàng khỏi danh sách không?</p>
+            <button onClick={handleConfirmDelete}>OK</button>
+            <button onClick={() => setShowConfirmModal(false)}>Hủy</button>
           </div>
         </div>
       )}
     </div>
   );
 };
-
 export default FavoritesAndBookings;

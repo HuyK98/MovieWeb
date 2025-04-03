@@ -161,3 +161,100 @@
 .favorite-icon {
   color: #ff0000;
 }
+
+/* nút remove ... */
+.menu-button {
+  background: rgba(0, 0, 0, 0.5); /* Nền mờ */
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: white; /* Màu chữ */
+  padding: 5px;
+  border-radius: 50%; /* Hình tròn */
+  transition: background 0.3s ease;
+}
+
+.menu-button:hover {
+  background: rgba(0, 0, 0, 0.8); /* Tăng độ mờ khi hover */
+}
+
+.menu-icon {
+  position: relative;
+  top: -110px;
+  right: -40px;
+}
+
+.menu-list {
+  position: absolute;
+  top: 30px; 
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  min-width: 150px; 
+  padding: 5px 0;
+}
+
+/* Các mục trong menu */
+/* Các mục trong menu */
+.menu-item {
+  display: block;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.9); 
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+  color: black; 
+  font-weight: bold;
+  transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.menu-item:hover {
+  background: rgba(0, 0, 0, 0.1); /* Nền mờ khi hover */
+  color: black; /* Giữ màu chữ đen khi hover */
+}
+
+/* modal xóa */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: black;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-content button:first-child {
+  background: #ff4d4f;
+  color: white;
+}
+
+.modal-content button:last-child {
+  background: #f0f0f0;
+  color: black;
+}

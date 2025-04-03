@@ -71,12 +71,18 @@ const PaymentInfo = () => {
       if (!token) {
         throw new Error('No token found');
       }
-
+  
       if (!paymentMethod) {
         alert('Vui lòng chọn phương thức thanh toán!');
         return;
       }
-
+  
+      console.log('Token:', token);
+      console.log('Booking Info:', bookingInfo);
+      console.log('Selected Seats:', selectedSeats);
+      console.log('Total Price:', totalPrice);
+      console.log('Payment Method:', paymentMethod);
+  
       let bookingData = {
         user: {
           name: user.name,
@@ -96,7 +102,7 @@ const PaymentInfo = () => {
           paymentMethod: paymentMethod,
         },
       };
-
+  
       if (paymentMethod === 'momo') {
         const momoResponse = await axios.post('http://localhost:5000/api/payment/momo', {
           bookingInfo,
@@ -108,13 +114,14 @@ const PaymentInfo = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
+        console.log('MoMo Response:', momoResponse.data);
+  
         if (momoResponse.data && momoResponse.data.payUrl) {
-          // Lưu thông tin vé vào localStorage
           const storedBookings = JSON.parse(localStorage.getItem('bookings')) || [];
           localStorage.setItem('bookings', JSON.stringify([...storedBookings, bookingData]));
-
-          window.location.href = momoResponse.data.payUrl; // Redirect to MoMo payment page
+  
+          window.location.href = momoResponse.data.payUrl;
           return;
         } else {
           throw new Error('MoMo payment failed');
@@ -130,20 +137,29 @@ const PaymentInfo = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        // Lưu thông tin vé vào localStorage
+  
+        console.log('Payment Response:', response.data);
+  
         const storedBookings = JSON.parse(localStorage.getItem('bookings')) || [];
         localStorage.setItem('bookings', JSON.stringify([...storedBookings, bookingData]));
-
+  
         alert('Thanh toán thành công!');
         navigate('/');
       }
     } catch (error) {
       console.error('Lỗi khi thanh toán:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request data:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
       alert('Thanh toán thất bại. Vui lòng thử lại.');
     }
   };
-
   
   //scroll header
   useEffect(() => {
