@@ -12,6 +12,7 @@ const billRoutes = require('./routes/billRoutes');
 const WebSocket = require('ws');
 // Create a WebSocket server on port 8080
 const wss = new WebSocket.Server({ port: 8080 });
+const path = require('path');
 
 // Store connected clients
 const clients = new Set();
@@ -67,6 +68,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
+// Phục vụ file tĩnh từ thư mục uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get("/", (req, res) => {

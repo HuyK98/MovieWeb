@@ -61,27 +61,11 @@ const FilmDetail = () => {
           setSelectedShowtime(initialShowtime);
 
           // Fetch thông tin ghế đã đặt cho ngày đầu tiên
-          const formattedDate = moment(new Date(initialShowtime.date)).format(
-            "YYYY-MM-DD"
-          );
-          const bookedSeatsResponse = await axios.get(
-            "http://localhost:5000/api/payment/seats/page",
-            {
-              params: {
-                movieTitle: movieResponse.data.title,
-                date: formattedDate,
-              },
-            }
-          );
+          await fetchSeats(movieResponse.data.title, uniqueDates[0]);
 
-          const bookedSeatsByTime = bookedSeatsResponse.data || [];
-          const totalSeats = 70; // Tổng số ghế
-          const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
-            time: slot.time,
-            availableSeats: totalSeats - slot.bookedSeats,
-          }));
-
-          setBookings(availableSeatsByTime);
+          // const formattedDate = moment(new Date(initialShowtime.date)).format(
+          //   "YYYY-MM-DD"
+          // );
         }
 
         setLoading(false);
@@ -94,6 +78,40 @@ const FilmDetail = () => {
 
     fetchData();
   }, [movieId]);
+
+  // Fetch thông tin ghế khi ngày thay đổi
+  useEffect(() => {
+    if (selectedDate && movie) {
+      fetchSeats(movie.title, selectedDate);
+    }
+  }, [selectedDate, movie]);
+
+  const fetchSeats = async (movieTitle, date) => {
+    try {
+      const formattedDate = moment(new Date(date)).format("YYYY-MM-DD");
+      const bookedSeatsResponse = await axios.get(
+        "http://localhost:5000/api/payment/seats/page",
+        {
+          params: {
+            movieTitle: movieTitle,
+            date: formattedDate,
+          },
+        }
+      );
+
+      const bookedSeatsByTime = bookedSeatsResponse.data || [];
+      const totalSeats = 70; // Tổng số ghế
+      const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
+        time: slot.time,
+        availableSeats: totalSeats - slot.bookedSeats,
+      }));
+
+      setBookings(availableSeatsByTime);
+    } catch (error) {
+      console.error("Error fetching seats:", error);
+      setBookings([]); // Đặt danh sách ghế trống nếu có lỗi
+    }
+  };
 
     //scroll header
     useEffect(() => {

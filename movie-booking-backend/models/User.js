@@ -19,6 +19,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  image: { 
+    type: String,
+    default: "/default-avatar.png",
+  },
   //phân quyền admin, useruser
   role: {
     type: String,

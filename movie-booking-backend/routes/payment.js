@@ -44,7 +44,7 @@ router.get('/seats/page', async (req, res) => {
   const { movieTitle, date } = req.query;
 
   try {
-    console.log('Query parameters:', { movieTitle, date });
+    // console.log('Query parameters:', { movieTitle, date });
 
     if (!date) {
       return res.status(400).json({ message: "Date is required" });

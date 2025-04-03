@@ -6,7 +6,8 @@ const bcrypt = require('bcryptjs');
 const { protect } = require('../middleware/authMiddleware');
 const { OAuth2Client } = require('google-auth-library'); // Import OAuth2Client
 require('dotenv').config(); // Import dotenv để sử dụng biến môi trường
-
+const multer = require('multer');
+const path = require('path');
 // Đăng ký
 router.post('/register', async (req, res) => {
   const { name, email, password, phone } = req.body;
@@ -70,24 +71,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Lấy thông tin người dùng hiện tại
+// Lấy thông tin người dùng hiện tại and Cập nhật thông tin người dùng hiện tại
 router.get('/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
-    if (user) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      });
-    } else {
-      res.status(404).json({ message: 'Người dùng không tồn tại' });
+    if (!user) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại' });
     }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      image: user.image,
+      role: user.role,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    res.status(500).json({ message: 'Lỗi máy chủ khi lấy thông tin người dùng' });
   }
 });
 
@@ -179,6 +181,61 @@ router.post('/google-login', async (req, res) => {
   } catch (error) {
     console.error('Error during Google login:', error);
     res.status(400).json({ message: 'Đăng nhập bằng Google thất bại', error });
+  }
+});
+
+// Cấu hình multer để lưu trữ file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Thư mục lưu trữ hình ảnh
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // Đặt tên file duy nhất
+  },
+});
+
+// Kiểm tra định dạng file
+const fileFilter = (req, file, cb) => {
+  const allowedFileTypes = /jpeg|jpg|png|gif|webp/; // Các định dạng được phép
+  const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedFileTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Chỉ cho phép các định dạng ảnh: .jpeg, .jpg, .png, .gif, .webp'));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn kích thước file: 5MB
+});
+
+// API upload hình ảnh
+router.post('/upload', protect, upload.single('image'), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.error("User not found for ID:", req.user.id); // Log nếu không tìm thấy người dùng
+      return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    }
+
+    if (!req.file) {
+      console.error("No file uploaded"); // Log nếu không có file được tải lên
+      return res.status(400).json({ message: 'Không có file nào được tải lên' });
+    }
+
+    // Cập nhật URL hình ảnh vào cơ sở dữ liệu
+    user.image = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.status(200).json({ message: 'Hình ảnh đã được upload', imageUrl: user.image });
+  } catch (error) {
+    console.error("Error in upload API:", error); // Log chi tiết lỗi
+    res.status(500).json({ message: 'Lỗi máy chủ khi upload hình ảnh', error: error.message });
   }
 });
 
