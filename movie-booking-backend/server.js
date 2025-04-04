@@ -5,13 +5,42 @@ require("dotenv").config();
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const movieRoutes = require("./routes/movieRoutes");
-const Movie = require("./models/Movie"); // ✅ Fix lỗi thiếu import Movie
+const userRoutes = require('./routes/userRoutes');  
+
+
+const Movie = require("./models/Movie");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
+const WebSocket = require('ws');
 
+// Create a WebSocket server on port 8080
+const wss = new WebSocket.Server({ port: 8080 });
+
+// Store connected clients
+const clients = new Set();
+
+wss.on('connection', (ws) => {
+  console.log('New client connected');
+  clients.add(ws);
+
+  ws.on('message', (message) => {
+    const messageString = message.toString('utf8'); 
+    console.log(`Received: ${messageString}`);
+    for (const client of clients) {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(messageString); 
+      }
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+    clients.delete(ws);
+  });
+});
 
 const app = express();
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Cấu hình CORS để cho phép frontend (React) truy cập
@@ -32,12 +61,13 @@ mongoose
     process.exit(1);
   });
 
-// Sử dụng route movie
+// Sử dụng các route
 app.use("/api/movies", movieRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/users', userRoutes);
 
 
 app.get("/", (req, res) => {
@@ -45,3 +75,4 @@ app.get("/", (req, res) => {
 });
 
 app.listen(5000, () => console.log("🚀 Server running on port 5000"));
+console.log('WebSocket server running on ws://localhost:8080');
