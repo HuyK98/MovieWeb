@@ -65,7 +65,7 @@ const AddMovie = () => {
         },
       });
       alert("Phim đã thêm thành công!");
-      navigate("/");
+      navigate("/admin/movies");
     } catch (error) {
       console.error("Lỗi khi thêm phim:", error);
       alert("Có lỗi xảy ra!");
@@ -106,7 +106,7 @@ const AddMovie = () => {
                 </li>
                 <li>
                   <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
-                </li>
+                </li>          
               </ul>
             )}
           </li>

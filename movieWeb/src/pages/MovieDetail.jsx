@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import '../styles/MovieDetail.css';
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 import logo from "../assets/logo.jpg";
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useLanguage } from "../pages/LanguageContext"; // Thêm import
+import vietnamFlag from "../assets/poster/Vietnam.jpg"; // Thêm cờ Việt Nam
+import englandFlag from "../assets/poster/england-flag.png"; // Thêm cờ Anh
 import {
   faSearch,
   faSun,
@@ -15,11 +20,13 @@ import {
   faTiktok,
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
+import moment from 'moment';
 
 const MovieDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { bookingInfo } = location.state || {};
+  const { language, toggleLanguage } = useLanguage(); // Thêm useLanguage
 
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -28,17 +35,77 @@ const MovieDetail = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
 
+  const texts = {
+    vi: {
+      showtimes: "LỊCH CHIẾU THEO RẠP",
+      movies: "PHIM",
+      theaters: "RẠP",
+      ticketPrices: "GIÁ VÉ",
+      news: "TIN MỚI VÀ ƯU ĐÃI",
+      searchPlaceholder: "Tìm kiếm phim...",
+      login: "Đăng nhập",
+      logout: "Đăng xuất",
+      hello: "Xin chào",
+      seatingChart: "SƠ ĐỒ GHẾ NGỒI",
+      screen: "Màn hình chiếu",
+      seatsLabel: "Ghế ngồi",
+      totalPriceLabel: "Tổng tiền",
+      movieInfoTitle: "Thông tin chi tiết về phim",
+      movieTitleLabel: "Tên phim",
+      genreLabel: "Thể loại",
+      durationLabel: "Thời lượng",
+      cinemaLabel: "Rạp chiếu",
+      showDateLabel: "Ngày chiếu",
+      showTimeLabel: "Giờ chiếu",
+      backButton: "Quay lại",
+      continueButton: "Tiếp tục",
+      available: "Ghế trống",
+      selected: "Ghế đang chọn",
+      booked: "Ghế đã đặt",
+      vnd: "VND",
+    },
+    en: {
+      showtimes: "SHOWTIMES",
+      movies: "MOVIES",
+      theaters: "THEATERS",
+      ticketPrices: "TICKET PRICES",
+      news: "NEWS & PROMOTIONS",
+      searchPlaceholder: "Search movies...",
+      login: "Login",
+      logout: "Logout",
+      hello: "Hello",
+      seatingChart: "SEATING CHART",
+      screen: "Screen",
+      seatsLabel: "Seats",
+      totalPriceLabel: "Total Price",
+      movieInfoTitle: "Movie Details",
+      movieTitleLabel: "Movie Title",
+      genreLabel: "Genre",
+      durationLabel: "Duration",
+      cinemaLabel: "Theater",
+      showDateLabel: "Show Date",
+      showTimeLabel: "Show Time",
+      backButton: "Back",
+      continueButton: "Continue",
+      available: "Available",
+      selected: "Selected",
+      booked: "Booked",
+      vnd: "VND",
+    },
+  };
+
   useEffect(() => {
     const fetchSeats = async () => {
       try {
         if (!bookingInfo || !bookingInfo.movieTitle || !bookingInfo.date || !bookingInfo.time) {
-          console.error('bookingInfo hoặc các trường cần thiết là undefined');
+          console.error('bookingInfo or required fields are undefined');
           return;
         }
+        const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
         const response = await axios.get('http://localhost:5000/api/payment/seats', {
           params: {
             movieTitle: bookingInfo.movieTitle,
-            date: bookingInfo.date,
+            date: formattedDate,
             time: bookingInfo.time,
           },
         });
@@ -49,7 +116,7 @@ const MovieDetail = () => {
         }));
         setSeats(allSeats);
       } catch (error) {
-        console.error('Lỗi khi lấy thông tin ghế:', error);
+        console.error('Error fetching seat info:', error);
       }
     };
 
@@ -74,7 +141,9 @@ const MovieDetail = () => {
   };
 
   const handleBooking = () => {
-    navigate('/payment', { state: { bookingInfo, selectedSeats, totalPrice } });
+    const formattedDate = moment(bookingInfo.date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    const updatedBookingInfo = { ...bookingInfo, date: formattedDate };
+    navigate('/payment', { state: { bookingInfo: updatedBookingInfo, selectedSeats, totalPrice } });
   };
 
   const handleSearchChange = (e) => {
@@ -94,139 +163,69 @@ const MovieDetail = () => {
 
   return (
     <div className={`movie-detail-container ${darkMode ? "dark-mode" : ""}`}>
-      <header>
-        <Link to="/">
-          <img src={logo} alt="Logo" className="logo" />
-        </Link>
-        <nav>
-          <ul>
-            <li><Link to="/showtimes">LỊCH CHIẾU THEO RẠP</Link></li>
-            <li><Link to="/movielist">PHIM</Link></li>
-            <li><Link to="/place">RẠP</Link></li>
-            <li><Link to="/about">GIÁ VÉ</Link></li>
-            <li><Link to="/news">TIN MỚI VÀ ƯU ĐÃI</Link></li>
-            {user ? (
+      <Header
+        user={user}
+        handleLogout={handleLogout}
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+        toggleLanguage={toggleLanguage} // Truyền toggleLanguage nếu Header cần
+        language={language} // Truyền language nếu Header cần
+      />
+      <div className="movie-detail-container">
+        <div className="content">
+          <p className="map-seats">{texts[language].seatingChart}</p>
+          <div className="seating-chart">
+            <div className="screen">{texts[language].screen}</div>
+            <div className="seats">
+              {seats.map((seat) => (
+                <div
+                  key={seat.id}
+                  className={`seat ${seat.isBooked ? 'booked' : selectedSeats.includes(seat.id) ? 'selected' : 'available'}`}
+                  onClick={() => handleSeatClick(seat)}
+                >
+                  {seat.id}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="booking-oder">
+            <p><strong>{texts[language].seatsLabel}:</strong> {selectedSeats.join(', ')}</p>
+            <p><strong>{texts[language].totalPriceLabel}:</strong> {totalPrice.toLocaleString()} {texts[language].vnd}</p>
+          </div>
+          <div className="movie-info">
+            <h2>{texts[language].movieInfoTitle}</h2>
+            {bookingInfo && (
               <>
-                <li><span>Xin chào, {user.name}</span></li>
-                <li><button onClick={handleLogout}>Đăng xuất</button></li>
+                <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
+                <div className="details">
+                  <p><strong>{texts[language].movieTitleLabel}:</strong> {bookingInfo.movieTitle}</p>
+                  <p><strong>{texts[language].genreLabel}:</strong> {bookingInfo.genre}</p>
+                  <p><strong>{texts[language].durationLabel}:</strong> {bookingInfo.description}</p>
+                  <p><strong>{texts[language].cinemaLabel}:</strong> {bookingInfo.cinema}</p>
+                  <p><strong>{texts[language].showDateLabel}:</strong> {bookingInfo.date}</p>
+                  <p><strong>{texts[language].showTimeLabel}:</strong> {bookingInfo.time}</p>
+                </div>
               </>
-            ) : (
-              <li><Link to="/login">Login</Link></li>
             )}
-          </ul>
-        </nav>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm kiếm phim..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <button>
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </div>
-      </header>
-
-      <div className="content">
-        <p className='map-seats'>Sơ đồ ghế ngồi</p>
-        <div className="seating-chart">
-          <div className="screen">Màn hình chiếu</div>
-          <div className="seats">
-            {seats.map((seat) => (
-              <div
-                key={seat.id}
-                className={`seat ${seat.isBooked ? 'booked' : selectedSeats.includes(seat.id) ? 'selected' : 'available'}`}
-                onClick={() => handleSeatClick(seat)}
-              >
-                {seat.id}
-              </div>
-            ))}
+            <div className="button-container">
+              <button className='booking-btn' onClick={() => navigate('/')}>{texts[language].backButton}</button>
+              <button className="booking-btn" type="button" onClick={handleBooking}>{texts[language].continueButton}</button>
+            </div>
           </div>
-        </div>
-        <div className="movie-info">
-          <h2>Thông tin chi tiết về phim</h2>
-          {bookingInfo && (
-            <>
-              <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
-              <div className="details">
-                <p><strong>Tên phim:</strong> {bookingInfo.movieTitle}</p>
-                <p><strong>Thể loại:</strong> {bookingInfo.genre}</p>
-                <p><strong>Thời lượng:</strong> {bookingInfo.description}</p>
-                <p><strong>Rạp chiếu:</strong> {bookingInfo.cinema}</p>
-                <p><strong>Ngày chiếu:</strong> {bookingInfo.date}</p>
-                <p><strong>Giờ chiếu:</strong> {bookingInfo.time}</p>
-                <p><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</p>
-                <p><strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND</p>
-              </div>
-            </>
-          )}
-          <button className='button-btn' type="button" onClick={handleBooking}>Tiếp tục</button>
-        </div>
-        <div className="legend">
-          <div className="available">
-            <span></span> <p>Ghế trống</p>
-          </div>
-          <div className="selected">
-            <span></span> <p>Ghế đang chọn</p>
-          </div>
-          <div className="booked">
-            <span></span> <p>Ghế đã đặt</p>
+          <div className="legend">
+            <div className="available">
+              <span></span> <p>{texts[language].available}</p>
+            </div>
+            <div className="selected">
+              <span></span> <p>{texts[language].selected}</p>
+            </div>
+            <div className="booked">
+              <span></span> <p>{texts[language].booked}</p>
+            </div>
           </div>
         </div>
       </div>
-
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-section left">
-            <h3>CÁC RẠP Cinema</h3>
-            <ul>
-              <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-              <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-              <li>Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509</li>
-              <li>Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456</li>
-              <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-              <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
-            </ul>
-          </div>
-          <div className="footer-section center">
-            <Link to="/">
-              <img src={logo} alt="Logo" className="logo" />
-            </Link>
-            <p>© 2021 Cinema Media. All Rights Reserved</p>
-            <button className="toggle-button" onClick={toggleDarkMode}>
-              {darkMode ? (
-                <FontAwesomeIcon icon={faSun} />
-              ) : (
-                <FontAwesomeIcon icon={faMoon} />
-              )}
-              {darkMode ? " Light Mode" : " Dark Mode"}
-            </button>
-          </div>
-          <div className="footer-section right">
-            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
-            <div className="social-links">
-              <a href="#" className="facebook">
-                <FontAwesomeIcon icon={faFacebookF} />
-              </a>
-              <a href="#" className="youtube">
-                <FontAwesomeIcon icon={faYoutube} />
-              </a>
-              <a href="#" className="tiktok">
-                <FontAwesomeIcon icon={faTiktok} />
-              </a>
-              <a href="#" className="instagram">
-                <FontAwesomeIcon icon={faInstagram} />
-              </a>
-            </div>
-            <h3>LIÊN HỆ</h3>
-            <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-            <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-            <p>Hotline: 1800 123 456</p>
-            <p>Email: info@cinemamedia.vn</p>
-          </div>
-        </div>
-      </footer>
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} language={language} /> {/* Truyền language nếu Footer cần */}
     </div>
   );
 };

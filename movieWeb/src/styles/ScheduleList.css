@@ -1,6 +1,7 @@
 .schedule-list {
-  padding: 20px;
+  padding: 1px;
   flex: 11;
+  margin-left: 40px;
 }
 
 .schedule-list h2 {
@@ -44,5 +45,9 @@
 .schedule-table ul li button {
   margin-left: 10px;
   margin-bottom: 15px;
+  padding: 5px 10px;
+}
+
+.editadd-times input,button{
   padding: 5px 10px;
 }

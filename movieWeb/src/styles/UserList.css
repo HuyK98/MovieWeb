@@ -5,6 +5,7 @@
 
 .table-container {
   overflow-x: auto;
+  margin-left: 260px;
 }
 
 .user-table {

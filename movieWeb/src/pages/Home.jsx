@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "@splidejs/splide/dist/css/splide.min.css";
-import axios from "axios"; // Thêm import axios
+import axios from "axios";
 import logo from "../assets/logo.jpg";
 import poster1 from "../assets/poster/post1.jpg";
 import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
+import { useLanguage } from "../pages/LanguageContext";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -27,7 +28,9 @@ import {
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 
-// Hook để kiểm tra khi phần tử xuất hiện trong viewport
+import vietnamFlag from "../assets/poster/Vietnam.jpg";
+import englandFlag from "../assets/poster/england-flag.png";
+
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -51,7 +54,6 @@ const useIntersectionObserver = (options = {}) => {
   return [ref, isVisible];
 };
 
-// Component để wrap phần tử cần hiệu ứng animation
 const AnimatedSection = ({
   children,
   animation = "fade-up",
@@ -86,7 +88,8 @@ const AnimatedSection = ({
 };
 
 const Home = () => {
-  const navigate = useNavigate(); // Thêm useNavigate
+  const navigate = useNavigate();
+  const location = useLocation(); // Use useLocation
   const [currentPoster, setCurrentPoster] = useState(0);
   const posters = [poster1, poster2, poster3, poster4, poster5];
   const [movies, setMovies] = useState([]);
@@ -99,11 +102,92 @@ const Home = () => {
   const [showtimes, setShowtimes] = useState([]);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedSeat, setSelectedSeat] = useState(null);
-  const [bookingInfo, setBookingInfo] = useState(null);
+  const [bookingInfo, setBookingInfo] = useState(
+    location.state?.bookingInfo || null
+  ); // Get bookingInfo from state
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
+  const { language, toggleLanguage } = useLanguage();
 
-  // Xem lịch chiếu và giờ chiếu
+  const texts = {
+    vi: {
+      showtimes: "LỊCH CHIẾU THEO RẠP",
+      movies: "PHIM",
+      theaters: "RẠP",
+      ticketPrices: "GIÁ VÉ",
+      news: "TIN MỚI VÀ ƯU ĐÃI",
+      searchPlaceholder: "Tìm kiếm phim...",
+      logout: "Đăng xuất",
+      hello: "Xin chào",
+      featuredMovies: "Phim Đang Chiếu",
+      upcomingMovies: "Phim Sắp Ra Mắt",
+      viewMore: "Xem Thêm",
+      noMovies: "Không có phim nào",
+      cinemaList: "CÁC RẠP Cinema",
+      connectWithUs: "KẾT NỐI VỚI CHÚNG TÔI",
+      contact: "LIÊN HỆ",
+      companyName: "CÔNG TY CỔ PHẦN CINEMA MEDIA",
+      address: "Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
+      hotline: "Hotline: 1800 123 456",
+      email: "Email: info@cinemamedia.vn",
+      copyright: "© 2021 Cinema Media. Tất cả quyền được bảo lưu",
+      lightMode: "Chế độ sáng",
+      darkMode: "Chế độ tối",
+      theatersList: [
+        "Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183",
+        "Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713",
+        "Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509",
+        "Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456",
+        "Cinema Đống Đa, Hà Nội - Hotline: 098 765 432",
+        "Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432",
+      ],
+      trailer: "Trailer",
+      buyTicket: "Mua vé",
+      showtimeTitle: "Lịch Chiếu",
+      cinema: "Rạp",
+      bookingTitle: "Thông Tin Đặt Vé",
+      confirm: "Xác nhận",
+    },
+    en: {
+      showtimes: "SHOWTIMES",
+      movies: "MOVIES",
+      theaters: "THEATERS",
+      ticketPrices: "TICKET PRICES",
+      news: "NEWS & PROMOTIONS",
+      searchPlaceholder: "Search movies...",
+      logout: "Logout",
+      hello: "Hello",
+      featuredMovies: "Featured Movies",
+      upcomingMovies: "Upcoming Movies",
+      viewMore: "View More",
+      noMovies: "No movies available",
+      cinemaList: "Cinema THEATERS",
+      connectWithUs: "CONNECT WITH US",
+      contact: "CONTACT",
+      companyName: "CINEMA MEDIA CORPORATION",
+      address: "Address: 123 ABC Street, District 1, Ho Chi Minh City",
+      hotline: "Hotline: 1800 123 456",
+      email: "Email: info@cinemamedia.vn",
+      copyright: "© 2021 Cinema Media. All Rights Reserved",
+      lightMode: "Light Mode",
+      darkMode: "Dark Mode",
+      theatersList: [
+        "Cinema Xuan Thuy, Hanoi - Hotline: 033 023 183",
+        "Cinema Tay Son, Hanoi - Hotline: 097 694 713",
+        "Cinema Nguyen Trai, Ho Chi Minh City - Hotline: 070 675 509",
+        "Cinema Quang Trung, Ho Chi Minh City - Hotline: 090 123 456",
+        "Cinema Dong Da, Hanoi - Hotline: 098 765 432",
+        "Cinema Cau Giay, Hanoi - Hotline: 098 765 432",
+      ],
+      trailer: "Trailer",
+      buyTicket: "Buy Ticket",
+      showtimeTitle: "Showtimes",
+      cinema: "Cinema",
+      bookingTitle: "Booking Information",
+      confirm: "Confirm",
+    },
+  };
+
   const handleBuyTicketClick = async (movie) => {
     setSelectedMovie(movie);
     try {
@@ -112,7 +196,7 @@ const Home = () => {
       );
       setShowtimes(response.data);
       if (response.data.length > 0) {
-        setSelectedShowtime(response.data[0]); // Tự động chọn ngày đầu tiên
+        setSelectedShowtime(response.data[0]);
       }
     } catch (error) {
       console.error("Lỗi khi lấy lịch chiếu:", error);
@@ -177,7 +261,6 @@ const Home = () => {
     navigate("/");
   };
 
-  // Auto-rotate poster carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPoster((prev) => (prev + 1) % posters.length);
@@ -185,7 +268,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [posters.length]);
 
-  // Auto-rotate featured movies carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setFeaturedIndex((prev) =>
@@ -286,25 +368,43 @@ const Home = () => {
         </Link>
         <nav>
           <ul>
-            <li><Link to="/showtimes">LỊCH CHIẾU THEO RẠP</Link></li>
-            <li><Link to="/movielist">PHIM</Link></li>
-            <li><Link to="/place">RẠP</Link></li>
-            <li><Link to="/about">GIÁ VÉ</Link></li>
-            <li><Link to="/news">TIN MỚI VÀ ƯU ĐÃI</Link></li>
+            <li>
+              <Link to="/showtimes">{texts[language].showtimes}</Link>
+            </li>
+            <li>
+              <Link to="/movielist">{texts[language].movies}</Link>
+            </li>
+            <li>
+              <Link to="/place">{texts[language].theaters}</Link>
+            </li>
+            <li>
+              <Link to="/about">{texts[language].ticketPrices}</Link>
+            </li>
+            <li>
+              <Link to="/news">{texts[language].news}</Link>
+            </li>
             {user ? (
               <>
-                <li><span>Xin chào, {user.name}</span></li>
-                <li><button onClick={handleLogout}>Đăng xuất</button></li>
+                <li>
+                  <span>
+                    {texts[language].hello}, {user.name}
+                  </span>
+                </li>
+                <li>
+                  <button onClick={handleLogout}>{texts[language].logout}</button>
+                </li>
               </>
             ) : (
-              <li><Link to="/login">Login</Link></li>
+              <li>
+                <Link to="/login">Login</Link>
+              </li>
             )}
           </ul>
         </nav>
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Tìm kiếm phim..."
+            placeholder={texts[language].searchPlaceholder}
             value={searchTerm}
             onChange={handleSearchChange}
           />
@@ -312,6 +412,13 @@ const Home = () => {
             <FontAwesomeIcon icon={faSearch} />
           </button>
         </div>
+        <button className="language-toggle" onClick={toggleLanguage}>
+          <img
+            src={language === "vi" ? englandFlag : vietnamFlag}
+            alt="Language"
+            className="flag-icon"
+          />
+        </button>
       </header>
 
       <div className="poster-container">
@@ -327,9 +434,9 @@ const Home = () => {
       <AnimatedSection animation="fade-up">
         <div className="featured-movies-section">
           <div className="section-header">
-            <h2>Phim Đang Chiếu</h2>
+            <h2>{texts[language].featuredMovies}</h2>
             <div className="view-more">
-              <Link to="/movielist">Xem Thêm</Link>
+              <Link to="/movielist">{texts[language].viewMore}</Link>
             </div>
           </div>
           <div className="featured-movies-container">
@@ -382,9 +489,9 @@ const Home = () => {
       <AnimatedSection animation="fade-left" delay={200}>
         <div className="movie-row-section">
           <div className="section-header">
-            <h2>Phim Sắp Ra Mắt</h2>
+            <h2>{texts[language].upcomingMovies}</h2>
             <div className="view-more">
-              <Link to="/movielist">Xem Thêm</Link>
+              <Link to="/movielist">{texts[language].viewMore}</Link>
             </div>
           </div>
           <div className="movie-row-container">
@@ -412,7 +519,7 @@ const Home = () => {
                 </AnimatedSection>
               ))
             ) : (
-              <p>Không có phim nào</p>
+              <p>{texts[language].noMovies}</p>
             )}
           </div>
         </div>
@@ -443,7 +550,7 @@ const Home = () => {
                             icon={faPlay}
                             style={{ marginRight: "8px" }}
                           />
-                          Trailer
+                          {texts[language].trailer}
                         </button>
                       </div>
                       <h3>{movie.title}</h3>
@@ -457,13 +564,13 @@ const Home = () => {
                         className="card-button"
                         onClick={() => handleBuyTicketClick(movie)}
                       >
-                        MUA VÉ
+                        {texts[language].buyTicket}
                       </button>
                     </div>
                   </AnimatedSection>
                 ))
               ) : (
-                <p>Không có phim nào</p>
+                <p>{texts[language].noMovies}</p>
               )}
             </div>
           )}
@@ -487,8 +594,8 @@ const Home = () => {
             <button className="close-button" onClick={handleClosePopup}>
               X
             </button>
-            <h2>LỊCH CHIẾU - {selectedMovie.title}</h2>
-            <h1>Rạp CINEMA</h1>
+            <h2>{texts[language].showtimeTitle} - {selectedMovie.title}</h2>
+            <h1>{texts[language].cinema}</h1>
             <ul className="date-showtime">
               {showtimes
                 .map((showtime) => showtime.date)
@@ -533,12 +640,12 @@ const Home = () => {
               <button className="close-button" onClick={handleClosePopup}>
                 X
               </button>
-              <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
+              <h3>{texts[language].bookingTitle}</h3>
               <h2>{bookingInfo.movieTitle}</h2>
               <table>
                 <tbody>
                   <tr>
-                    <th>RẠP CHIẾU</th>
+                    <th>{texts[language].cinema}</th>
                     <th>NGÀY CHIẾU</th>
                     <th>GIỜ CHIẾU</th>
                   </tr>
@@ -553,7 +660,7 @@ const Home = () => {
                 className="confirm-button"
                 onClick={handleConfirmBooking}
               >
-                ĐỒNG Ý
+                {texts[language].confirm}
               </button>
             </div>
           )}
@@ -564,18 +671,11 @@ const Home = () => {
         <div className="footer-container">
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="footer-section left">
-              <h3>CÁC RẠP Cinema</h3>
+              <h3>{texts[language].cinemaList}</h3>
               <ul>
-                <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-                <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-                <li>
-                  Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509
-                </li>
-                <li>
-                  Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456
-                </li>
-                <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-                <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
+                {texts[language].theatersList.map((theater, index) => (
+                  <li key={index}>{theater}</li>
+                ))}
               </ul>
             </div>
           </AnimatedSection>
@@ -584,20 +684,20 @@ const Home = () => {
               <Link to="/">
                 <img src={logo} alt="Logo" className="logo" />
               </Link>
-              <p>© 2021 Cinema Media. All Rights Reserved</p>
+              <p>{texts[language].copyright}</p>
               <button className="toggle-button" onClick={toggleDarkMode}>
                 {darkMode ? (
                   <FontAwesomeIcon icon={faSun} />
                 ) : (
                   <FontAwesomeIcon icon={faMoon} />
                 )}
-                {darkMode ? " Light Mode" : " Dark Mode"}
+                {darkMode ? `${texts[language].lightMode}` : `${texts[language].darkMode}`}
               </button>
             </div>
           </AnimatedSection>
           <AnimatedSection animation="fade-up" delay={300}>
             <div className="footer-section right">
-              <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+              <h3>{texts[language].connectWithUs}</h3>
               <div className="social-links">
                 <a href="#" className="facebook">
                   <FontAwesomeIcon icon={faFacebookF} />
@@ -612,11 +712,11 @@ const Home = () => {
                   <FontAwesomeIcon icon={faInstagram} />
                 </a>
               </div>
-              <h3>LIÊN HỆ</h3>
-              <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-              <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-              <p>Hotline: 1800 123 456</p>
-              <p>Email: info@cinemamedia.vn</p>
+              <h3>{texts[language].contact}</h3>
+              <p>{texts[language].companyName}</p>
+              <p>{texts[language].address}</p>
+              <p>{texts[language].hotline}</p>
+              <p>{texts[language].email}</p>
             </div>
           </AnimatedSection>
         </div>

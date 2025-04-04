@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { FaCogs, FaFilm, FaUser, FaTicketAlt, FaSignOutAlt, FaChartLine } from "react-icons/fa";
-import { MdRemoveRedEye, MdOutlineAddCircle, MdTheaters, MdSchedule, MdCategory } from "react-icons/md";
+import {
+  FaCogs,
+  FaFilm,
+  FaUser,
+  FaTicketAlt,
+  FaSignOutAlt,
+  FaChartLine,
+} from "react-icons/fa";
+import {
+  MdRemoveRedEye,
+  MdOutlineAddCircle,
+  MdTheaters,
+  MdSchedule,
+  MdCategory,
+} from "react-icons/md";
 import "../styles/ScheduleList.css";
 import logo from "../assets/logo.jpg";
 
@@ -10,7 +23,7 @@ const ScheduleList = () => {
   const [showtimes, setShowtimes] = useState([]);
   const [newTime, setNewTime] = useState("");
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
-
+  const [editTimes, setEditTimes] = useState({});
   const toggleMoviesMenu = () => {
     setIsMoviesOpen(!isMoviesOpen);
   };
@@ -48,11 +61,16 @@ const ScheduleList = () => {
   };
 
   const handleEditTime = async (showtimeId, timeId) => {
+    const timeToEdit = editTimes[timeId];
+    if (!timeToEdit) {
+      alert("Vui lòng nhập giờ chiếu mới");
+      return;
+    }
     try {
       const response = await axios.put(
         `http://localhost:5000/api/showtimes/${showtimeId}/time/${timeId}`,
         {
-          time: newTime,
+          time: timeToEdit,
           seats: 70, // Mặc định số ghế là 70
         }
       );
@@ -60,7 +78,7 @@ const ScheduleList = () => {
       setShowtimes(
         showtimes.map((st) => (st._id === showtimeId ? response.data : st))
       );
-      setNewTime("");
+      setEditTimes((prev) => ({ ...prev, [timeId]: "" }));
     } catch (error) {
       console.error("Lỗi khi chỉnh sửa giờ chiếu:", error);
       alert("Có lỗi xảy ra!");
@@ -104,32 +122,68 @@ const ScheduleList = () => {
           </li>
 
           <li>
-            <div onClick={() => setIsMoviesOpen(!isMoviesOpen)} className="menu-item">
-              <FaFilm className="icon" /> Quản lý phim {isMoviesOpen ? "▲" : "▼"}
+            <div
+              onClick={() => setIsMoviesOpen(!isMoviesOpen)}
+              className="menu-item"
+            >
+              <FaFilm className="icon" /> Quản lý phim{" "}
+              {isMoviesOpen ? "▲" : "▼"}
             </div>
             {isMoviesOpen && (
               <ul className="submenu">
                 <li>
-                  <Link to="/admin/movies"><MdRemoveRedEye className="icon-sub" /> Danh sách phim</Link>
+                  <Link to="/admin/movies">
+                    <MdRemoveRedEye className="icon-sub" /> Danh sách phim
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-movie"><MdOutlineAddCircle className="icon-sub" /> Thêm phim</Link>
+                  <Link to="/admin/add-movie">
+                    <MdOutlineAddCircle className="icon-sub" /> Thêm phim
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/movie-detail"><MdTheaters className="icon-sub" /> Xem chi tiết phim</Link>
+                  <Link to="/admin/movie-detail">
+                    <MdTheaters className="icon-sub" /> Xem chi tiết phim
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/admin/add-showtime"><MdSchedule className="icon-sub" /> Thêm lịch chiếu</Link>
+                  <Link to="/admin/add-showtime">
+                    <MdSchedule className="icon-sub" /> Thêm lịch chiếu
+                  </Link>
                 </li>
               </ul>
             )}
           </li>
-          <li><Link to="/admin/schedules" className="menu-item"><MdSchedule className="icon" /> Quản lý lịch chiếu</Link></li>
-          <li><Link to="/admin/genres" className="menu-item"><MdCategory className="icon" /> Quản lý thể loại phim</Link></li>
-          <li><Link to="/admin/users" className="menu-item"><FaUser className="icon" /> Quản lý người dùng</Link></li>
-          <li><Link to="/admin/tickets" className="menu-item"><FaTicketAlt className="icon" /> Quản lý vé</Link></li>
-          <li><Link to="/admin/revenue" className="menu-item"><FaChartLine className="icon" /> Quản lý doanh thu</Link></li>
-          <li><Link to="/logout" className="menu-item logout"><FaSignOutAlt className="icon" /> Đăng xuất</Link></li>
+          <li>
+            <Link to="/admin/schedules" className="menu-item">
+              <MdSchedule className="icon" /> Quản lý lịch chiếu
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/genres" className="menu-item">
+              <MdCategory className="icon" /> Quản lý thể loại phim
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/users" className="menu-item">
+              <FaUser className="icon" /> Quản lý người dùng
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/tickets" className="menu-item">
+              <FaTicketAlt className="icon" /> Quản lý vé
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/revenue" className="menu-item">
+              <FaChartLine className="icon" /> Quản lý doanh thu
+            </Link>
+          </li>
+          <li>
+            <Link to="/logout" className="menu-item logout">
+              <FaSignOutAlt className="icon" /> Đăng xuất
+            </Link>
+          </li>
         </ul>
       </aside>
       <div className="schedule-list">
@@ -138,6 +192,7 @@ const ScheduleList = () => {
           <table className="schedule-table">
             <thead>
               <tr>
+                <th>STT</th>
                 <th>Phim</th>
                 <th>Ngày</th>
                 <th>Giờ chiếu</th>
@@ -147,20 +202,31 @@ const ScheduleList = () => {
             <tbody>
               {showtimes.map((showtime) => (
                 <tr key={showtime._id}>
-                  <td>{showtime.movieId.title}</td>
+                  <td>{showtimes.indexOf(showtime) + 1}</td>
+                  <td>{showtime.movieId ? showtime.movieId.title : "N/A"}</td>
                   <td>{showtime.date}</td>
                   <td>
                     <ul>
                       {showtime.times.map((time) => (
                         <li key={time._id}>
                           {time.time}
+                          <input
+                            type="time"
+                            value={editTimes[time._id] || ""}
+                            onChange={(e) =>
+                              setEditTimes((prev) => ({ ...prev, [time._id]: e.target.value }))
+                            }
+                            placeholder="Giờ chiếu mới"
+                          />
                           <button
                             onClick={() => handleEditTime(showtime._id, time._id)}
                           >
                             Chỉnh sửa
                           </button>
                           <button
-                            onClick={() => handleDeleteTime(showtime._id, time._id)}
+                            onClick={() =>
+                              handleDeleteTime(showtime._id, time._id)
+                            }
                           >
                             Xóa
                           </button>
@@ -168,7 +234,7 @@ const ScheduleList = () => {
                       ))}
                     </ul>
                   </td>
-                  <td>
+                  <td className="editdadd-times">
                     <input
                       type="time"
                       value={newTime}
