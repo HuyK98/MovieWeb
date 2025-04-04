@@ -27,11 +27,20 @@ label {
   margin-bottom: 5px;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
+}
+
+/* Thu nhỏ khung "Choose File" */
+input[type="file"] {
+  width: 200px; /* Điều chỉnh chiều rộng theo ý muốn */
+  padding: 5px; /* Điều chỉnh padding theo ý muốn */
+  font-size: 14px; /* Điều chỉnh kích thước font theo ý muốn */
 }
 
 textarea {
@@ -45,11 +54,34 @@ textarea {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .change-password {
   text-align: left;
   color: #011c38;
   cursor: pointer;
+}
+
+.change-avatar-button,
+.save-avatar-button {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 5px; /* Thêm khoảng cách giữa các nút */
+  color: black; /* Màu chữ đen */
+  flex: 1; /* Chia đều không gian giữa các nút */
+  text-align: center; /* Căn giữa chữ trong nút */
+  font-size: 14px;
+}
+
+.change-avatar-button {
+  border: 1px solid #ccc; /* Thêm viền cho nút "Thay đổi" */
+}
+
+.save-avatar-button {
+  background-color: #a8dadc;
+  color: white;
 }
