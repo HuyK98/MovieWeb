@@ -17,16 +17,42 @@ const UserSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
   },
-  //phân quyền admin, useruser
+  cmnd: {
+    type: String,
+  },
+  dob: {
+    type: Date,
+  },
+  gender: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  district: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  avatar: {
+    type: String,  // Trường avatar để lưu đường dẫn ảnh
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
   },
+  dob: {
+    type: Date, // Đảm bảo sử dụng kiểu Date
+    required: false,
+  },
+}, {
+  timestamps: true, // Tự động lưu thời gian tạo và cập nhật
 });
 
+// Mã hóa mật khẩu trước khi lưu
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
@@ -36,6 +62,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
+// Kiểm tra mật khẩu
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
