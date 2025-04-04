@@ -1,0 +1,240 @@
+/* Logo */
+.logo {
+    max-width: 150px;
+    height: auto;
+    vertical-align: middle;
+  }
+  
+  /* Navigation */
+  nav {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  nav ul li {
+    margin-left: 20px;
+  }
+  
+  nav ul li a {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  nav ul li a:hover {
+    color: #007bff;
+  }
+  
+  /* Search Bar */
+  .search-bar {
+    position: relative;
+    margin-left: 20px; /* Khoảng cách với menu */
+  }
+  
+  .search-input {
+    padding: 8px 40px 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+    width: 200px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+  
+  .search-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .search-button:hover {
+    color: #007bff;
+  }
+  
+  /* Movie List Container */
+  .movie-list-container {
+    margin-top: 80px; /* Khoảng cách từ header cố định */
+    padding: 20px;
+  }
+  
+  .movie-list-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .movies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .movie-item {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 200px;
+    text-align: center;
+  }
+  
+  .movie-image-container {
+    position: relative;
+  }
+  
+  .movie-image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  .trailer-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+  }
+  
+  .movie-image-container:hover .trailer-button {
+    display: block;
+  }
+  
+  .card-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .card-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .social-links a {
+    color: #333;
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 20px;
+  }
+  
+  .social-links a:hover {
+    color: #007bff;
+  }
+  
+  .social-links .facebook { color: #1877F2; }
+  .social-links .youtube { color: #FF0000; }
+  .social-links .tiktok { color: #000000; }
+  .social-links .instagram { color: #E4405F; }
+  
+  .toggle-button {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .toggle-button:hover {
+    color: #007bff;
+  }
+  
+  /* Dark Mode */
+  .dark-mode {
+    background-color: #222;
+    color: #fff;
+  }
+  
+  .dark-mode header {
+    background-color: #333;
+  }
+  
+  .dark-mode nav ul li a {
+    color: #fff;
+  }
+  
+  .dark-mode .search-input {
+    background-color: #444;
+    border-color: #555;
+    color: #fff;
+  }
+  
+  .dark-mode .search-button {
+    color: #ccc;
+  }
+  
+  .dark-mode .movie-list-container {
+    background-color: #222;
+  }
+  
+  .dark-mode .movie-item {
+    background-color: #333;
+  }
+  
+  .dark-mode .footer {
+    background-color: #333;
+    color: #ccc;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    header {
+      padding: 5px 10px;
+    }
+  
+    .logo {
+      max-width: 120px;
+    }
+  
+    .search-input {
+      width: 150px;
+      padding: 6px 35px 6px 10px;
+    }
+  
+    .search-button {
+      right: 8px;
+      font-size: 14px;
+    }
+  
+    nav ul {
+      display: none;
+    }
+  
+    .movie-item {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
