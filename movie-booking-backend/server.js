@@ -11,6 +11,7 @@ const paymentRoutes = require('./routes/payment');
 const billRoutes = require('./routes/billRoutes'); 
 const bookingRoutes = require('./routes/bookingRoutes');
 const WebSocket = require('ws');
+const path = require('path');
 // Create a WebSocket server on port 8080
 const wss = new WebSocket.Server({ port: 8080 });
 
@@ -69,6 +70,8 @@ app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api', bookingRoutes);
+// Phục vụ file tĩnh từ thư mục uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("/", (req, res) => {
   res.send("🎬 Movie Booking API is running...");

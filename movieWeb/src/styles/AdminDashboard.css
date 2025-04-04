@@ -8,7 +8,7 @@
 
 /* === Sidebar === */
 .sidebar {
-  width: 250px;
+  width: 230px;
   background: linear-gradient(135deg, #1a1a2e, #16213e);
   color: white;
   display: flex;
@@ -35,7 +35,9 @@
 }
 
 .sidebar.collapsed .logo-admin {
-  width: 75px;
+  margin-right: 30px;
+  width: 100%;
+  height: 60px;
   align-items: center;
 }
 
@@ -78,13 +80,27 @@
 }
 
 
+/* Nút collapse */
 .collapse-button {
-  background: none;
+  position: absolute;
+  left: 230px; /* Đặt nút ngay bên cạnh sidebar */
+  height: 60px;
+  background-color: hsl(0, 79%, 53%);
+  color: white;
   border: none;
-  color: #fff;
   font-size: 20px;
   cursor: pointer;
-  margin-left: auto;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.admin-dashboard.collapsed .collapse-button {
+  left: 100px; /* Điều chỉnh vị trí khi sidebar thu gọn */
+}
+
+.collapse-button:hover {
+  background-color: hsl(0, 79%, 43%);
 }
 
 .sidebar-header {
@@ -98,7 +114,7 @@
 }
 
 .logo-admin {
-  width: 289px;
+  width: 230px;
   height: 100px;
   margin: 0;
 }

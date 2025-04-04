@@ -256,7 +256,7 @@ const Showtime = () => {
   // Thêm useEffect để lấy dữ liệu từ bookings
   const fetchBookedSeats = async () => {
     if (!selectedShowtime || !selectedShowtime.date) {
-      console.warn("Missing required parameters for fetching booked seats.");
+      //console.warn("Missing required parameters for fetching booked seats.");
       return;
     }
 
@@ -273,7 +273,7 @@ const Showtime = () => {
       );
 
       const bookedSeatsByMovie = response.data;
-      console.log("Booked seats by movie:", bookedSeatsByMovie);
+      //console.log("Booked seats by movie:", bookedSeatsByMovie);
 
       // Tính số ghế còn trống cho từng phim và từng khung giờ
       const totalSeats = 70; // Tổng số ghế
@@ -283,7 +283,7 @@ const Showtime = () => {
         return acc;
       }, {});
 
-      console.log("Available seats by movie:", availableSeatsByMovie);
+      //console.log("Available seats by movie:", availableSeatsByMovie);
 
       setBookings(availableSeatsByMovie); // Lưu danh sách số ghế còn trống theo từng phim
     } catch (error) {

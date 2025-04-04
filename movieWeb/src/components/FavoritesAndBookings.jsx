@@ -210,13 +210,13 @@ const FavoritesAndBookings = ({
                       {selectedMenu === booking._id && (
                         <div className="menu-list">
                           <button
-                            className="menu-item"
+                            className="menu-item-favorite"
                             onClick={() => handleOpenModal(booking._id, "cash")}
                           >
                             Xóa khỏi danh sách
                           </button>
                           <button
-                            className="menu-item"
+                            className="menu-item-favorite"
                             onClick={() => handleMarkAsRead(booking._id)}
                           >
                             Đánh dấu là đã đọc
@@ -265,13 +265,13 @@ const FavoritesAndBookings = ({
                       {selectedMenu === booking._id && (
                         <div className="menu-list">
                           <button
-                            className="menu-item"
+                            className="menu-item-favorite"
                             onClick={() => handleOpenModal(booking._id, "cash")}
                           >
                             Xóa khỏi danh sách
                           </button>
                           <button
-                            className="menu-item"
+                            className="menu-item-favorite"
                             onClick={() => handleMarkAsRead(booking._id)}
                           >
                             Đánh dấu là đã đọc

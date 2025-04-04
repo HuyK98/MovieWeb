@@ -444,8 +444,8 @@ const Home = () => {
 
       try {
         const formattedDate = moment(new Date(selectedShowtime.date)).format('YYYY-MM-DD');
-        console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
-        console.log('fetchBookedSeats - formattedDate:', formattedDate);
+        //console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
+        //console.log('fetchBookedSeats - formattedDate:', formattedDate);
 
         const response = await axios.get('http://localhost:5000/api/payment/seats/page', {
           params: {
@@ -455,7 +455,7 @@ const Home = () => {
         });
 
         const bookedSeatsByTime = response.data;
-        console.log('Booked seats by time:', bookedSeatsByTime);
+        //console.log('Booked seats by time:', bookedSeatsByTime);
 
         // Tính số ghế còn trống cho từng khung giờ
         const totalSeats = 70; // Tổng số ghế
@@ -464,7 +464,7 @@ const Home = () => {
           availableSeats: totalSeats - slot.bookedSeats,
         }));
 
-        console.log('Available seats by time:', availableSeatsByTime);
+        //console.log('Available seats by time:', availableSeatsByTime);
 
         setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
       } catch (error) {
