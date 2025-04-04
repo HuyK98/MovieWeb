@@ -25,7 +25,7 @@ const BookingDetail = () => {
     const fetchBookingAndMovie = async () => {
       try {
         // Fetch booking data
-        const bookingResponse = await fetch(`http://localhost:5000/api/booking/${bookingId}`);
+        const bookingResponse = await fetch(`http://localhost:5000/api/bookings/booking/${bookingId}`);
         const bookingData = await bookingResponse.json();
   
         // Fetch movies data

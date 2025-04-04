@@ -7,9 +7,28 @@ import "../../styles/HeaderAdmin.css";
 const HeaderAdmin = () => {
   const [user, setUser] = useState(null); // Lưu thông tin người dùng
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false); // Trạng thái popup thông báo
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [uploading, setUploading] = useState(false); // Trạng thái upload
+  const [notifications, setNotifications] = useState([]); // Lưu danh sách thông báo
   const navigate = useNavigate();
+
+  // Gọi API để lấy danh sách thông báo
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/bookings/notifications"
+        );
+        console.log("Notifications data:", response.data); // Log dữ liệu thông báo
+        setNotifications(response.data); // Lưu danh sách thông báo vào state
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   // Gọi API để lấy thông tin người dùng
   useEffect(() => {
@@ -23,12 +42,15 @@ const HeaderAdmin = () => {
           throw new Error("No token found");
         }
 
-        const response = await axios.get("http://localhost:5000/api/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`, // Gửi token trong header
-          },
-        });
-        console.log("User data:", response.data); // Log dữ liệu người dùng
+        const response = await axios.get(
+          "http://localhost:5000/api/auth/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${userInfo.token}`, // Gửi token trong header
+            },
+          }
+        );
+        // console.log("User data:", response.data); // Log dữ liệu người dùng
         setUser(response.data); // Lưu thông tin người dùng vào state
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -47,16 +69,16 @@ const HeaderAdmin = () => {
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append("image", file);
-  
+
     try {
       setUploading(true); // Bắt đầu trạng thái upload
       const token = localStorage.getItem("userInfo")
         ? JSON.parse(localStorage.getItem("userInfo")).token
         : null;
-  
+
       const response = await axios.post(
         "http://localhost:5000/api/auth/upload", // API upload hình ảnh
         formData,
@@ -67,9 +89,9 @@ const HeaderAdmin = () => {
           },
         }
       );
-  
+
       const imageUrl = response.data.imageUrl; // URL hình ảnh trả về từ API
-  
+
       // Cập nhật URL hình ảnh trong cơ sở dữ liệu
       await axios.put(
         `http://localhost:5000/api/auth/profile`, // API cập nhật thông tin người dùng
@@ -80,7 +102,7 @@ const HeaderAdmin = () => {
           },
         }
       );
-  
+
       // Cập nhật state user với URL hình ảnh mới
       setUser((prevUser) => ({ ...prevUser, image: imageUrl }));
       setUploading(false); // Kết thúc trạng thái upload
@@ -103,10 +125,42 @@ const HeaderAdmin = () => {
       </div>
       <div className="header-right">
         {/* Chuông thông báo */}
-        <div className="icon-container">
+        <div
+          className="icon-container"
+          onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+        >
           <FaBell className="icon" />
-          <span className="badge">3</span> {/* Badge thông báo */}
+          <span className="badge">{notifications.length}</span>{" "}
+          {/* Hiển thị số lượng thông báo */}
         </div>
+
+        {/* Popup danh sách thông báo */}
+        {isNotificationOpen && (
+          <div className="notification-popup">
+            <h4>Thông báo</h4>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <div key={notification._id} className="notification-item">
+                  <p>
+                    <strong>
+                      {notification.user?.name || "Người dùng không xác định"}
+                    </strong>{" "}
+                    đã đặt vé cho phim{" "}
+                    <strong>
+                      {notification.movie?.title || "Phim không xác định"}
+                    </strong>
+                    .
+                  </p>
+                  <small>
+                    {new Date(notification.createdAt).toLocaleString()}
+                  </small>
+                </div>
+              ))
+            ) : (
+              <p>Không có thông báo mới.</p>
+            )}
+          </div>
+        )}
 
         {/* Hộp thư */}
         <div className="icon-container">
@@ -158,7 +212,9 @@ const HeaderAdmin = () => {
                     <span>Uploading...</span>
                   ) : (
                     <img
-                    src={`http://localhost:5000${user?.image || "/default-avatar.png"}`} // Thêm tiền tố URL server
+                      src={`http://localhost:5000${
+                        user?.image || "/default-avatar.png"
+                      }`} // Thêm tiền tố URL server
                       alt="Profile"
                     />
                   )}
@@ -179,7 +235,9 @@ const HeaderAdmin = () => {
               <p>
                 <strong>Email:</strong> {user?.email || "N/A"}
               </p>
-              <p><strong>Phone:</strong> {user?.phone || "N/A"}</p>
+              <p>
+                <strong>Phone:</strong> {user?.phone || "N/A"}
+              </p>
             </div>
             <button
               className="close-button"

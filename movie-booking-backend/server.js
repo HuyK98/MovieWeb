@@ -69,7 +69,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
-app.use('/api', bookingRoutes);
+app.use('/api/bookings', bookingRoutes);
 // Phục vụ file tĩnh từ thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

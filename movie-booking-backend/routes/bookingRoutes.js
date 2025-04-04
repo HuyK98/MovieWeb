@@ -4,7 +4,7 @@ const Booking = require('../models/Booking');
 const Movie = require('../models/Movie');
 
 // API để lấy danh sách bookings và thông tin từ bảng Bill
-router.get('/bookings', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { userId, paymentMethod } = req.query;
 
@@ -14,7 +14,9 @@ router.get('/bookings', async (req, res) => {
     if (paymentMethod) query.paymentMethod = paymentMethod;
 
     // Lấy danh sách bookings và populate thông tin từ bảng movies
-    const bookings = await Booking.find(query).populate('movie', 'title genre imageUrl');
+    const bookings = await Booking.find(query)
+    .populate('movie', 'title genre imageUrl')
+    .sort({ createdAt: -1 }); // Sắp xếp theo thời gian tạo (mới nhất trước)
 
     res.status(200).json(bookings);
   } catch (error) {
@@ -45,7 +47,7 @@ router.get('/booking/:id', async (req, res) => {
 });
 
 // API để cập nhật imageUrl cho tất cả các bookings
-router.patch('/bookings/update-image-urls', async (req, res) => {
+router.patch('/update-image-urls', async (req, res) => {
   try {
     // Lấy danh sách tất cả các bookings
     const bookings = await Booking.find();
@@ -68,6 +70,23 @@ router.patch('/bookings/update-image-urls', async (req, res) => {
   } catch (error) {
     console.error('Lỗi khi cập nhật imageUrl:', error);
     res.status(500).json({ message: 'Lỗi khi cập nhật imageUrl.', error });
+  }
+});
+
+// API để lấy danh sách thông báo booking mới nhất thông báo về Admin
+router.get('/notifications', async (req, res) => {
+  try {
+    // Lấy danh sách các booking mới nhất, sắp xếp theo thời gian tạo (mới nhất trước)
+    const notifications = await Booking.find()
+      .sort({ createdAt: -1 }) // Sắp xếp theo thời gian tạo (mới nhất trước)
+      .limit(10) // Giới hạn số lượng thông báo trả về
+      .populate('user', 'name email') // Populate thông tin người dùng
+      .populate('movie', 'title'); // Populate thông tin phim
+
+    res.status(200).json(notifications);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách thông báo:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách thông báo.', error });
   }
 });
 
