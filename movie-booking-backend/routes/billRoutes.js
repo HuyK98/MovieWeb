@@ -18,13 +18,15 @@ router.post('/create', async (req, res) => {
 // API để lấy danh sách hóa đơn
 router.get('/', async (req, res) => {
   try {
-    const { name } = req.query; 
+    const { name, paymentMethod } = req.query; 
 
     // Nếu có tham số `name`, lọc hóa đơn theo `user.name`
-    const bills = name
-      ? await Bill.find({ "user.name": name }) 
-      : await Bill.find(); 
-    res.status(200).json(bills);
+    // Tạo query để lọc theo tên người dùng và phương thức thanh toán
+    const query = {};
+    if (name) query["user.name"] = name;
+    if (paymentMethod) query["booking.paymentMethod"] = paymentMethod;
+
+    const bills = await Bill.find(query);
   } catch (error) {
     console.error('Lỗi khi lấy danh sách hóa đơn:', error);
     res.status(500).json({ message: 'Lỗi khi lấy danh sách hóa đơn.', error });

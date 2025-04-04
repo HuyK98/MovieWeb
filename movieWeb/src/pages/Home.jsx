@@ -112,6 +112,7 @@ const Home = () => {
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingIndex, setUpcomingIndex] = useState(0);
+  const [userBookings, setUserBookings] = useState([]);
 
   const [bookings, setBookings] = useState([]);
 
@@ -509,9 +510,10 @@ const Home = () => {
         searchTerm={searchTerm}
         handleSearchChange={handleSearchChange}
         favorites={favorites}
-        setFavorites={setFavorites}
-        toggleFavorites={() => setShowFavorites((prev) => !prev)}
-        showFavorites={showFavorites}
+        // setFavorites={setFavorites}
+        // toggleFavorites={() => setShowFavorites((prev) => !prev)}
+        // showFavorites={showFavorites}
+        toggleFavorites={() => setShowFavorites(!showFavorites)}
         isScrolled={isScrolled}
       />
 

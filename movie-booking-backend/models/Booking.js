@@ -6,9 +6,18 @@ const bookingSchema = mongoose.Schema({
     required: true,
     ref: 'User',
   },
+  movie: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: false,
+    ref: 'Movie', // Tham chiếu đến bảng movies
+  },
   movieTitle: {
     type: String,
     required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: false,
   },
   cinema: {
     type: String,
