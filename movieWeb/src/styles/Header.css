@@ -2,6 +2,7 @@
 .user-menu {
     position: relative;
     display: inline-block;
+     margin-left: -20px;
   }
   
   /* Nút Xin chào */
@@ -12,6 +13,7 @@
     cursor: pointer;
     font-size: 16px;
     padding: 10px;
+    margin-left: 40px;
   }
   
   /* Dropdown menu */
