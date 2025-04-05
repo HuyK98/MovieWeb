@@ -47,16 +47,16 @@ const HeaderAdmin = () => {
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append("image", file);
-  
+
     try {
       setUploading(true); // Bắt đầu trạng thái upload
       const token = localStorage.getItem("userInfo")
         ? JSON.parse(localStorage.getItem("userInfo")).token
         : null;
-  
+
       const response = await axios.post(
         "http://localhost:5000/api/auth/upload", // API upload hình ảnh
         formData,
@@ -67,9 +67,9 @@ const HeaderAdmin = () => {
           },
         }
       );
-  
+
       const imageUrl = response.data.imageUrl; // URL hình ảnh trả về từ API
-  
+
       // Cập nhật URL hình ảnh trong cơ sở dữ liệu
       await axios.put(
         `http://localhost:5000/api/auth/profile`, // API cập nhật thông tin người dùng
@@ -80,7 +80,7 @@ const HeaderAdmin = () => {
           },
         }
       );
-  
+
       // Cập nhật state user với URL hình ảnh mới
       setUser((prevUser) => ({ ...prevUser, image: imageUrl }));
       setUploading(false); // Kết thúc trạng thái upload
@@ -109,9 +109,9 @@ const HeaderAdmin = () => {
         </div>
 
         {/* Hộp thư */}
-        <div className="icon-container">
+        <div className="icon-container" onClick={() => navigate("/admin/messages")}>
           <FaEnvelope className="icon" />
-          <span className="badge">5</span> {/* Badge tin nhắn */}
+          <span className="badge">5</span>
         </div>
 
         {/* Admin Profile */}
@@ -158,7 +158,7 @@ const HeaderAdmin = () => {
                     <span>Uploading...</span>
                   ) : (
                     <img
-                    src={`http://localhost:5000${user?.image || "/default-avatar.png"}`} // Thêm tiền tố URL server
+                      src={`http://localhost:5000${user?.image || "/default-avatar.png"}`} // Thêm tiền tố URL server
                       alt="Profile"
                     />
                   )}

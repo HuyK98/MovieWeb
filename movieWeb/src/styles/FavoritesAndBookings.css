@@ -180,8 +180,8 @@
 
 .menu-icon {
   position: relative;
-  top: -110px;
-  right: -40px;
+  top: -80px;
+  left: 240px;
 }
 
 .menu-list {
@@ -256,4 +256,10 @@
 .modal-content button:last-child {
   background: #f0f0f0;
   color: black;
+}
+
+/* status booking, favorite */
+.favorite-item.read {
+  opacity: 0.5;
+  pointer-events: none;
 }

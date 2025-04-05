@@ -6,17 +6,18 @@ import { faSearch, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import "../styles/Header.css";
 
-const Header = ({ 
-  user, 
-  handleLogout, 
-  searchTerm, 
-  handleSearchChange, 
-  favorites = [], 
+const Header = ({
+  user,
+  handleLogout,
+  searchTerm,
+  handleSearchChange,
+  favorites = [],
   toggleFavorites,
-  isScrolled
+  isScrolled,
+  totalNotifications,
 }) => {
   return (
-    <header className = {isScrolled ? "scrolled" : ""}>
+    <header className={isScrolled ? "scrolled" : ""}>
       <Link to="/">
         <img src={logo} alt="Logo" className="logo" />
       </Link>
@@ -50,7 +51,11 @@ const Header = ({
       </div>
       <div className="favorites-icon" onClick={toggleFavorites}>
         <FontAwesomeIcon icon={faBell} />
-        {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
+        {totalNotifications > 0 && (
+          <span className="favorites-count">
+            {totalNotifications}
+          </span>
+        )}
       </div>
     </header>
   );

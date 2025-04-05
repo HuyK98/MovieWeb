@@ -22,7 +22,27 @@ function Chat() {
     };
 
     websocket.onmessage = (event) => {
-      const message = event.data;
+      let message = event.data;
+    
+      // Kiểm tra nếu message là Blob, chuyển đổi thành chuỗi
+      if (message instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          message = reader.result; // Chuyển đổi Blob thành chuỗi
+          processMessage(message);
+        };
+        reader.readAsText(message);
+      } else {
+        processMessage(message);
+      }
+    };
+    
+    // Hàm xử lý tin nhắn
+    const processMessage = (message) => {
+      if (typeof message !== 'string') {
+        message = String(message);
+      }
+    
       const timestamp = new Date().toLocaleTimeString();
     
       setMessages((prev) => {
@@ -31,21 +51,12 @@ function Chat() {
         );
     
         if (!isDuplicate) {
-          // Only add messages that are not from the admin
-          if (typeof message === 'string' && !message.startsWith('admin:')) {
+          // Chỉ thêm tin nhắn không phải từ admin
+          if (!message.startsWith('admin:')) {
             return [
               ...prev,
               { text: message, timestamp, seen: false },
             ];
-          } else if (message instanceof Blob && !message.toString().startsWith('admin:')) {
-            const reader = new FileReader();
-            reader.onload = () => {
-              setMessages((prevInner) => [
-                ...prevInner,
-                { text: reader.result, timestamp, seen: false },
-              ]);
-            };
-            reader.readAsText(message);
           }
         }
         return prev;
@@ -71,8 +82,9 @@ function Chat() {
         timestamp: new Date().toLocaleTimeString(),
         seen: true,
       };
+  
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      ws.send(messageToSend);
+      ws.send(messageToSend); // Gửi tin nhắn dưới dạng chuỗi
       setInput('');
     } else {
       console.log('WebSocket not connected. ReadyState:', ws?.readyState);

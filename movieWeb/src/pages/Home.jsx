@@ -106,6 +106,7 @@ const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showOrders, setShowOrders] = useState(false);
   const [activeSeat, setActiveSeat] = useState(null);
+  const [totalNotifications, setTotalNotifications] = useState(0);
 
   // Thêm các state để quản lý phim đang chiếu và phim sắp chiếu
   const [currentTab, setCurrentTab] = useState("now-showing");
@@ -305,6 +306,10 @@ const Home = () => {
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const updateTotalNotifications = (total) => {
+    setTotalNotifications(total); // Cập nhật tổng số lượng thông báo
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -512,6 +517,7 @@ const Home = () => {
         favorites={favorites}
         toggleFavorites={() => setShowFavorites(!showFavorites)}
         isScrolled={isScrolled}
+        totalNotifications={totalNotifications}
       />
 
       <div className="home-content">
@@ -674,6 +680,7 @@ const Home = () => {
         showFavorites={showFavorites}
         setShowFavorites={setShowFavorites}
         handleRemoveFavorite={handleRemoveFavorite}
+        updateTotalNotifications={updateTotalNotifications}
       />
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
       <ChatButton />

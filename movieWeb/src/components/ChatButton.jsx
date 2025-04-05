@@ -6,7 +6,20 @@ function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [userId, setUserId] = useState(''); // Thay thế bằng ID người dùng thực tế
+  const [userName, setUserName] = useState(''); // Thay thế bằng tên người dùng thực tế
   const ws = useRef(null);
+
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    if (userInfo) {
+      setUserId(userInfo._id); // Lưu _id người dùng
+      setUserName(userInfo.name); // Lưu name người dùng
+    } else {
+      console.error('❌ Không tìm thấy thông tin người dùng trong localStorage');
+    }
+  }, []);
 
   useEffect(() => {
     ws.current = new WebSocket('ws://localhost:8080');
@@ -14,8 +27,22 @@ function ChatButton() {
     ws.current.onopen = () => console.log('✅ WebSocket connection established');
 
     ws.current.onmessage = (event) => {
-      console.log('📩 Tin nhắn từ server:', event.data);
-      setMessages((prev) => [...prev, { text: event.data, timestamp: new Date().toLocaleTimeString(), seen: false }]);
+      const message = event.data;
+      const timestamp = new Date().toLocaleTimeString();
+
+      setMessages((prev) => {
+        const isDuplicate = prev.some(
+          (msg) => msg.text === message && msg.timestamp === timestamp
+        );
+        
+        if (!isDuplicate) {
+            return [
+              ...prev,
+              { text: message, timestamp, seen: false },
+            ];
+          }
+          return prev;
+        });
     };
 
     ws.current.onerror = (error) => console.error('❌ WebSocket error:', error);
@@ -30,7 +57,7 @@ function ChatButton() {
 
   const sendMessage = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const messageToSend = `user: ${input}`;
+      const messageToSend = `${userName}: ${input}`;
       
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -92,8 +119,8 @@ function ChatButton() {
           </div>
           <div className="chat-messages">
             {messages.map((msg, index) => (
-              <div key={index} className={msg.text && msg.text.startsWith('user:') ? 'user-msg' : 'admin-msg'}>
-                <p>{msg.text ? msg.text.replace(/^user: /, '') : ''}</p>
+              <div key={index} className={msg.text.startsWith(`${userName}:`) ? 'user-msg' : 'admin-msg'}>
+                <p>{msg.text}</p>
                 <span className="timestamp">{msg.timestamp}</span>
                 {msg.seen && <span className="seen-status">Đã xem</span>}
               </div>

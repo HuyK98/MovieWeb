@@ -1,14 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config(); 
+require("dotenv").config();
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const movieRoutes = require("./routes/movieRoutes");
 const Movie = require("./models/Movie");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
-const billRoutes = require('./routes/billRoutes'); 
+const billRoutes = require('./routes/billRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const WebSocket = require('ws');
 const path = require('path');
@@ -22,16 +22,16 @@ wss.on('connection', (ws) => {
   console.log('New client connected');
   clients.add(ws);
 
-  // Handle incoming messages
   ws.on('message', (message) => {
-    const messageString = message.toString('utf8'); 
-    console.log(`Received: ${messageString}`);
-    for (const client of clients) {
-      // Only send the message to other clients, not the sender
+    const messageString = message.toString('utf8'); // Chuyển đổi Buffer thành chuỗi
+    console.log('Received:', messageString);
+
+    // Gửi tin nhắn tới tất cả các client khác
+    clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(messageString); 
+        client.send(messageString); // Gửi chuỗi thay vì Buffer
       }
-    }
+    });
   });
 
   ws.on('close', () => {
@@ -40,8 +40,10 @@ wss.on('connection', (ws) => {
   });
 });
 
+console.log('WebSocket server running on ws://localhost:8080');
+
 const app = express();
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Cấu hình CORS để cho phép frontend (React) truy cập
@@ -69,7 +71,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
-app.use('/api', bookingRoutes);
+app.use('/api/bookings', bookingRoutes);
 // Phục vụ file tĩnh từ thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

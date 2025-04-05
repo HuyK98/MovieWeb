@@ -4,7 +4,7 @@ const Booking = require('../models/Booking');
 const Movie = require('../models/Movie');
 
 // API để lấy danh sách bookings và thông tin từ bảng Bill
-router.get('/bookings', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { userId, paymentMethod } = req.query;
 
@@ -14,7 +14,9 @@ router.get('/bookings', async (req, res) => {
     if (paymentMethod) query.paymentMethod = paymentMethod;
 
     // Lấy danh sách bookings và populate thông tin từ bảng movies
-    const bookings = await Booking.find(query).populate('movie', 'title genre imageUrl');
+    const bookings = await Booking.find(query).
+    populate('movie', 'title genre imageUrl')
+    .sort({ createdAt: -1 }) // Sắp xếp theo thời gian tạo (mới nhất trước)
 
     res.status(200).json(bookings);
   } catch (error) {
@@ -45,7 +47,7 @@ router.get('/booking/:id', async (req, res) => {
 });
 
 // API để cập nhật imageUrl cho tất cả các bookings
-router.patch('/bookings/update-image-urls', async (req, res) => {
+router.patch('/update-image-urls', async (req, res) => {
   try {
     // Lấy danh sách tất cả các bookings
     const bookings = await Booking.find();
