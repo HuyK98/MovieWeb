@@ -1,0 +1,163 @@
+/* Bọc phần user-menu */
+.user-menu {
+    position: relative;
+    display: inline-block;
+    margin-left: -20px;
+  }
+  
+  /* Nút Xin chào */
+  .user-button {
+    background-color: transparent;
+    border: none;
+    color: rgb(16, 16, 16);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    margin-left: 40px;
+    
+  }
+  
+  /* Dropdown menu */
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgb(241, 238, 238);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  
+  /* Các mục trong dropdown */
+  .dropdown-menu a, .dropdown-menu button {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: rgb(21, 20, 20);
+    border-bottom: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  /* Icon và chữ căn đều */
+  .dropdown-menu a svg, .dropdown-menu button svg {
+    margin-right: 10px;
+  }
+  
+  /* Hiệu ứng hover */
+  .dropdown-menu a:hover, .dropdown-menu button:hover {
+    background: #faf7f7;
+  }
+  
+  /* Định dạng nút logout */
+  .logout-button {
+    width: 100%;
+    border: none;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+
+  /* Header.css */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f0f0f0; /* Adjust background color as needed */
+}
+
+.logo {
+  height: 50px; /* Adjust logo size */
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+}
+
+nav li {
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #333;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.language-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.language-toggle img {
+  height: 20px; /* Adjust flag size */
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+.dropdown-menu a, .dropdown-menu button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: #333; /* Thay đổi màu chữ thành #333 hoặc #000*/
+  border-bottom: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-menu svg {
+  margin-right: 8px;
+}
+
+.login-button {
+  text-decoration: none;
+  color: #fff;
+  background-color: #007bff; /* Adjust button color */
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+
