@@ -85,3 +85,11 @@ textarea {
   background-color: #a8dadc;
   color: white;
 }
+
+.avatar-button {
+  width: 100px;             /* hoặc 80px tùy bạn muốn to hay nhỏ */
+  height: 100px;
+  border-radius: 50%;       /* làm hình tròn */
+  object-fit: cover;        /* giữ ảnh luôn vừa khung */
+  border: 2px solid #ccc;   /* viền nhẹ giống Facebook */
+}

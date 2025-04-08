@@ -17,6 +17,7 @@ import newsImage2 from "../assets/news2.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { useLanguage } from "../pages/LanguageContext";
+import translations from "../pages/translations";
 
 const NewsAndOffers = () => {
     const [darkMode, setDarkMode] = useState(false);
@@ -40,22 +41,6 @@ const NewsAndOffers = () => {
         navigate("/");
     };
 
-    const texts = {
-        vi: {
-            title: "Tin Tức & Ưu Đãi",
-            newOffers: "KHUYẾN MÃI MỚI",
-            sideNews: "TIN BÊN LỀ",
-            viewDetails: "Xem Chi Tiết",
-            viewMore: "Xem Thêm",
-        },
-        en: {
-            title: "News & Offers",
-            newOffers: "NEW OFFERS",
-            sideNews: "SIDE NEWS",
-            viewDetails: "View Details",
-            viewMore: "View More",
-        },
-    };
 
     const offers = [
         {
@@ -178,7 +163,7 @@ const NewsAndOffers = () => {
         } else {
             setUser(null);
         }
-        document.title = texts[language].title;
+        document.title = translations[language].title;
     }, [language]);
 
     return (
@@ -191,7 +176,7 @@ const NewsAndOffers = () => {
             />
             <main className="news-offers-main">
                 <div className="offers-section">
-                    <h2>{texts[language].newOffers}</h2>
+                    <h2>{translations[language].newOffers}</h2>
                     <div className="offers-grid">
                         {offers.map((offer, index) => (
                             <div key={index} className="offer-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
@@ -199,7 +184,7 @@ const NewsAndOffers = () => {
                                 <div className="offer-content">
                                     <h3>{offer[language].title}</h3>
                                     <p>{offer[language].description}</p>
-                                    <button className="cta-button">{texts[language].viewDetails}</button>
+                                    <button className="cta-button">{translations[language].viewDetails}</button>
                                 </div>
                             </div>
                         ))}
@@ -207,7 +192,7 @@ const NewsAndOffers = () => {
                 </div>
 
                 <div className="news-section">
-                    <h2>{texts[language].sideNews}</h2>
+                    <h2>{translations[language].sideNews}</h2>
                     <div className="news-grid">
                         {news.map((item, index) => (
                             <div key={index} className="news-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
@@ -215,7 +200,7 @@ const NewsAndOffers = () => {
                                 <div className="news-content">
                                     <h3>{item[language].title}</h3>
                                     <p>{item[language].description}</p>
-                                    <button className="cta-button">{texts[language].viewMore}</button>
+                                    <button className="cta-button">{translations[language].viewMore}</button>
                                 </div>
                             </div>
                         ))}

@@ -4,7 +4,8 @@ import axios from "axios";
 import "../styles/Points.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import { useLanguage } from "../pages/LanguageContext";
+import { useLanguage } from "./LanguageContext";
+import translations from "../pages/translations";
 
 const Points = () => {
   const { language } = useLanguage();
@@ -20,32 +21,6 @@ const Points = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
-  const texts = {
-    vi: {
-      pointsTitle: "TỔNG QUAN",
-      pointsAccumulated: "Điểm đã tích lũy",
-      pointsUsed: "Điểm đã sử dụng",
-      currentPoints: "Điểm hiện có",
-      expiringPoints: "Điểm sắp hết hạn",
-      historyTitle: "LỊCH SỬ ĐIỂM",
-      date: "THỜI GIAN",
-      points: "SỐ ĐIỂM",
-      description: "NỘI DUNG SỬ DỤNG",
-      noData: "Chưa có dữ liệu"
-    },
-    en: {
-      pointsTitle: "OVERVIEW",
-      pointsAccumulated: "Accumulated Points",
-      pointsUsed: "Used Points",
-      currentPoints: "Current Points",
-      expiringPoints: "Expiring Points",
-      historyTitle: "POINT HISTORY",
-      date: "DATE",
-      points: "POINTS",
-      description: "DESCRIPTION",
-      noData: "No data available"
-    },
-  };
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -72,20 +47,20 @@ const Points = () => {
       <Header user={user} isScrolled={isScrolled} />
       <main>
         <div className="points-container">
-          <h2>{texts[language].pointsTitle}</h2>
+          <h2>{translations[language].pointsTitle}</h2>
           <div className="points-summary">
-            <p>{texts[language].pointsAccumulated}: <strong>{user.pointsAccumulated} {texts[language].points}</strong></p>
-            <p>{texts[language].pointsUsed}: <strong>{user.pointsUsed} {texts[language].points}</strong></p>
-            <p>{texts[language].currentPoints}: <strong>{user.currentPoints} {texts[language].points}</strong></p>
-            <p>{texts[language].expiringPoints}: <strong>{user.expiringPoints} {texts[language].points}</strong></p>
+            <p>{translations[language].pointsAccumulated}: <strong>{user.pointsAccumulated} {translations[language].points}</strong></p>
+            <p>{translations[language].pointsUsed}: <strong>{user.pointsUsed} {translations[language].points}</strong></p>
+            <p>{translations[language].currentPoints}: <strong>{user.currentPoints} {translations[language].points}</strong></p>
+            <p>{translations[language].expiringPoints}: <strong>{user.expiringPoints} {translations[language].points}</strong></p>
           </div>
-          <h3>{texts[language].historyTitle}</h3>
+          <h3>{translations[language].historyTitle}</h3>
           <table className="points-history">
             <thead>
               <tr>
-                <th className="table-header">{texts[language].date}</th>
-                <th className="table-header">{texts[language].points}</th>
-                <th className="table-header">{texts[language].description}</th>
+                <th className="table-header">{translations[language].date}</th>
+                <th className="table-header">{translations[language].points}</th>
+                <th className="table-header">{translations[language].description}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,13 +68,13 @@ const Points = () => {
                 user.history.map((entry, index) => (
                   <tr key={index}>
                     <td>{entry.date}</td>
-                    <td>{entry.points} {texts[language].points}</td>
+                    <td>{entry.points} {translations[language].points}</td>
                     <td>{entry.description}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3">{texts[language].noData}</td>
+                  <td colSpan="3">{translations[language].noData}</td>
                 </tr>
               )}
             </tbody>

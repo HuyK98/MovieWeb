@@ -11,6 +11,7 @@ import cinemaImage1 from "../assets/cinema.jpeg";
 import cinemaImage2 from "../assets/cinema1.jpeg";
 import cinemaImage3 from "../assets/cinema2.jpg";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
+import translations from "../pages/translations";
 
 const CinemaIntro = () => {
   const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
@@ -48,27 +49,6 @@ const CinemaIntro = () => {
     { id: 3, image: cinemaImage3, caption: "Ghế ngồi thoải mái" },
   ];
 
-  const texts = {
-    vi: {
-      cinemaName: "Lotte Cinema Gò Vấp",
-      address: "Lotte Mart, 242 Nguyễn Văn Lượng, Phường 10, Gò Vấp, Hồ Chí Minh 700000, Vietnam",
-      hotline: "Hotline: 0867 460 053",
-      specialServices: "Dịch vụ đặc biệt: Mua phiếu quà tặng, vé số lượng lớn, đặt phòng chiếu tổ chức hội nghị, trưng bày quảng cáo",
-      contactNow: "Liên hệ ngay",
-      location: "Vị Trí Rạp",
-      promotion: "Liên hệ 0867 460 053 để nhận ưu đãi tốt nhất!",
-    },
-    en: {
-      cinemaName: "Lotte Cinema Go Vap",
-      address: "Lotte Mart, 242 Nguyen Van Luong, Ward 10, Go Vap, Ho Chi Minh City 700000, Vietnam",
-      hotline: "Hotline: 0867 460 053",
-      specialServices: "Special services: Gift vouchers, bulk tickets, conference room booking, advertising displays",
-      contactNow: "Contact Now",
-      location: "Cinema Location",
-      promotion: "Contact 0867 460 053 for the best deals!",
-    },
-  };
-
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
       <Header
@@ -101,30 +81,30 @@ const CinemaIntro = () => {
           </div>
           <div className="right-section fade-in">
             <div className="contact-card">
-              <h3>{texts[language].cinemaName}</h3>
+              <h3>{translations[language].cinemaName}</h3>
               <div className="contact-item">
                 <FontAwesomeIcon icon={faMapMarkerAlt} className="contact-icon" />
-                <p><strong>Địa chỉ:</strong> {texts[language].address}</p>
+                <p><strong>Địa chỉ:</strong> {translations[language].address}</p>
               </div>
               <div className="contact-item">
                 <FontAwesomeIcon icon={faPhone} className="contact-icon" />
-                <p><strong>Hotline:</strong> {texts[language].hotline}</p>
+                <p><strong>Hotline:</strong> {translations[language].hotline}</p>
               </div>
               <div className="contact-item">
                 <FontAwesomeIcon icon={faGift} className="contact-icon" />
-                <p><strong>{texts[language].specialServices}</strong></p>
+                <p><strong>{translations[language].specialServices}</strong></p>
               </div>
               <div className="contact-note">
-                <p><em>{texts[language].promotion}</em></p>
+                <p><em>{translations[language].promotion}</em></p>
               </div>
               <Link to="/contact" className="contact-button">
-                {texts[language].contactNow}
+                {translations[language].contactNow}
               </Link>
             </div>
           </div>
         </div>
         <div className="map-section fade-in">
-          <h2>{texts[language].location}</h2>
+          <h2>{translations[language].location}</h2>
           <div className="map-container">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62698.35808816879!2d106.59534874863282!3d10.838273999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529abdd70ce51%3A0xfddf3fab60a9090d!2zTG90dGUgQ2luZW1hIEfDsiVW4bqlcA!5e0!3m2!1sen!2s!4v1741254136822!5m2!1sen!2s"

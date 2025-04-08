@@ -12,6 +12,7 @@ import { useLanguage } from "../pages/LanguageContext";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import translations from "../pages/translations";
 import {
   faPlay,
   faTimes,
@@ -108,85 +109,6 @@ const Home = () => {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
   const { language, toggleLanguage } = useLanguage();
-
-  const texts = {
-    vi: {
-      showtimes: "LỊCH CHIẾU THEO RẠP",
-      movies: "PHIM",
-      theaters: "RẠP",
-      ticketPrices: "GIÁ VÉ",
-      news: "TIN MỚI VÀ ƯU ĐÃI",
-      searchPlaceholder: "Tìm kiếm phim...",
-      logout: "Đăng xuất",
-      hello: "Xin chào",
-      featuredMovies: "Phim Đang Chiếu",
-      upcomingMovies: "Phim Sắp Ra Mắt",
-      viewMore: "Xem Thêm",
-      noMovies: "Không có phim nào",
-      cinemaList: "CÁC RẠP Cinema",
-      connectWithUs: "KẾT NỐI VỚI CHÚNG TÔI",
-      contact: "LIÊN HỆ",
-      companyName: "CÔNG TY CỔ PHẦN CINEMA MEDIA",
-      address: "Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
-      hotline: "Hotline: 1800 123 456",
-      email: "Email: info@cinemamedia.vn",
-      copyright: "© 2021 Cinema Media. Tất cả quyền được bảo lưu",
-      lightMode: "Chế độ sáng",
-      darkMode: "Chế độ tối",
-      theatersList: [
-        "Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183",
-        "Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713",
-        "Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509",
-        "Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456",
-        "Cinema Đống Đa, Hà Nội - Hotline: 098 765 432",
-        "Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432",
-      ],
-      trailer: "Trailer",
-      buyTicket: "Mua vé",
-      showtimeTitle: "Lịch Chiếu",
-      cinema: "Rạp",
-      bookingTitle: "Thông Tin Đặt Vé",
-      confirm: "Xác nhận",
-    },
-    en: {
-      showtimes: "SHOWTIMES",
-      movies: "MOVIES",
-      theaters: "THEATERS",
-      ticketPrices: "TICKET PRICES",
-      news: "NEWS & PROMOTIONS",
-      searchPlaceholder: "Search movies...",
-      logout: "Logout",
-      hello: "Hello",
-      featuredMovies: "Featured Movies",
-      upcomingMovies: "Upcoming Movies",
-      viewMore: "View More",
-      noMovies: "No movies available",
-      cinemaList: "Cinema THEATERS",
-      connectWithUs: "CONNECT WITH US",
-      contact: "CONTACT",
-      companyName: "CINEMA MEDIA CORPORATION",
-      address: "Address: 123 ABC Street, District 1, Ho Chi Minh City",
-      hotline: "Hotline: 1800 123 456",
-      email: "Email: info@cinemamedia.vn",
-      copyright: "© 2021 Cinema Media. All Rights Reserved",
-      lightMode: "Light Mode",
-      darkMode: "Dark Mode",
-      theatersList: [
-        "Cinema Xuan Thuy, Hanoi - Hotline: 033 023 183",
-        "Cinema Tay Son, Hanoi - Hotline: 097 694 713",
-        "Cinema Nguyen Trai, Ho Chi Minh City - Hotline: 070 675 509",
-        "Cinema Quang Trung, Ho Chi Minh City - Hotline: 090 123 456",
-        "Cinema Dong Da, Hanoi - Hotline: 098 765 432",
-        "Cinema Cau Giay, Hanoi - Hotline: 098 765 432",
-      ],
-      trailer: "Trailer",
-      buyTicket: "Buy Ticket",
-      showtimeTitle: "Showtimes",
-      cinema: "Cinema",
-      bookingTitle: "Booking Information",
-      confirm: "Confirm",
-    },
-  };
 
   const handleBuyTicketClick = async (movie) => {
     setSelectedMovie(movie);
@@ -369,29 +291,29 @@ const Home = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/showtimes">{texts[language].showtimes}</Link>
+              <Link to="/showtimes">{translations[language].showtimes}</Link>
             </li>
             <li>
-              <Link to="/movielist">{texts[language].movies}</Link>
+              <Link to="/movielist">{translations[language].movies}</Link>
             </li>
             <li>
-              <Link to="/place">{texts[language].theaters}</Link>
+              <Link to="/place">{translations[language].theaters}</Link>
             </li>
             <li>
-              <Link to="/about">{texts[language].ticketPrices}</Link>
+              <Link to="/about">{translations[language].ticketPrices}</Link>
             </li>
             <li>
-              <Link to="/news">{texts[language].news}</Link>
+              <Link to="/news">{translations[language].news}</Link>
             </li>
             {user ? (
               <>
                 <li>
                   <span>
-                    {texts[language].hello}, {user.name}
+                    {translations[language].hello}, {user.name}
                   </span>
                 </li>
                 <li>
-                  <button onClick={handleLogout}>{texts[language].logout}</button>
+                  <button onClick={handleLogout}>{translations[language].logout}</button>
                 </li>
               </>
             ) : (
@@ -404,7 +326,7 @@ const Home = () => {
         <div className="search-bar">
           <input
             type="text"
-            placeholder={texts[language].searchPlaceholder}
+            placeholder={translations[language].searchPlaceholder}
             value={searchTerm}
             onChange={handleSearchChange}
           />
@@ -434,9 +356,9 @@ const Home = () => {
       <AnimatedSection animation="fade-up">
         <div className="featured-movies-section">
           <div className="section-header">
-            <h2>{texts[language].featuredMovies}</h2>
+            <h2>{translations[language].featuredMovies}</h2>
             <div className="view-more">
-              <Link to="/movielist">{texts[language].viewMore}</Link>
+              <Link to="/movielist">{translations[language].viewMore}</Link>
             </div>
           </div>
           <div className="featured-movies-container">
@@ -489,9 +411,9 @@ const Home = () => {
       <AnimatedSection animation="fade-left" delay={200}>
         <div className="movie-row-section">
           <div className="section-header">
-            <h2>{texts[language].upcomingMovies}</h2>
+            <h2>{translations[language].upcomingMovies}</h2>
             <div className="view-more">
-              <Link to="/movielist">{texts[language].viewMore}</Link>
+              <Link to="/movielist">{translations[language].viewMore}</Link>
             </div>
           </div>
           <div className="movie-row-container">
@@ -519,7 +441,7 @@ const Home = () => {
                 </AnimatedSection>
               ))
             ) : (
-              <p>{texts[language].noMovies}</p>
+              <p>{translations[language].noMovies}</p>
             )}
           </div>
         </div>
@@ -550,7 +472,7 @@ const Home = () => {
                             icon={faPlay}
                             style={{ marginRight: "8px" }}
                           />
-                          {texts[language].trailer}
+                          {translations[language].trailer}
                         </button>
                       </div>
                       <h3>{movie.title}</h3>
@@ -564,13 +486,13 @@ const Home = () => {
                         className="card-button"
                         onClick={() => handleBuyTicketClick(movie)}
                       >
-                        {texts[language].buyTicket}
+                        {translations[language].buyTicket}
                       </button>
                     </div>
                   </AnimatedSection>
                 ))
               ) : (
-                <p>{texts[language].noMovies}</p>
+                <p>{translations[language].noMovies}</p>
               )}
             </div>
           )}
@@ -594,8 +516,8 @@ const Home = () => {
             <button className="close-button" onClick={handleClosePopup}>
               X
             </button>
-            <h2>{texts[language].showtimeTitle} - {selectedMovie.title}</h2>
-            <h1>{texts[language].cinema}</h1>
+            <h2>{translations[language].showtimeTitle} - {selectedMovie.title}</h2>
+            <h1>{translations[language].cinema}</h1>
             <ul className="date-showtime">
               {showtimes
                 .map((showtime) => showtime.date)
@@ -640,12 +562,12 @@ const Home = () => {
               <button className="close-button" onClick={handleClosePopup}>
                 X
               </button>
-              <h3>{texts[language].bookingTitle}</h3>
+              <h3>{translations[language].bookingTitle}</h3>
               <h2>{bookingInfo.movieTitle}</h2>
               <table>
                 <tbody>
                   <tr>
-                    <th>{texts[language].cinema}</th>
+                    <th>{translations[language].cinema}</th>
                     <th>NGÀY CHIẾU</th>
                     <th>GIỜ CHIẾU</th>
                   </tr>
@@ -671,9 +593,9 @@ const Home = () => {
         <div className="footer-container">
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="footer-section left">
-              <h3>{texts[language].cinemaList}</h3>
+              <h3>{translations[language].cinemaList}</h3>
               <ul>
-                {texts[language].theatersList.map((theater, index) => (
+                {translations[language].theatersList.map((theater, index) => (
                   <li key={index}>{theater}</li>
                 ))}
               </ul>
@@ -684,20 +606,20 @@ const Home = () => {
               <Link to="/">
                 <img src={logo} alt="Logo" className="logo" />
               </Link>
-              <p>{texts[language].copyright}</p>
+              <p>{translations[language].copyright}</p>
               <button className="toggle-button" onClick={toggleDarkMode}>
                 {darkMode ? (
                   <FontAwesomeIcon icon={faSun} />
                 ) : (
                   <FontAwesomeIcon icon={faMoon} />
                 )}
-                {darkMode ? `${texts[language].lightMode}` : `${texts[language].darkMode}`}
+                {darkMode ? `${translations[language].lightMode}` : `${translations[language].darkMode}`}
               </button>
             </div>
           </AnimatedSection>
           <AnimatedSection animation="fade-up" delay={300}>
             <div className="footer-section right">
-              <h3>{texts[language].connectWithUs}</h3>
+              <h3>{translations[language].connectWithUs}</h3>
               <div className="social-links">
                 <a href="#" className="facebook">
                   <FontAwesomeIcon icon={faFacebookF} />
@@ -712,11 +634,11 @@ const Home = () => {
                   <FontAwesomeIcon icon={faInstagram} />
                 </a>
               </div>
-              <h3>{texts[language].contact}</h3>
-              <p>{texts[language].companyName}</p>
-              <p>{texts[language].address}</p>
-              <p>{texts[language].hotline}</p>
-              <p>{texts[language].email}</p>
+              <h3>{translations[language].contact}</h3>
+              <p>{translations[language].companyName}</p>
+              <p>{translations[language].address}</p>
+              <p>{translations[language].hotline}</p>
+              <p>{translations[language].email}</p>
             </div>
           </AnimatedSection>
         </div>

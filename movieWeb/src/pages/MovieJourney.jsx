@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import "../styles/MovieJourney.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import { useLanguage } from "../pages/LanguageContext";
+import { useLanguage } from "./LanguageContext";
+import translations from "../pages/translations";
 
 const MovieJourney = () => {
   const { language } = useLanguage();
@@ -13,33 +14,6 @@ const MovieJourney = () => {
   });
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const texts = {
-    vi: {
-      journeyTitle: "HÀNH TRÌNH ĐIỆN ẢNH",
-      movieCode: "MÃ HÓA ĐƠN",
-      movie: "PHIM",
-      theater: "RẠP CHIẾU",
-      showtime: "SUẤT CHIẾU",
-      seat: "GHẾ ĐÃ ĐẶT",
-      combo: "COMBO/PACKAGE",
-      bookingDate: "NGÀY ĐẶT",
-      points: "ĐIỂM",
-      noData: "Chưa có dữ liệu",
-    },
-    en: {
-      journeyTitle: "MOVIE JOURNEY",
-      movieCode: "TICKET CODE",
-      movie: "MOVIE",
-      theater: "THEATER",
-      showtime: "SHOWTIME",
-      seat: "SEAT",
-      combo: "COMBO/PACKAGE",
-      bookingDate: "BOOKING DATE",
-      points: "POINTS",
-      noData: "No data available",
-    },
-  };
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -66,19 +40,18 @@ const MovieJourney = () => {
       <Header user={user} isScrolled={isScrolled} />
       <main>
         <div className="movie-journey-container">
-          {/* Removed the tab navigation */}
-          <h2>{texts[language].journeyTitle}</h2>
+          <h2>{translations[language].journeyTitle}</h2>
           <table className="movie-journey-history">
             <thead>
               <tr>
-                <th className="table-header">{texts[language].movieCode}</th>
-                <th className="table-header">{texts[language].movie}</th>
-                <th className="table-header">{texts[language].theater}</th>
-                <th className="table-header">{texts[language].showtime}</th>
-                <th className="table-header">{texts[language].seat}</th>
-                <th className="table-header">{texts[language].combo}</th>
-                <th className="table-header">{texts[language].bookingDate}</th>
-                <th className="table-header">{texts[language].points}</th>
+                <th className="table-header">{translations[language].movieCode}</th>
+                <th className="table-header">{translations[language].movie}</th>
+                <th className="table-header">{translations[language].theater}</th>
+                <th className="table-header">{translations[language].showtime}</th>
+                <th className="table-header">{translations[language].seat}</th>
+                <th className="table-header">{translations[language].combo}</th>
+                <th className="table-header">{translations[language].bookingDate}</th>
+                <th className="table-header">{translations[language].points}</th>
               </tr>
             </thead>
             <tbody>
@@ -92,12 +65,12 @@ const MovieJourney = () => {
                     <td>{entry.seat}</td>
                     <td>{entry.combo}</td>
                     <td>{entry.bookingDate}</td>
-                    <td>{entry.points} {texts[language].points}</td>
+                    <td>{entry.points} {translations[language].points}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8">{texts[language].noData}</td>
+                  <td colSpan="8">{translations[language].noData}</td>
                 </tr>
               )}
             </tbody>

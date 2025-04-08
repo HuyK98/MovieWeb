@@ -89,6 +89,7 @@ const Account = () => {
         setUser((prevUser) => ({ ...prevUser, [name]: value }));
     };
 
+    const [previewAvatar, setPreviewAvatar] = useState(null);
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -108,10 +109,13 @@ const Account = () => {
 
     const handleUpdate = async () => {
         try {
-            const token = JSON.parse(localStorage.getItem("userInfo"))?.token;
+            // Lấy thông tin userInfo từ localStorage, bao gồm token
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        const token = userInfo?.token;  
 
             if (!token) {
                 alert("Bạn cần đăng nhập lại.");
+                navigate("/login");
                 return;
             }
 
@@ -129,8 +133,16 @@ const Account = () => {
                 },
             });
 
-            localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-            setUser(response.data.user);
+            // Kết hợp dữ liệu mới từ server với token hiện tại
+            const updatedUserInfo = {
+            ...userInfo,
+            ...user, // Giữ nguyên các giá trị cũ, bao gồm token
+            ...response.data.user, // Ghi đè các giá trị mới từ server
+        };
+
+            // Cập nhật localStorage và state user
+            localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
+            setUser({ ...user, ...response.data.user });
 
             alert("Cập nhật thông tin thành công!");
         } catch (error) {
@@ -151,6 +163,7 @@ const Account = () => {
         setUser(null);
         navigate("/");
     };
+    
 
     return (
         <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
@@ -166,7 +179,7 @@ const Account = () => {
                     <h2>{texts[language].account}</h2>
                     <div className="avatar-section">
                         <div className="avatar-container">
-                            <img src={user?.avatar || ""} alt="Avatar" className="avatar-image" />
+                        <img src={user?.avatar || '/default-avatar.png'}  alt="Avatar" className="avatar-image" />
                             <div className="avatar-buttons">
                                 <label htmlFor="avatar-input" className="change-avatar-button">{texts[language].change}</label>
                                 <input
@@ -239,4 +252,4 @@ const Account = () => {
     );
 };
 
-export default Account; 
+export default Account;

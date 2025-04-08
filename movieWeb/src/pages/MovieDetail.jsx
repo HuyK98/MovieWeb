@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLanguage } from "../pages/LanguageContext"; // Thêm import
 import vietnamFlag from "../assets/poster/Vietnam.jpg"; // Thêm cờ Việt Nam
 import englandFlag from "../assets/poster/england-flag.png"; // Thêm cờ Anh
+import translations from "../pages/translations";
 import {
   faSearch,
   faSun,
@@ -34,65 +35,6 @@ const MovieDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
-
-  const texts = {
-    vi: {
-      showtimes: "LỊCH CHIẾU THEO RẠP",
-      movies: "PHIM",
-      theaters: "RẠP",
-      ticketPrices: "GIÁ VÉ",
-      news: "TIN MỚI VÀ ƯU ĐÃI",
-      searchPlaceholder: "Tìm kiếm phim...",
-      login: "Đăng nhập",
-      logout: "Đăng xuất",
-      hello: "Xin chào",
-      seatingChart: "SƠ ĐỒ GHẾ NGỒI",
-      screen: "Màn hình chiếu",
-      seatsLabel: "Ghế ngồi",
-      totalPriceLabel: "Tổng tiền",
-      movieInfoTitle: "Thông tin chi tiết về phim",
-      movieTitleLabel: "Tên phim",
-      genreLabel: "Thể loại",
-      durationLabel: "Thời lượng",
-      cinemaLabel: "Rạp chiếu",
-      showDateLabel: "Ngày chiếu",
-      showTimeLabel: "Giờ chiếu",
-      backButton: "Quay lại",
-      continueButton: "Tiếp tục",
-      available: "Ghế trống",
-      selected: "Ghế đang chọn",
-      booked: "Ghế đã đặt",
-      vnd: "VND",
-    },
-    en: {
-      showtimes: "SHOWTIMES",
-      movies: "MOVIES",
-      theaters: "THEATERS",
-      ticketPrices: "TICKET PRICES",
-      news: "NEWS & PROMOTIONS",
-      searchPlaceholder: "Search movies...",
-      login: "Login",
-      logout: "Logout",
-      hello: "Hello",
-      seatingChart: "SEATING CHART",
-      screen: "Screen",
-      seatsLabel: "Seats",
-      totalPriceLabel: "Total Price",
-      movieInfoTitle: "Movie Details",
-      movieTitleLabel: "Movie Title",
-      genreLabel: "Genre",
-      durationLabel: "Duration",
-      cinemaLabel: "Theater",
-      showDateLabel: "Show Date",
-      showTimeLabel: "Show Time",
-      backButton: "Back",
-      continueButton: "Continue",
-      available: "Available",
-      selected: "Selected",
-      booked: "Booked",
-      vnd: "VND",
-    },
-  };
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -173,9 +115,9 @@ const MovieDetail = () => {
       />
       <div className="movie-detail-container">
         <div className="content">
-          <p className="map-seats">{texts[language].seatingChart}</p>
+          <p className="map-seats">{translations[language].seatingChart}</p>
           <div className="seating-chart">
-            <div className="screen">{texts[language].screen}</div>
+            <div className="screen">{translations[language].screen}</div>
             <div className="seats">
               {seats.map((seat) => (
                 <div
@@ -189,38 +131,39 @@ const MovieDetail = () => {
             </div>
           </div>
           <div className="booking-oder">
-            <p><strong>{texts[language].seatsLabel}:</strong> {selectedSeats.join(', ')}</p>
-            <p><strong>{texts[language].totalPriceLabel}:</strong> {totalPrice.toLocaleString()} {texts[language].vnd}</p>
+            <p><strong>{translations[language].seatsLabel}:</strong> {selectedSeats.join(', ')}</p>
+            <p><strong>{translations[language].totalPriceLabel}:</strong> {totalPrice.toLocaleString()} {translations[language].vnd}</p>
           </div>
           <div className="movie-info">
-            <h2>{texts[language].movieInfoTitle}</h2>
+            <h2>{translations[language].movieInfoTitle}</h2>
             {bookingInfo && (
               <>
                 <img src={bookingInfo.imageUrl} alt={bookingInfo.movieTitle} />
                 <div className="details">
-                  <p><strong>{texts[language].movieTitleLabel}:</strong> {bookingInfo.movieTitle}</p>
-                  <p><strong>{texts[language].genreLabel}:</strong> {bookingInfo.genre}</p>
-                  <p><strong>{texts[language].durationLabel}:</strong> {bookingInfo.description}</p>
-                  <p><strong>{texts[language].cinemaLabel}:</strong> {bookingInfo.cinema}</p>
-                  <p><strong>{texts[language].showDateLabel}:</strong> {bookingInfo.date}</p>
-                  <p><strong>{texts[language].showTimeLabel}:</strong> {bookingInfo.time}</p>
+                  <p><strong>{translations[language].movieTitleLabel}:</strong> {bookingInfo.movieTitle}</p>
+                  <p><strong>{translations[language].genreLabel}:</strong> {bookingInfo.genre}</p>
+
+                  <p><strong>{translations[language].durationLabel}:</strong> {bookingInfo.description}</p>
+                  <p><strong>{translations[language].cinemaLabel}:</strong> {bookingInfo.cinema}</p>
+                  <p><strong>{translations[language].showDateLabel}:</strong> {bookingInfo.date}</p>
+                  <p><strong>{translations[language].showTimeLabel}:</strong> {bookingInfo.time}</p>
                 </div>
               </>
             )}
             <div className="button-container">
-              <button className='booking-btn' onClick={() => navigate('/')}>{texts[language].backButton}</button>
-              <button className="booking-btn" type="button" onClick={handleBooking}>{texts[language].continueButton}</button>
+              <button className='booking-btn' onClick={() => navigate('/')}>{translations[language].backButton}</button>
+              <button className="booking-btn" type="button" onClick={handleBooking}>{translations[language].continueButton}</button>
             </div>
           </div>
           <div className="legend">
             <div className="available">
-              <span></span> <p>{texts[language].available}</p>
+              <span></span> <p>{translations[language].available}</p>
             </div>
             <div className="selected">
-              <span></span> <p>{texts[language].selected}</p>
+              <span></span> <p>{translations[language].selected}</p>
             </div>
             <div className="booked">
-              <span></span> <p>{texts[language].booked}</p>
+              <span></span> <p>{translations[language].booked}</p>
             </div>
           </div>
         </div>

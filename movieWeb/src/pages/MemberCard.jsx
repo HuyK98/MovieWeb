@@ -4,7 +4,8 @@ import axios from "axios";
 import "../styles/MemberCard.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import { useLanguage } from "../pages/LanguageContext";
+import { useLanguage } from "./LanguageContext";
+import translations from "../pages/translations";
 
 const MemberCard = () => {
   const { language } = useLanguage();
@@ -14,24 +15,6 @@ const MemberCard = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [error, setError] = useState(null);
 
-  const texts = {
-    vi: {
-      memberCard: "THẺ THÀNH VIÊN",
-      cardNumber: "SỐ THẺ",
-      rank: "HẠNG THẺ",
-      totalSpent: "TỔNG CHI TIÊU",
-      accumulatedPoints: "ĐIỂM TÍCH LŨY",
-      upgradeMessage: "Bạn cần tích lũy thêm {amount} đ để nâng hạng Khách hàng VIP",
-    },
-    en: {
-      memberCard: "MEMBER CARD",
-      cardNumber: "CARD NUMBER",
-      rank: "RANK",
-      totalSpent: "TOTAL SPENT",
-      accumulatedPoints: "ACCUMULATED POINTS",
-      upgradeMessage: "You need to accumulate {amount} VND to upgrade to VIP Member",
-    },
-  };
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -67,17 +50,17 @@ const MemberCard = () => {
       <Header user={user} isScrolled={isScrolled} />
       <main>
         <div className="member-card-content">
-          <h2>{texts[language].memberCard}</h2>
+          <h2>{translations[language].memberCard}</h2>
           {error ? (
             <p className="error-message">{error}</p>
           ) : memberCard ? (
             <table>
               <thead>
                 <tr>
-                  <th>{texts[language].cardNumber}</th>
-                  <th>{texts[language].rank}</th>
-                  <th>{texts[language].totalSpent}</th>
-                  <th>{texts[language].accumulatedPoints}</th>
+                  <th>{translations[language].cardNumber}</th>
+                  <th>{translations[language].rank}</th>
+                  <th>{translations[language].totalSpent}</th>
+                  <th>{translations[language].accumulatedPoints}</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,7 +78,7 @@ const MemberCard = () => {
 
           {memberCard && (
             <div className="upgrade-message">
-              {texts[language].upgradeMessage.replace(
+              {translations[language].upgradeMessage.replace(
                 "{amount}",
                 memberCard.requiredSpending.toLocaleString()
               )}
