@@ -5,6 +5,9 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import axios from "axios";
 import moment from "moment";
+import translations from "../pages/translations";
+import { useLanguage } from "../pages/LanguageContext"; // Import context
+
 
 const MovieDetail = () => {
   const location = useLocation();
@@ -18,6 +21,8 @@ const MovieDetail = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
+
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -143,9 +148,9 @@ const MovieDetail = () => {
       <div className="home-content">
         <div className="movie-detail-container">
           <div className="content">
-            <p className="map-seats">SƠ ĐỒ GHẾ NGỒI</p>
+            <p className="map-seats">{translations[language].seatingChart}</p>
             <div className="seating-chart">
-              <div className="screen">Màn hình chiếu</div>
+              <div className="screen">{translations[language].screen}</div>
               <div className="seats">
                 {seats.map((seat) => (
                   <div
@@ -166,14 +171,17 @@ const MovieDetail = () => {
             </div>
             <div className="booking-oder">
               <p>
-                <strong>Ghế ngồi:</strong> {selectedSeats.join(", ")}
+                <strong>{translations[language].seatsLabel}:</strong>{" "}
+                {selectedSeats.join(", ")}
               </p>
+
               <p>
-                <strong>Tổng tiền:</strong> {totalPrice.toLocaleString()} VND
+                <strong>{translations[language].totalPriceLabel}:</strong>{" "}
+                {totalPrice.toLocaleString()} {translations[language].vnd}
               </p>
             </div>
             <div className="movie-info">
-              <h2>Thông tin chi tiết về phim</h2>
+              <h2>{translations[language].movieInfoTitle}</h2>
               {bookingInfo && (
                 <>
                   <img
@@ -182,49 +190,54 @@ const MovieDetail = () => {
                   />
                   <div className="details">
                     <p>
-                      <strong>Tên phim:</strong> {bookingInfo.movieTitle}
+                      <strong>{translations[language].movieTitleLabel}:</strong>{" "}
+                      {bookingInfo.movieTitle}
                     </p>
                     <p>
-                      <strong>Thể loại:</strong> {bookingInfo.genre}
+                      <strong>{translations[language].genreLabel}:</strong>{" "}
+                      {bookingInfo.genre}
                     </p>
                     <p>
-                      <strong>Thời lượng:</strong> {bookingInfo.description}
+                      <strong>{translations[language].durationLabel}:</strong>{" "}
+                      {bookingInfo.description}
                     </p>
                     <p>
-                      <strong>Rạp chiếu:</strong> {bookingInfo.cinema}
+                      <strong>{translations[language].cinemaLabel}:</strong>{" "}
+                      {bookingInfo.cinema}
                     </p>
                     <p>
-                      <strong>Ngày chiếu:</strong>{" "}
+                      <strong>{translations[language].showDateLabel}:</strong>{" "}
                       {moment(bookingInfo.date).format("DD/MM/YYYY")}
                     </p>
                     <p>
-                      <strong>Giờ chiếu:</strong> {bookingInfo.time}
+                      <strong>{translations[language].showTimeLabel}:</strong>{" "}
+                      {bookingInfo.time}
                     </p>
                   </div>
                 </>
               )}
               <div className="button-container">
                 <button className="booking-btn" onClick={() => navigate("/")}>
-                  Quay lại
+                  {translations[language].backButton}
                 </button>
                 <button
                   className="booking-btn"
                   type="button"
                   onClick={handleBooking}
                 >
-                  Tiếp tục
+                  {translations[language].continueButton}
                 </button>
               </div>
             </div>
             <div className="legend">
               <div className="available">
-                <span></span> <p>Ghế trống</p>
+                <span></span> <p>{translations[language].available}</p>
               </div>
               <div className="selected">
-                <span></span> <p>Ghế đang chọn</p>
+                <span></span> <p>{translations[language].selected}</p>
               </div>
               <div className="booked">
-                <span></span> <p>Ghế đã đặt</p>
+                <span></span> <p>{translations[language].booked}</p>
               </div>
             </div>
           </div>

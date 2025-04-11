@@ -6,6 +6,7 @@ import AdminDashboard from './admin/AdminDashboard';
 import ScheduleList from './admin/ScheduleList';
 import UserList from './admin/UserList';
 import Revenue from './admin//Revenue';
+import BookingDetailAdmin from './admin/BookingDetailAdmin';
 import Login from "./login/Login";
 import MovieDetail from './pages/MovieDetail';
 import PaymentInfo from './pages/PaymentInfo';
@@ -21,10 +22,16 @@ import ManageGenres from "./admin/ManageGenres";
 import FilmDetail from "./pages/FilmDetail";
 import BookingDetail from "./pages/BookingDetail";
 import BillsManage from "./admin/BillsManage";
+import { LanguageProvider } from './pages/LanguageContext'; 
+import Account from "./pages/Account";
+import Points from "./pages/Points"
+import Vouchers from "./pages/Vouchers";
+import MemberCard from "./pages/MemberCard"; // Import trang thẻ thành viên
+import MovieJourney from "./pages/MovieJourney";
 
 const App = () => {
   return (
-    <>
+    <LanguageProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -34,6 +41,7 @@ const App = () => {
         <Route path="/admin/schedules" element={<ScheduleList />} />
         <Route path="/admin/users" element={<UserList />} />
         <Route path="/admin/revenue" element={<Revenue />} />
+        <Route path="/admin/booking-detail/:bookingId" element={<BookingDetailAdmin />} />
         <Route path="/movie-detail" element={<MovieDetail />} />
         <Route path="/payment" element={<PaymentInfo />} />
         <Route path="/movielist" element={<ListMovie />} />
@@ -48,8 +56,14 @@ const App = () => {
         <Route path="/movie/:movieId" element={<FilmDetail />} />
         <Route path="/booking/:bookingId" element={<BookingDetail />} />
         <Route path="/admin/bills" element={<BillsManage />} />
+
+        <Route path="/account" element={<Account />} />
+        <Route path="/points" element={<Points />} />
+        <Route path="/vouchers" element={<Vouchers />} />
+        <Route path="/movie-journey" element={<MovieJourney />} />
+        <Route path="/member-card" element={<MemberCard />} /> {/* Thêm route này */}
       </Routes>
-    </>
+    </LanguageProvider>
   );
 };
 

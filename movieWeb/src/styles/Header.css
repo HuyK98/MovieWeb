@@ -161,3 +161,85 @@ header {
     border-radius: 50%;
     padding: 2px 6px;
   }
+
+
+  /* Bọc phần user-menu */
+.user-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: -20px;
+}
+
+/* Nút Xin chào */
+.user-button {
+  background-color: transparent;
+  border: none;
+  color: rgb(16, 16, 16);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  margin-left: 40px;
+  
+}
+
+/* Dropdown menu */
+.dropdown-menu-login {
+  display: none; /* Ẩn menu */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: hsl(0, 10%, 94%);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.user-menu.active .dropdown-menu-login {
+  display: flex;  /* Hiển thị menu */
+}
+
+/* Các mục trong dropdown */
+.dropdown-menu-login a, .dropdown-menu-login button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: rgb(21, 20, 20);
+  border-bottom: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Icon và chữ căn đều */
+.dropdown-menu-login a svg, .dropdown-menu-login button svg {
+  margin-right: 10px;
+}
+
+/* Hiệu ứng hover */
+.dropdown-menu-login a:hover, .dropdown-menu-login button:hover {
+  background: hsla(0, 10%, 94%, 0.727);
+}
+
+/* Định dạng nút logout */
+.logout-button {
+  width: 100%;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* img lá cờ */
+.language-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.language-toggle img {
+  height: 20px; /* Adjust flag size */
+}

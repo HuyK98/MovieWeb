@@ -3,21 +3,23 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookF, faYoutube, faTiktok, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import "../styles/Footer.css";
+import { useLanguage } from "../pages/LanguageContext"; // Import context
+import translations from "../pages/translations";
 
 const Footer = ({ toggleDarkMode, darkMode }) => {
+  const { language, toggleLanguage } = useLanguage(); // Get language and toggle function from context
+
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section left">
-          <h3>CÁC RẠP Cinema</h3>
+          <h3>{translations[language].cinemas}</h3>
           <ul>
-            <li>Cinema Xuân Thủy, Hà Nội - Hotline: 033 023 183</li>
-            <li>Cinema Tây Sơn, Hà Nội - Hotline: 097 694 713</li>
-            <li>Cinema Nguyễn Trãi, TP. Hồ Chí Minh - Hotline: 070 675 509</li>
-            <li>Cinema Quang Trung, TP. Hồ Chí Minh - Hotline: 090 123 456</li>
-            <li>Cinema Đống Đa, Hà Nội - Hotline: 098 765 432</li>
-            <li>Cinema Cầu Giấy, Hà Nội - Hotline: 098 765 432</li>
+            {translations[language].cinemasList.map((cinema, index) => (
+              <li key={index}>
+                {cinema.name} - Hotline: {cinema.hotline}
+              </li>
+            ))}
           </ul>
         </div>
         <div className="footer-section center">
@@ -26,11 +28,11 @@ const Footer = ({ toggleDarkMode, darkMode }) => {
           </Link>
           <p>© 2021 Cinema Media. All Rights Reserved</p>
           <button className="toggle-button" onClick={toggleDarkMode}>
-            {darkMode ? "Light Mode" : "Dark Mode"}
+            {darkMode ? translations[language].lightMode : translations[language].darkMode}
           </button>
         </div>
         <div className="footer-section right">
-          <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+          <h3>{translations[language].connectWithUs}</h3>
           <div className="social-links">
             <a href="#" className="facebook">
               <FontAwesomeIcon icon={faFacebookF} />
@@ -45,11 +47,11 @@ const Footer = ({ toggleDarkMode, darkMode }) => {
               <FontAwesomeIcon icon={faInstagram} />
             </a>
           </div>
-          <h3>LIÊN HỆ</h3>
-          <p>CÔNG TY CỔ PHẦN CINEMA MEDIA</p>
-          <p>Địa chỉ: 123 Đường ABC, Quận 1, TP. Hồ Chí Minh</p>
-          <p>Hotline: 1800 123 456</p>
-          <p>Email: info@cinemamedia.vn</p>
+          <h3>{translations[language].contact}</h3>
+          <p>{translations[language].company}</p>
+          <p>{translations[language].address}</p>
+          <p>{translations[language].hotline}</p>
+          <p>{translations[language].email}</p>
         </div>
       </div>
     </footer>

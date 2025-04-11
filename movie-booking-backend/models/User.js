@@ -19,6 +19,25 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  dob: {
+    type: Date,
+    required: false,
+  },
+  gender: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  district: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  avatar: {
+    type: String,  // Trường avatar để lưu đường dẫn ảnh
+  },
   image: { 
     type: String,
     default: "/default-avatar.png",
@@ -31,6 +50,7 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
+// Mã hóa mật khẩu trước khi lưu
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
@@ -40,6 +60,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
+// Kiểm tra mật khẩu
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

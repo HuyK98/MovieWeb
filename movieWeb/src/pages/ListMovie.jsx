@@ -12,11 +12,15 @@ import Footer from "../layout/Footer";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
 import moment from "moment";
+import translations from "../pages/translations";
+import { useLanguage } from "../pages/LanguageContext";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
+  const [user, setUser] = useState(null);
+  const { language, toggleLanguage } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -95,6 +99,7 @@ const ListMovie = () => {
   const [showFavorites, setShowFavorites] = useState(false);
 
   const [isScrolled, setIsScrolled] = useState(false);
+  const { language, toggleLanguage } = useLanguage();
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -142,11 +147,13 @@ const ListMovie = () => {
       imageUrl: selectedMovie.imageUrl,
       genre: selectedMovie.genre,
       description: selectedMovie.description,
-      cinema: "Rạp CINEMA",
+      cinema: translations[language].cinema,
       date: showtime.date,
       time: timeSlot.time,
       seat: timeSlot.seats,
-      status: timeSlot.isBooked ? "Đã đặt" : "Ghế trống",
+      status: timeSlot.isBooked
+        ? translations[language].booked
+        : translations[language].available,
     });
   };
 
@@ -199,7 +206,7 @@ const ListMovie = () => {
         }
       } catch (err) {
         console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
+        setError(translations[language].errorLoading);
       }
     };
     fetchMovies();
@@ -365,7 +372,7 @@ const ListMovie = () => {
 
         <AnimatedSection animation="fade-right" delay={150}>
           <div className="card-items">
-            <h2>Danh sách phim</h2>
+            <h2>{translations[language].movieList}</h2>
             <div className="genre-filter">
               {Array.from(new Set(movies.map((movie) => movie.genre))).map(
                 (genre) => (
@@ -422,7 +429,7 @@ const ListMovie = () => {
                                 icon={faPlay}
                                 style={{ marginRight: "8px" }}
                               />
-                              Trailer
+                              {translations[language].trailer}
                             </button>
                           </div>
                           <div className="movie-title">
@@ -432,10 +439,15 @@ const ListMovie = () => {
                             >
                               {movie.title}
                             </h3>
-                            <p>Thể Loại: {movie.genre}</p>
-                            <p>Thời Lượng: {movie.description}</p>
                             <p>
-                              Ngày phát hành:{" "}
+                              {translations[language].genre}: {movie.genre}
+                            </p>
+                            <p>
+                              {translations[language].duration}:{" "}
+                              {movie.description}
+                            </p>
+                            <p>
+                              {translations[language].releaseDate}:{" "}
                               {new Date(movie.releaseDate).toLocaleDateString()}
                             </p>
                           </div>
@@ -443,14 +455,14 @@ const ListMovie = () => {
                             className="card-button"
                             onClick={() => handleBuyTicketClick(movie)}
                           >
-                            MUA VÉ
+                            {translations[language].buyTicket}
                           </button>
                         </div>
                       </AnimatedSection>
                     ))}
                   </>
                 ) : (
-                  <p>Không có phim nào</p>
+                  <p>{translations[language].noMovies}</p>
                 )}
               </div>
             )}
@@ -474,8 +486,10 @@ const ListMovie = () => {
               <button className="close-button" onClick={handleClosePopup}>
                 X
               </button>
-              <h2>LỊCH CHIẾU - {selectedMovie.title}</h2>
-              <h1>Rạp CINEMA</h1>
+              <h2>
+                {translations[language].showtimeTitle} - {selectedMovie.title}
+              </h2>
+              <h1>{translations[language].cinema}</h1>
               <ul className="date-showtime">
                 {showtimes
                   .map((showtime) => showtime.date)
@@ -515,11 +529,18 @@ const ListMovie = () => {
                           handleSeatClick(selectedShowtime, timeSlot)
                         }
                       >
-                        <p>Giờ: {timeSlot.time}</p>
-                        <p>{availableSeats} ghế trống</p>{" "}
+                        <p>
+                          {translations[language].timeLabel}: {timeSlot.time}
+                        </p>
+                        <p>
+                          {availableSeats}{" "}
+                          {translations[language].seatsAvailable}
+                        </p>{" "}
                         {/* Hiển thị số ghế còn trống */}
                         <div className="seat-status">
-                          {timeSlot.isBooked ? "Đã đặt" : "Ghế trống"}
+                          {timeSlot.isBooked
+                            ? translations[language].booked
+                            : translations[language].available}
                         </div>
                       </div>
                     );
@@ -533,14 +554,14 @@ const ListMovie = () => {
                 <button className="close-button" onClick={handleClosePopup}>
                   X
                 </button>
-                <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
+                <h3>{translations[language].bookingTitle}</h3>
                 <h2>{bookingInfo.movieTitle}</h2>
                 <table>
                   <tbody>
                     <tr>
-                      <th>RẠP CHIẾU</th>
-                      <th>NGÀY CHIẾU</th>
-                      <th>GIỜ CHIẾU</th>
+                      <th>{translations[language].cinemaHeader}</th>
+                      <th>{translations[language].dateHeader}</th>
+                      <th>{translations[language].timeHeader}</th>
                     </tr>
                     <tr>
                       <td>{bookingInfo.cinema}</td>
@@ -553,7 +574,7 @@ const ListMovie = () => {
                   className="confirm-button"
                   onClick={handleConfirmBooking}
                 >
-                  ĐỒNG Ý
+                  {translations[language].confirm}
                 </button>
               </div>
             )}

@@ -5,6 +5,9 @@ import "../styles/Login.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { FaGooglePlusG } from "react-icons/fa";
+import { useLanguage } from "../pages/LanguageContext"; // Import context
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +25,61 @@ const Login = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const location = useLocation(); // Lấy thông tin state từ navigate
+  const { language } = useLanguage(); // Lấy ngôn ngữ từ context
+
+
+
+
+  const texts = {
+    vi: {
+      createAccount: "Tạo Tài Khoản",
+      login: "Đăng Nhập",
+      registerWithGoogle: "Đăng nhập bằng Google",
+      orUseEmail: "hoặc sử dụng email của bạn để đăng ký",
+      name: "Tên",
+      email: "Email",
+      password: "Mật khẩu",
+      phone: "Số điện thoại",
+      register: "Đăng Ký",
+      orUseEmailAndPassword: "hoặc sử dụng email và mật khẩu của bạn",
+      forgotPassword: "Quên mật khẩu?",
+      welcomeBack: "Chào Mừng Trở Lại!",
+      connectWithPersonalDetails: "Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn",
+      loginButton: "Đăng Nhập",
+      helloFriend: "Xin Chào, Bạn!",
+      enterPersonalDetails: "Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi",
+      registerButton: "Đăng Ký",
+      registerSuccess: "Đăng ký tài khoản thành công!",
+      registerFailure: "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
+      loginFailure: "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+      googleLoginFailure: "Đăng nhập bằng Google thất bại. Vui lòng thử lại.",
+      invalidToken: "Token ID không hợp lệ. Vui lòng thử lại.",
+    },
+    en: {
+      createAccount: "Create Account",
+      login: "Login",
+      registerWithGoogle: "Login with Google",
+      orUseEmail: "or use your email for registration",
+      name: "Name",
+      email: "Email",
+      password: "Password",
+      phone: "Phone Number",
+      register: "Register",
+      orUseEmailAndPassword: "or use your email and password",
+      forgotPassword: "Forgot password?",
+      welcomeBack: "Welcome Back!",
+      connectWithPersonalDetails: "To keep connected with us, please login with your personal info",
+      loginButton: "Login",
+      helloFriend: "Hello, Friend!",
+      enterPersonalDetails: "Enter your personal details and start journey with us",
+      registerButton: "Register",
+      registerSuccess: "Account registration successful!",
+      registerFailure: "Registration failed. Please check your information.",
+      loginFailure: "Login failed. Please check your information.",
+      googleLoginFailure: "Google login failed. Please try again.",
+      invalidToken: "Invalid token ID. Please try again.",
+    },
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +89,7 @@ const Login = () => {
           "http://localhost:5000/api/auth/register",
           { name, email, password, phone }
         );
-        setSuccess("Đăng ký tài khoản thành công!");
+        setSuccess(texts[language].registerSuccess);
         setTimeout(() => {
           setIsRegister(false);
           setSuccess(null);
@@ -63,8 +121,8 @@ const Login = () => {
     } catch (err) {
       setError(
         isRegister
-          ? "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin."
-          : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+          ? texts[language].registerFailure
+          : texts[language].loginFailure
       );
     }
   };
@@ -79,7 +137,7 @@ const Login = () => {
 
       // Kiểm tra xem credential có tồn tại và không rỗng
       if (!credential) {
-        setError("Token ID không hợp lệ. Vui lòng thử lại.");
+        setError(texts[language].invalidToken);
         return;
       }
 
@@ -107,12 +165,12 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Google Login Failure:", response);
-      setError("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+      setError(texts[language].googleLoginFailure);
     }
   };
 
   const handleGoogleLoginFailure = (response) => {
-    setError("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+    setError(texts[language].googleLoginFailure);
   };
 
   const toggleDarkMode = () => {
@@ -159,11 +217,11 @@ const Login = () => {
               >
                 <div className="form-container sign-up">
                   <form onSubmit={handleSubmit}>
-                    <h1>Tạo Tài Khoản</h1>
+                    <h1>{texts[language].createAccount}</h1>
                     <div className="social-icons">
                       <GoogleLogin
                         clientId={googleClientId}
-                        buttonText="Đăng nhập bằng Google"
+                        buttonText={texts[language].registerWithGoogle}
                         onSuccess={handleGoogleLoginSuccess}
                         onFailure={handleGoogleLoginFailure}
                         cookiePolicy={"single_host_origin"}
@@ -179,47 +237,47 @@ const Login = () => {
                         )}
                       />
                     </div>
-                    <span>hoặc sử dụng email của bạn để đăng ký</span>
+                    <span>{texts[language].orUseEmail}</span>
                     <input
                       type="text"
-                      placeholder="Tên"
+                      placeholder={texts[language].name}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
                     />
                     <input
                       type="email"
-                      placeholder="Email"
+                      placeholder={texts[language].email}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                     <input
                       type="password"
-                      placeholder="Mật khẩu"
+                      placeholder={texts[language].password}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                     <input
                       type="number"
-                      placeholder="Số điện thoại"
+                      placeholder={texts[language].phone}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       required
                     />
                     {error && <p className="error">{error}</p>}
                     {success && <p className="success">{success}</p>}
-                    <button type="submit">Đăng Ký</button>
+                    <button type="submit">{texts[language].register}</button>
                   </form>
                 </div>
                 <div className="form-container sign-in">
                   <form onSubmit={handleSubmit}>
-                    <h1>Đăng Nhập</h1>
+                    <h1>{texts[language].login}</h1>
                     <div className="social-icons">
                       <GoogleLogin
                         clientId={googleClientId}
-                        buttonText="Đăng nhập bằng Google"
+                        buttonText={texts[language].registerWithGoogle}
                         onSuccess={handleGoogleLoginSuccess}
                         onFailure={handleGoogleLoginFailure}
                         cookiePolicy={"single_host_origin"}
@@ -235,54 +293,48 @@ const Login = () => {
                         )}
                       />
                     </div>
-                    <span>hoặc sử dụng email và mật khẩu của bạn</span>
+                    <span>{texts[language].orUseEmailAndPassword}</span>
                     <input
                       type="email"
-                      placeholder="Email"
+                      placeholder={texts[language].email}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                     <input
                       type="password"
-                      placeholder="Mật khẩu"
+                      placeholder={texts[language].password}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                     {error && <p className="error">{error}</p>}
-                    <a href="#">Quên mật khẩu?</a>
-                    <button type="submit">Đăng Nhập</button>
+                    <a href="#">{texts[language].forgotPassword}</a>
+                    <button type="submit">{texts[language].loginButton}</button>
                   </form>
                 </div>
                 <div className="toggle-container">
                   <div className="toggle">
                     <div className="toggle-panel toggle-left">
-                      <h1>Chào Mừng Trở Lại!</h1>
-                      <p>
-                        Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng
-                        thông tin cá nhân của bạn
-                      </p>
+                      <h1>{texts[language].welcomeBack}</h1>
+                      <p>{texts[language].connectWithPersonalDetails}</p>
                       <button
                         className="hidden"
                         id="login"
                         onClick={() => setIsRegister(false)}
                       >
-                        Đăng Nhập
+                        {texts[language].loginButton}
                       </button>
                     </div>
                     <div className="toggle-panel toggle-right">
-                      <h1>Xin Chào, Bạn!</h1>
-                      <p>
-                        Nhập thông tin cá nhân của bạn và bắt đầu hành trình với
-                        chúng tôi
-                      </p>
+                      <h1>{texts[language].helloFriend}</h1>
+                      <p>{texts[language].enterPersonalDetails}</p>
                       <button
                         className="hidden"
                         id="register"
                         onClick={() => setIsRegister(true)}
                       >
-                        Đăng Ký
+                        {texts[language].registerButton}
                       </button>
                     </div>
                   </div>

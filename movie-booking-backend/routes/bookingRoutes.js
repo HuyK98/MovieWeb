@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const Movie = require('../models/Movie');
+const { sendNotification, clients } = require('../websocket'); // Đường dẫn tùy thuộc vào vị trí file
 
 // API để lấy danh sách bookings và thông tin từ bảng Bill
 router.get('/', async (req, res) => {
@@ -77,16 +78,62 @@ router.patch('/update-image-urls', async (req, res) => {
 router.get('/notifications', async (req, res) => {
   try {
     // Lấy danh sách các booking mới nhất, sắp xếp theo thời gian tạo (mới nhất trước)
-    const notifications = await Booking.find()
+    const notifications = await Booking.find({ isRead: false}) // Chỉ lấy thông báo chưa được xem
       .sort({ createdAt: -1 }) // Sắp xếp theo thời gian tạo (mới nhất trước)
       .limit(10) // Giới hạn số lượng thông báo trả về
-      .populate('user', 'name email') // Populate thông tin người dùng
+      // .select("user movie createdAt title") // Chỉ lấy các trường cần thiết
+      .populate('user', 'name') // Populate thông tin người dùng
       .populate('movie', 'title'); // Populate thông tin phim
 
     res.status(200).json(notifications);
   } catch (error) {
     console.error('Lỗi khi lấy danh sách thông báo:', error);
     res.status(500).json({ message: 'Lỗi khi lấy danh sách thông báo.', error });
+  }
+});
+
+// Khi admin click vào một thông báo, cập nhật trạng thái isRead
+router.put('/notifications/:id/read', async (req, res) => {
+  try {
+    const notification = await Booking.findById(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    notification.isRead = true; // Đánh dấu thông báo đã đọc
+    await notification.save();
+
+    res.status(200).json({ message: 'Notification marked as read' });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ message: 'Error marking notification as read' });
+  }
+});
+
+
+// Khi tạo thông báo mới (ví dụ: khi có booking mới)
+router.post('/create-booking', async (req, res) => {
+  try {
+    const newBooking = new Booking(req.body);
+    const savedBooking = await newBooking.save();
+
+    // Populate thông tin người dùng và phim
+    const populatedBooking = await Booking.findById(savedBooking._id)
+      .populate('user', 'name imageUrl')
+      .populate('movie', 'title');
+
+    // Gửi thông báo qua WebSocket
+    sendNotification({
+      _id: populatedBooking._id,
+      user: populatedBooking.user,
+      movieTitle: populatedBooking.movie.title,
+      createdAt: populatedBooking.createdAt,
+    });
+
+    res.status(201).json(populatedBooking);
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({ message: 'Error creating booking' });
   }
 });
 

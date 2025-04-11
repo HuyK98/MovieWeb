@@ -10,37 +10,25 @@ const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
 const billRoutes = require('./routes/billRoutes'); 
 const bookingRoutes = require('./routes/bookingRoutes');
-const WebSocket = require('ws');
+const userRoutes = require('./routes/userRoutes');
+require('./websocket'); // Khởi động WebSocket server
+const http = require('http'); // Thêm để tạo server HTTP
+const { Server } = require('socket.io'); // Thêm Socket.IO 
 // Create a WebSocket server on port 8080
-const wss = new WebSocket.Server({ port: 8080 });
 const path = require('path');
 
-// Store connected clients
-const clients = new Set();
-
-wss.on('connection', (ws) => {
-  console.log('New client connected');
-  clients.add(ws);
-
-  // Handle incoming messages
-  ws.on('message', (message) => {
-    const messageString = message.toString('utf8'); 
-    console.log(`Received: ${messageString}`);
-    for (const client of clients) {
-      // Only send the message to other clients, not the sender
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(messageString); 
-      }
-    }
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-    clients.delete(ws);
-  });
-});
-
 const app = express();
+
+// Tạo server HTTP từ Express app
+const server = http.createServer(app);
+
+// Tích hợp Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173', // Frontend URL
+    methods: ['GET', 'POST'],
+  },
+});
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -70,6 +58,7 @@ app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/users', userRoutes);
 // Phục vụ file tĩnh từ thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -78,5 +67,21 @@ app.get("/", (req, res) => {
   res.send("🎬 Movie Booking API is running...");
 });
 
-app.listen(5000, () => console.log("🚀 Server running on port 5000"));
-console.log('WebSocket server running on ws://localhost:8080');
+// Xử lý Socket.IO
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('sendMessage', (data) => {
+    console.log('Tin nhắn nhận được:', data);
+    io.emit('receiveMessage', data); // Gửi tin nhắn đến tất cả client
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Khởi động server
+server.listen(5000, () => {
+  console.log("🚀 Server running on port 5000");
+});

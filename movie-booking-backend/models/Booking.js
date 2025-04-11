@@ -61,6 +61,7 @@ const bookingSchema = mongoose.Schema({
   signature: {
     type: String,
   },
+  isRead: { type: Boolean, default: false }, // Thêm trường isRead
 }, {
   timestamps: true,
 });

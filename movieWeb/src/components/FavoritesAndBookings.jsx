@@ -24,7 +24,7 @@ const FavoritesAndBookings = ({
   // Lấy thông tin người dùng từ localStorage khi component được mount
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
+    // console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
 
     if (!userInfo) {
       navigate("/login");

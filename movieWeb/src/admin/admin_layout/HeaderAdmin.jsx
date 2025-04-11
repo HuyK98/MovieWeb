@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBell, FaEnvelope, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,7 +11,42 @@ const HeaderAdmin = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [uploading, setUploading] = useState(false); // Trạng thái upload
   const [notifications, setNotifications] = useState([]); // Lưu danh sách thông báo
+  const [unreadCount, setUnreadCount] = useState(0); // Số lượng thông báo chưa được xem
   const navigate = useNavigate();
+  const ws = useRef(null); // Sử dụng useRef để lưu trữ WebSocket
+  
+
+  //sử dụng WebSocket để nhận thông báo mới từ server.
+  useEffect(() => {
+    ws.current = new WebSocket("ws://localhost:8080");
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.current.onclose = (event) => {
+      console.warn("WebSocket closed:", event);
+    };
+
+    ws.current.onmessage = (event) => {
+      const newNotification = JSON.parse(event.data);
+      console.log("New notification received:", newNotification);
+      setNotifications((prevNotifications) => {
+        const updatedNotifications = [newNotification, ...prevNotifications];
+        return updatedNotifications.slice(0, 10); // Giới hạn thông báo
+      });
+      // Tăng số lượng thông báo chưa đọc
+      setUnreadCount((prevCount) => prevCount + 1);
+    };
+
+    return () => {
+      if (ws.current) ws.current.close(); // Đóng kết nối WebSocket khi component bị unmount
+    };
+  }, []);
 
   // Gọi API để lấy danh sách thông báo
   useEffect(() => {
@@ -20,13 +55,16 @@ const HeaderAdmin = () => {
         const response = await axios.get(
           "http://localhost:5000/api/bookings/notifications"
         );
-        console.log("Notifications data:", response.data); // Log dữ liệu thông báo
         setNotifications(response.data); // Lưu danh sách thông báo vào state
+  
+        // Tính số lượng thông báo chưa được xem
+        const unread = response.data.filter((notification) => !notification.isRead).length;
+        setUnreadCount(unread);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
     };
-
+  
     fetchNotifications();
   }, []);
 
@@ -118,6 +156,33 @@ const HeaderAdmin = () => {
     }
   };
 
+  // Hàm xử lý khi click vào một thông báo
+  const handleNotificationClick = async (notificationId) => {
+    try {
+      // Đánh dấu thông báo đã đọc trong backend
+      await axios.put(
+        `http://localhost:5000/api/bookings/notifications/${notificationId}/read`
+      );
+  
+      // Cập nhật trạng thái isRead trong danh sách thông báo
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification._id === notificationId
+            ? { ...notification, isRead: true } // Cập nhật trạng thái isRead
+            : notification
+        )
+      );
+  
+      // Giảm số lượng thông báo mới (badge)
+      setUnreadCount((prevCount) => Math.max(prevCount - 1, 0));
+  
+      // Chuyển hướng đến trang chi tiết thông báo
+      navigate(`/admin/booking-detail/${notificationId}`);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
   return (
     <header className="header-admin">
       <div className="header-left">
@@ -130,7 +195,7 @@ const HeaderAdmin = () => {
           onClick={() => setIsNotificationOpen(!isNotificationOpen)}
         >
           <FaBell className="icon" />
-          <span className="badge">{notifications.length}</span>{" "}
+          <span className="badge">{unreadCount}</span> {/* Hiển thị số lượng thông báo mới */}
           {/* Hiển thị số lượng thông báo */}
         </div>
 
@@ -140,20 +205,29 @@ const HeaderAdmin = () => {
             <h4>Thông báo</h4>
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <div key={notification._id} className="notification-item">
+                <div key={notification._id} 
+                className="notification-item"
+                onClick={() => handleNotificationClick(notification._id)} // Xử lý click vào thông báo
+                style={{ cursor: "pointer" }} // Thêm con trỏ chuột để hiển thị có thể click
+                >
                   <p>
+                  {/* <strong>
+                      {notification.user?.imageUrl || "null"}
+                    </strong> */}
                     <strong>
                       {notification.user?.name || "Người dùng không xác định"}
                     </strong>{" "}
-                    đã đặt vé cho phim{" "}
+                     đặt vé cho phim{" "}
                     <strong>
-                      {notification.movie?.title || "Phim không xác định"}
+                      {notification.movieTitle || "Phim không xác định"}
                     </strong>
                     .
                   </p>
                   <small>
                     {new Date(notification.createdAt).toLocaleString()}
                   </small>
+                  {/* Dấu chấm màu xanh cho thông báo mới */}
+                  {!notification.isRead && <span className="new-notification-dot"></span>}
                 </div>
               ))
             ) : (

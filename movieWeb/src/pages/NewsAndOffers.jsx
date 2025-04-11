@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import "../styles/NewsAndOffers.css"; // File CSS riêng cho phần nội dung đặc thù
-import logo from "../assets/logo.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faYoutube,
-  faTiktok,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
 import offer1Image from "../assets/offer1.png";
 import offer2Image from "../assets/offer2.png";
 import offer3Image from "../assets/offer3.png";
@@ -21,12 +11,15 @@ import newsImage1 from "../assets/news1.png";
 import newsImage2 from "../assets/news2.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import { useLanguage } from "../pages/LanguageContext";
+import translations from "../pages/translations";
 
 const NewsAndOffers = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { language } = useLanguage(); // Lấy ngôn ngữ từ context
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -128,7 +121,7 @@ const NewsAndOffers = () => {
       <div className="home-content">
         <main className="news-offers-main">
           <div className="offers-section">
-            <h2>KHUYẾN MÃI MỚI</h2>
+            <h2>{translations[language].newOffers}</h2>
             <div className="offers-grid">
               {offers.map((offer, index) => (
                 <div
@@ -144,7 +137,9 @@ const NewsAndOffers = () => {
                   <div className="offer-content">
                     <h3>{offer.title}</h3>
                     <p>{offer.description}</p>
-                    <button className="cta-button">Xem Chi Tiết</button>
+                    <button className="cta-button">
+                      {translations[language].viewDetails}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -152,7 +147,7 @@ const NewsAndOffers = () => {
           </div>
 
           <div className="news-section">
-            <h2>TIN BÊN LỀ</h2>
+            <h2>{translations[language].sideNews}</h2>
             <div className="news-grid">
               {news.map((item, index) => (
                 <div
@@ -168,7 +163,9 @@ const NewsAndOffers = () => {
                   <div className="news-content">
                     <h3>{item.title}</h3>
                     <p>{item.description}</p>
-                    <button className="cta-button">Xem Thêm</button>
+                    <button className="cta-button">
+                      {translations[language].viewMore}
+                    </button>
                   </div>
                 </div>
               ))}

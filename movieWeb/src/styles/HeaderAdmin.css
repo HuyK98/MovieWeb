@@ -235,3 +235,14 @@
   color: #888;
   font-size: 12px;
 }
+
+.new-notification-dot {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: #007bff; /* Màu xanh nước biển */
+  border-radius: 50%;
+}
