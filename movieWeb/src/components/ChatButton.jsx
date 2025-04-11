@@ -1,93 +1,95 @@
 import React, { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import '../styles/ChatButton.css';
-import { useRef } from 'react';
 
 function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [userId, setUserId] = useState(''); // Thay thế bằng ID người dùng thực tế
-  const [userName, setUserName] = useState(''); // Thay thế bằng tên người dùng thực tế
-  const ws = useRef(null);
+  const [userId, setUserId] = useState('');
+  const [userName, setUserName] = useState('');
+  const [socket, setSocket] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     // Lấy thông tin người dùng từ localStorage
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
-      setUserId(userInfo._id); // Lưu _id người dùng
-      setUserName(userInfo.name); // Lưu name người dùng
+      setUserId(userInfo._id);
+      setUserName(userInfo.name);
     } else {
       console.error('❌ Không tìm thấy thông tin người dùng trong localStorage');
     }
   }, []);
 
   useEffect(() => {
-    ws.current = new WebSocket('ws://localhost:8080');
+    // Kết nối Socket.IO thay vì WebSocket
+    const newSocket = io('http://localhost:5000');
+    setSocket(newSocket);
 
-    ws.current.onopen = () => console.log('✅ WebSocket connection established');
+    newSocket.on('connect', () => {
+      console.log('✅ Socket.IO connection established:', newSocket.id);
+    });
 
-    ws.current.onmessage = (event) => {
-      const message = event.data;
-      const timestamp = new Date().toLocaleTimeString();
-
-      setMessages((prev) => {
-        const isDuplicate = prev.some(
-          (msg) => msg.text === message && msg.timestamp === timestamp
-        );
-        
-        if (!isDuplicate) {
-            return [
-              ...prev,
-              { text: message, timestamp, seen: false },
-            ];
-          }
-          return prev;
-        });
-    };
-
-    ws.current.onerror = (error) => console.error('❌ WebSocket error:', error);
-
-    ws.current.onclose = () => console.log('❌ WebSocket closed');
-
-    return () => {
-      ws.current.close();
-    };
-  }, []);
-
-
-  const sendMessage = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const messageToSend = `${userName}: ${input}`;
-      
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: messageToSend, timestamp: new Date().toLocaleTimeString(), seen: true }
-      ]);
-  
-      ws.current.send(messageToSend);
-      setInput('');
-    } else {
-      console.log('❌ WebSocket chưa kết nối hoặc đã bị đóng.');
-    }
-  };  
-
-  const reconnectWebSocket = () => {
-    if (!ws.current || ws.current.readyState === WebSocket.CLOSED) {
-      console.log("🔄 Đang thử kết nối lại WebSocket...");
-      ws.current = new WebSocket('ws://localhost:8080');
-
-      ws.current.onopen = () => console.log('✅ WebSocket reconnected');
-      ws.current.onerror = (error) => console.error('❌ WebSocket error:', error);
-      ws.current.onmessage = (event) => {
+    // Lắng nghe sự kiện receiveMessage từ server
+    newSocket.on('receiveMessage', (data) => {
+      // Chỉ hiển thị tin nhắn nếu là từ admin hoặc gửi đến user này
+      if (data.sender === 'admin' && data.userId === userId) {
         setMessages((prev) => [
           ...prev,
-          { text: event.data, timestamp: new Date().toLocaleTimeString(), seen: false },
+          { 
+            text: data.text, 
+            timestamp: data.timestamp, 
+            seen: false,
+            isAdmin: true
+          }
         ]);
+      }
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('❌ Socket.IO disconnected');
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('❌ Socket.IO connection error:', error);
+      setTimeout(() => {
+        newSocket.connect();
+      }, 3000);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [userId]);
+
+  const sendMessage = () => {
+    if (socket && socket.connected && input.trim() && userId) {
+      const newMessage = {
+        text: input,
+        timestamp: new Date().toLocaleTimeString(),
+        sender: 'user',
+        userId: userId, // ID của người dùng hiện tại
+        userName: userName // Thêm tên người dùng để admin dễ nhận biết
       };
-      ws.current.onclose = () => {
-        console.log('❌ WebSocket closed. Tự động thử kết nối lại sau 3 giây...');
-        setTimeout(reconnectWebSocket, 3000);
-      };
+
+      // Gửi tin nhắn qua Socket.IO
+      socket.emit('sendMessage', newMessage);
+
+      // Thêm tin nhắn vào state local
+      setMessages((prev) => [
+        ...prev,
+        { 
+          text: input, 
+          timestamp: newMessage.timestamp, 
+          seen: true,
+          isAdmin: false 
+        }
+      ]);
+
+      setInput('');
+    } else if (!socket || !socket.connected) {
+      console.log('❌ Socket.IO chưa kết nối hoặc đã bị đóng.');
     }
   };
 
@@ -119,7 +121,7 @@ function ChatButton() {
           </div>
           <div className="chat-messages">
             {messages.map((msg, index) => (
-              <div key={index} className={msg.text.startsWith(`${userName}:`) ? 'user-msg' : 'admin-msg'}>
+              <div key={index} className={msg.isAdmin ? 'admin-msg' : 'user-msg'}>
                 <p>{msg.text}</p>
                 <span className="timestamp">{msg.timestamp}</span>
                 {msg.seen && <span className="seen-status">Đã xem</span>}
