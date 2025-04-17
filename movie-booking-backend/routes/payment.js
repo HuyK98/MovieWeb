@@ -5,6 +5,8 @@ const Booking = require('../models/Booking');
 const axios = require('axios');
 const crypto = require('crypto');
 const moment = require('moment');
+const { sendNotification } = require('../websocket'); // Import hàm sendNotification
+
 
 // Thông tin mẫu từ MoMo
 const partnerCode = 'MOMO';
@@ -20,18 +22,35 @@ router.post('/pay', protect, async (req, res) => {
   const { bookingInfo, selectedSeats, totalPrice, paymentMethod } = req.body;
 
   try {
+    // Tạo một document Booking mới
     const booking = new Booking({
-      user: req.user._id,
-      movieTitle: bookingInfo.movieTitle,
-      cinema: bookingInfo.cinema,
-      date: bookingInfo.date,
-      time: bookingInfo.time,
-      seats: selectedSeats,
-      totalPrice,
-      paymentMethod,
+      user: req.user._id, // ID của người dùng từ middleware protect
+      movieTitle: bookingInfo.movieTitle, // Tên phim
+      cinema: bookingInfo.cinema, // Tên rạp
+      date: bookingInfo.date, // Ngày chiếu
+      time: bookingInfo.time, // Giờ chiếu
+      seats: selectedSeats, // Danh sách ghế đã chọn
+      totalPrice, // Tổng tiền
+      paymentMethod, // Phương thức thanh toán
     });
 
+    // Lưu thông tin đặt vé vào cơ sở dữ liệu
     const savedBooking = await booking.save();
+
+    // Populate thông tin người dùng và phim để gửi thông báo
+    const populatedBooking = await Booking.findById(savedBooking._id)
+      .populate('user', 'name imageUrl') // Lấy thông tin người dùng
+      .populate('movie', 'title'); // Lấy thông tin phim
+
+    // Gửi thông báo qua WebSocket
+    sendNotification({
+      _id: populatedBooking._id,
+      user: populatedBooking.user,
+      movieTitle: populatedBooking.movieTitle,
+      createdAt: populatedBooking.createdAt,
+    });
+
+    // Trả về thông tin đặt vé đã lưu
     res.status(201).json(savedBooking);
   } catch (error) {
     console.error('Lỗi khi lưu thông tin đặt vé:', error);
@@ -44,7 +63,7 @@ router.get('/seats/page', async (req, res) => {
   const { movieTitle, date } = req.query;
 
   try {
-    console.log('Query parameters:', { movieTitle, date });
+    // console.log('Query parameters:', { movieTitle, date });
 
     if (!date) {
       return res.status(400).json({ message: "Date is required" });
@@ -89,7 +108,7 @@ router.get('/seats/page', async (req, res) => {
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
 router.get('/seats', async (req, res) => {
   const { movieTitle, date, time } = req.query;
-  console.log('Received query parameters:', { movieTitle, date, time });
+  // console.log('Received query parameters:', { movieTitle, date, time });
 
   try {
     if (!date || isNaN(new Date(date).getTime())) {
@@ -121,7 +140,7 @@ router.get('/seats', async (req, res) => {
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
 router.get('/seats', async (req, res) => {
   const { movieTitle, date, time } = req.query;
-  console.log('Received query parameters:', { movieTitle, date, time });
+  // console.log('Received query parameters:', { movieTitle, date, time });
 
   try {
     if (!date || isNaN(new Date(date).getTime())) {
@@ -339,65 +358,65 @@ router.get('/by-movie', async (req, res) => {
   }
 });
 
-// // Lấy doanh thu theo ngày
-// router.get('/daily', async (req, res) => {
-//   try {
-//     const dailyRevenue = await Booking.aggregate([
-//       {
-//         $group: {
-//           _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-//           total: { $sum: "$totalPrice" },
-//           ticketsSold: { $sum: "$tickets" },
-//           showtimes: { $sum: 1 }
-//         }
-//       },
-//       { $sort: { "_id": 1 } }
-//     ]);
+// Lấy doanh thu theo ngày
+router.get('/daily', async (req, res) => {
+  try {
+    const dailyRevenue = await Booking.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          total: { $sum: "$totalPrice" },
+          ticketsSold: { $sum: "$tickets" },
+          showtimes: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
 
-//     res.json(dailyRevenue);
-//   } catch (error) {
-//     console.error("Error fetching daily revenue:", error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
+    res.json(dailyRevenue);
+  } catch (error) {
+    console.error("Error fetching daily revenue:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
-// // Lấy doanh thu theo tuần
-// router.get('/weekly', async (req, res) => {
-//   try {
-//     const weeklyRevenue = await Booking.aggregate([
-//       {
-//         $addFields: {
-//           date: {
-//             $dateFromString: {
-//               dateString: "$date",
-//               format: "%d/%m/%Y",
-//               onError: null,
-//               onNull: null
-//             }
-//           }
-//         }
-//       },
-//       {
-//         $match: {
-//           date: { $ne: null }
-//         }
-//       },
-//       {
-//         $group: {
-//           _id: { $week: "$date" },
-//           total: { $sum: "$totalPrice" }
-//         }
-//       },
-//       { $sort: { "_id": 1 } }
-//     ]);
+// Lấy doanh thu theo tuần
+router.get('/weekly', async (req, res) => {
+  try {
+    const weeklyRevenue = await Booking.aggregate([
+      {
+        $addFields: {
+          date: {
+            $dateFromString: {
+              dateString: "$date",
+              format: "%d/%m/%Y",
+              onError: null,
+              onNull: null
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          date: { $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: { $week: "$date" },
+          total: { $sum: "$totalPrice" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
 
-//     res.json(weeklyRevenue);
-//   } catch (error) {
-//     console.error("Error fetching weekly revenue:", error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
+    res.json(weeklyRevenue);
+  } catch (error) {
+    console.error("Error fetching weekly revenue:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // // Lấy doanh thu theo tháng
 // router.get('/monthly', async (req, res) => {

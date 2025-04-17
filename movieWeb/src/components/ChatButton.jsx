@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import axios from 'axios';
+import { format } from 'date-fns';
 import '../styles/ChatButton.css';
 
 function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({});
   const [input, setInput] = useState('');
   const [userId, setUserId] = useState('');
   const [userName, setUserName] = useState('');
   const [socket, setSocket] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
 
+  const formatTimestamp = (timestamp) => {
+    try {
+      return format(new Date(timestamp), 'HH:mm:ss dd/MM/yyyy'); // Định dạng giờ:phút:giây ngày/tháng/năm
+    } catch (error) {
+      console.error('Lỗi định dạng thời gian:', error);
+      return 'Invalid date';
+    }
+  };
+
+  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
       setUserId(userInfo._id);
@@ -22,29 +32,13 @@ function ChatButton() {
     }
   }, []);
 
+  // Kết nối Socket.IO
   useEffect(() => {
-    // Kết nối Socket.IO thay vì WebSocket
     const newSocket = io('http://localhost:5000');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       console.log('✅ Socket.IO connection established:', newSocket.id);
-    });
-
-    // Lắng nghe sự kiện receiveMessage từ server
-    newSocket.on('receiveMessage', (data) => {
-      // Chỉ hiển thị tin nhắn nếu là từ admin hoặc gửi đến user này
-      if (data.sender === 'admin' && data.userId === userId) {
-        setMessages((prev) => [
-          ...prev,
-          { 
-            text: data.text, 
-            timestamp: data.timestamp, 
-            seen: false,
-            isAdmin: true
-          }
-        ]);
-      }
     });
 
     newSocket.on('disconnect', () => {
@@ -53,46 +47,127 @@ function ChatButton() {
 
     newSocket.on('connect_error', (error) => {
       console.error('❌ Socket.IO connection error:', error);
-      setTimeout(() => {
-        newSocket.connect();
-      }, 3000);
     });
 
     return () => {
       newSocket.disconnect();
     };
+  }, []);
+
+  // Lắng nghe sự kiện nhận tin nhắn từ admin
+  useEffect(() => {
+    if (socket) {
+      socket.on('receiveMessage', (data) => {
+        console.log('📩 Tin nhắn nhận được từ admin:', data);
+
+        setMessages((prev) => {
+          const updatedMessages = {
+            ...prev,
+            [data.userId]: [...(prev[data.userId] || []), data],
+          };
+          console.log('📥 Danh sách tin nhắn sau khi nhận:', updatedMessages); // Log danh sách tin nhắn
+          return updatedMessages;
+        });
+      });
+
+      return () => {
+        socket.off('receiveMessage');
+      };
+    }
+  }, [socket]);
+
+  // Lấy tin nhắn từ server khi tải trang
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${userId}`);
+        setMessages((prev) => ({
+          ...prev,
+          [userId]: data,
+        }));
+      } catch (error) {
+        console.error('Lỗi khi lấy tin nhắn:', error.response?.data || error.message);
+      }
+    };
+
+    if (userId) {
+      fetchMessages();
+    }
   }, [userId]);
 
-  const sendMessage = () => {
+  // Gửi tin nhắn từ user
+  const sendMessage = async () => {
     if (socket && socket.connected && input.trim() && userId) {
       const newMessage = {
         text: input,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toISOString(),
         sender: 'user',
-        userId: userId, // ID của người dùng hiện tại
-        userName: userName // Thêm tên người dùng để admin dễ nhận biết
+        userId: userId,
+        userName: userName,
+        isAdmin: false,
       };
 
-      // Gửi tin nhắn qua Socket.IO
-      socket.emit('sendMessage', newMessage);
+      console.log('✉️ Tin nhắn gửi đi từ user:', newMessage);
 
-      // Thêm tin nhắn vào state local
-      setMessages((prev) => [
-        ...prev,
-        { 
-          text: input, 
-          timestamp: newMessage.timestamp, 
-          seen: true,
-          isAdmin: false 
-        }
-      ]);
+      try {
+        await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+        socket.emit('sendMessage', newMessage);
 
-      setInput('');
-    } else if (!socket || !socket.connected) {
-      console.log('❌ Socket.IO chưa kết nối hoặc đã bị đóng.');
+        setMessages((prev) => {
+          const updatedMessages = {
+            ...prev,
+            [userId]: [...(prev[userId] || []), newMessage],
+          };
+          console.log('📤 Danh sách tin nhắn sau khi gửi:', updatedMessages); // Log danh sách tin nhắn
+          return updatedMessages;
+        });
+
+        setInput('');
+      } catch (error) {
+        console.error('Lỗi khi gửi tin nhắn:', error.response?.data || error.message);
+      }
     }
   };
 
+  // Gửi hình ảnh
+  const sendImage = async (file) => {
+    if (file && userId) {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('userId', userId);
+
+      try {
+        const { data } = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        const newMessage = {
+          text: '[Hình ảnh]',
+          imageUrl: data.imageUrl, // URL của ảnh từ server
+          timestamp: new Date().toISOString(),
+          sender: 'user',
+          userId: userId,
+          userName: userName,
+          isAdmin: false,
+        };
+
+        // Gửi tin nhắn qua Socket.IO
+        socket.emit('sendMessage', newMessage);
+
+        // Thêm tin nhắn vào state local
+        setMessages((prev) => ({
+          ...prev,
+          [userId]: [...(prev[userId] || []), newMessage],
+        }));
+      } catch (error) {
+        console.error('Lỗi khi upload hình ảnh:', error.response?.data || error.message);
+      }
+    }
+  };
+
+  // Xử lý khi nhấn Enter để gửi tin nhắn
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       sendMessage();
@@ -120,13 +195,27 @@ function ChatButton() {
             </button>
           </div>
           <div className="chat-messages">
-            {messages.map((msg, index) => (
-              <div key={index} className={msg.isAdmin ? 'admin-msg' : 'user-msg'}>
-                <p>{msg.text}</p>
-                <span className="timestamp">{msg.timestamp}</span>
-                {msg.seen && <span className="seen-status">Đã xem</span>}
-              </div>
-            ))}
+            {(messages[userId] || []).map((msg, index) => {
+              // Log ra để kiểm tra
+              console.log(`Message ${index}:`, msg, 'isAdmin:', msg.isAdmin, 'sender:', msg.sender);
+
+              // Phân biệt dựa trên cả isAdmin và sender
+              const isFromAdmin = (msg.isAdmin === true) || (msg.sender === 'admin');
+
+              return (
+                <div
+                  key={index}
+                  className={isFromAdmin ? 'admin-msg' : 'user-msg'}
+                >
+                  {msg.imageUrl ? (
+                    <img src={msg.imageUrl} alt="Uploaded" className="chat-image" />
+                  ) : (
+                    <p>{msg.text}</p>
+                  )}
+                  <span className="timestamp">{formatTimestamp(msg.timestamp)}</span>
+                </div>
+              );
+            })}
           </div>
           <div className="chat-input">
             <input
@@ -136,6 +225,14 @@ function ChatButton() {
               onKeyPress={handleKeyPress}
               placeholder="Nhập tin nhắn..."
             />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => sendImage(e.target.files[0])} // Gọi hàm xử lý upload ảnh
+              style={{ display: 'none' }}
+              id="upload-image"
+            />
+            <label htmlFor="upload-image" className="upload-btn">📷</label>
             <button onClick={sendMessage}>Gửi</button>
           </div>
         </div>

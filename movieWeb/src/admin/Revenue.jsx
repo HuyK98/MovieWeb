@@ -6,6 +6,8 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Legend,
 } from "chart.js";
@@ -32,7 +34,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 // Đăng ký các thành phần cần thiết của Chart.js
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Legend);
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Legend
+);
 
 const Revenue = () => {
   const [summary, setSummary] = useState({});
@@ -41,6 +51,7 @@ const Revenue = () => {
   const [weeklyRevenue, setWeeklyRevenue] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [revenueByMovie, setRevenueByMovie] = useState([]);
+  const [selectedChart, setSelectedChart] = useState("daily"); // State để lưu biểu đồ được chọn
   const [error, setError] = useState(null);
   const [isMoviesOpen, setIsMoviesOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
@@ -85,25 +96,29 @@ const Revenue = () => {
       }
     };
 
-    // const fetchDailyRevenue = async () => {
-    //   try {
-    //     const response = await axios.get('http://localhost:5000/api/revenue/daily');
-    //     setDailyRevenue(response.data);
-    //   } catch (error) {
-    //     console.error("Error fetching daily revenue:", error);
-    //     setError("Không thể tải dữ liệu doanh thu theo ngày.");
-    //   }
-    // };
+    const fetchDailyRevenue = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/payment/daily"
+        );
+        setDailyRevenue(response.data);
+      } catch (error) {
+        console.error("Error fetching daily revenue:", error);
+        setError("Không thể tải dữ liệu doanh thu theo ngày.");
+      }
+    };
 
-    // const fetchWeeklyRevenue = async () => {
-    //   try {
-    //     const response = await axios.get('http://localhost:5000/api/payment/weekly');
-    //     setWeeklyRevenue(response.data);
-    //   } catch (error) {
-    //     console.error("Error fetching weekly revenue:", error);
-    //     setError("Không thể tải dữ liệu doanh thu theo tuần.");
-    //   }
-    // };
+    const fetchWeeklyRevenue = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/payment/weekly"
+        );
+        setWeeklyRevenue(response.data);
+      } catch (error) {
+        console.error("Error fetching weekly revenue:", error);
+        setError("Không thể tải dữ liệu doanh thu theo tuần.");
+      }
+    };
 
     const fetchMonthlyRevenue = async () => {
       try {
@@ -130,47 +145,80 @@ const Revenue = () => {
 
     fetchSummary();
     fetchTransactions();
-    // fetchWeeklyRevenue();
+    fetchWeeklyRevenue();
     fetchMonthlyRevenue();
-    // fetchDailyRevenue();
+    fetchDailyRevenue();
     fetchRevenueByMovie();
   }, []);
 
-  // const dailyData = {
-  //   labels: dailyRevenue.map(item => item._id),
-  //   datasets: [
-  //     {
-  //       label: 'Doanh thu theo ngày',
-  //       data: dailyRevenue.map(item => item.total),
-  //       backgroundColor: 'rgba(75, 192, 192, 0.6)',
-  //       borderColor: 'rgba(75, 192, 192, 1)',
-  //       borderWidth: 1,
-  //     },
-  //   ],
-  // };
+  const dailyData = {
+    labels: dailyRevenue.map((item) => item._id),
+    datasets: [
+      {
+        type: "bar", // Bar Chart
+        label: "Doanh thu theo ngày (Bar)",
+        data: dailyRevenue.map((item) => item.total),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+      {
+        type: "line", // Line Chart
+        label: "Doanh thu theo ngày (Line)",
+        data: dailyRevenue.map((item) => item.total),
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderWidth: 2,
+        tension: 0.4, // Làm mịn đường
+        pointRadius: 3, // Kích thước điểm
+      },
+    ],
+  };
 
-  // const weeklyData = {
-  //   labels: weeklyRevenue.map(item => `Tuần ${item._id}`),
-  //   datasets: [
-  //     {
-  //       label: 'Doanh thu theo tuần',
-  //       data: weeklyRevenue.map(item => item.total),
-  //       backgroundColor: 'rgba(75, 192, 192, 0.6)',
-  //       borderColor: 'rgba(75, 192, 192, 1)',
-  //       borderWidth: 1,
-  //     },
-  //   ],
-  // };
+  const weeklyData = {
+    labels: weeklyRevenue.map((item) => `Tuần ${item._id}`),
+    datasets: [
+      {
+        type: "bar",
+        label: "Doanh thu theo tuần (Bar)",
+        data: weeklyRevenue.map((item) => item.total),
+        backgroundColor: "rgba(234, 79, 192, 0.6)",
+        borderColor: "rgba(234, 79, 192, 1)",
+        borderWidth: 1,
+      },
+      {
+        type: "line",
+        label: "Doanh thu theo tuần (Line)",
+        data: weeklyRevenue.map((item) => item.total),
+        borderColor: "rgba(54, 162, 235, 1)",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 3,
+      },
+    ],
+  };
 
   const monthlyData = {
     labels: monthlyRevenue.map((item) => `Tháng ${item._id}`),
     datasets: [
       {
-        label: "Doanh thu theo tháng",
+        type: "bar",
+        label: "Doanh thu theo tháng (Bar)",
         data: monthlyRevenue.map((item) => item.total),
         backgroundColor: "rgba(153, 102, 255, 0.6)",
         borderColor: "rgba(153, 102, 255, 1)",
         borderWidth: 1,
+      },
+      {
+        type: "line",
+        label: "Doanh thu theo tháng (Line)",
+        data: monthlyRevenue.map((item) => item.total),
+        borderColor: "rgba(255, 206, 86, 1)",
+        backgroundColor: "rgba(255, 206, 86, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 3,
       },
     ],
   };
@@ -179,11 +227,22 @@ const Revenue = () => {
     labels: revenueByMovie.map((item) => item._id),
     datasets: [
       {
-        label: "Doanh thu theo phim",
+        type: "bar",
+        label: "Doanh thu theo phim (Bar)",
         data: revenueByMovie.map((item) => item.total),
         backgroundColor: "rgba(255, 159, 64, 0.6)",
         borderColor: "rgba(255, 159, 64, 1)",
         borderWidth: 1,
+      },
+      {
+        type: "line",
+        label: "Doanh thu theo phim (Line)",
+        data: revenueByMovie.map((item) => item.total),
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 3,
       },
     ],
   };
@@ -217,7 +276,6 @@ const Revenue = () => {
         return month === parseInt(selectedMonth);
       });
     }
-
     // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
       filtered = filtered.filter((transaction) => {
@@ -444,18 +502,52 @@ const Revenue = () => {
               ))}
           </ul>
         </div>
-        <div className="charts">
-          <h2>Biểu Đồ Doanh Thu</h2>
-          {/* <div className="chart">
-          <h3>Doanh Thu Theo Ngày</h3>
-          <Bar data={dailyData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(75, 192, 192, 1)' } } } }} />
+
+        {/* Dropdown menu để chọn biểu đồ */}
+        <div className="chart-dropdown">
+          <label htmlFor="chart-select">Chọn Biểu Đồ:</label>
+          <select
+            id="chart-select"
+            value={selectedChart}
+            onChange={(e) => setSelectedChart(e.target.value)}
+          >
+            <option value="daily">Doanh Thu Theo Ngày</option>
+            <option value="weekly">Doanh Thu Theo Tuần</option>
+            <option value="monthly">Doanh Thu Theo Tháng</option>
+            <option value="movie">Doanh Thu Theo Phim</option>
+          </select>
         </div>
+
+        {/* Hiển thị biểu đồ dựa trên lựa chọn */}
         <div className="chart">
-          <h3>Doanh Thu Theo Tuần</h3>
-          <Bar data={weeklyData} options={{ plugins: { legend: { display: true, labels: { color: 'rgba(75, 192, 192, 1)' } } } }} />
-        </div> */}
-          <div className="chart">
-            <h3>Doanh Thu Theo Tháng</h3>
+          <h2>Biểu Đồ Doanh Thu</h2>
+          {selectedChart === "daily" && (
+            <Bar
+              data={dailyData}
+              options={{
+                plugins: {
+                  legend: {
+                    display: true,
+                    labels: { color: "rgba(75, 192, 192, 1)" },
+                  },
+                },
+              }}
+            />
+          )}
+          {selectedChart === "weekly" && (
+            <Bar
+              data={weeklyData}
+              options={{
+                plugins: {
+                  legend: {
+                    display: true,
+                    labels: { color: "rgba(75, 192, 192, 1)" },
+                  },
+                },
+              }}
+            />
+          )}
+          {selectedChart === "monthly" && (
             <Bar
               data={monthlyData}
               options={{
@@ -467,9 +559,8 @@ const Revenue = () => {
                 },
               }}
             />
-          </div>
-          <div className="chart">
-            <h3>Doanh Thu Theo Phim</h3>
+          )}
+          {selectedChart === "movie" && (
             <Bar
               data={movieData}
               options={{
@@ -481,7 +572,7 @@ const Revenue = () => {
                 },
               }}
             />
-          </div>
+          )}
         </div>
 
         <div className="transactions">

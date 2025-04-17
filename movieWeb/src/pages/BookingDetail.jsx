@@ -161,38 +161,38 @@ const BookingDetail = () => {
   };
 
   // Export bill
-  const exportBill = async () => {
-    if (!booking) {
-      console.error('Không có dữ liệu booking để xuất hóa đơn.');
-      return;
-    }
+  // const exportBill = async () => {
+  //   if (!booking) {
+  //     console.error('Không có dữ liệu booking để xuất hóa đơn.');
+  //     return;
+  //   }
 
-    // Save bill to database
-    await saveBillToDatabase();
+  //   // Save bill to database
+  //   await saveBillToDatabase();
 
-    // Generate QR Code
-    const qrCodeData = await generateQRCode({
-      user: booking.user,
-      movie: booking.movie,
-      booking: booking,
-    });
+  //   // Generate QR Code
+  //   const qrCodeData = await generateQRCode({
+  //     user: booking.user,
+  //     movie: booking.movie,
+  //     booking: booking,
+  //   });
 
-    // Capture bill as image
-    if (billRef.current) {
-      html2canvas(billRef.current, { useCORS: true }).then((canvas) => {
-        const link = document.createElement('a');
-        link.download = 'bill.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    }
+  //   // Capture bill as image
+  //   if (billRef.current) {
+  //     html2canvas(billRef.current, { useCORS: true }).then((canvas) => {
+  //       const link = document.createElement('a');
+  //       link.download = 'bill.png';
+  //       link.href = canvas.toDataURL('image/png');
+  //       link.click();
+  //     });
+  //   }
 
-    // Display QR Code (if needed)
-    if (qrCodeData) {
-      const qrWindow = window.open();
-      qrWindow.document.write(`<img src="${qrCodeData}" alt="QR Code" />`);
-    }
-  };
+  //   // Display QR Code (if needed)
+  //   if (qrCodeData) {
+  //     const qrWindow = window.open();
+  //     qrWindow.document.write(`<img src="${qrCodeData}" alt="QR Code" />`);
+  //   }
+  // };
 
   // Handle missing booking data
   if (!booking) {
@@ -301,9 +301,9 @@ const BookingDetail = () => {
           <button className="bd-back-btn" onClick={() => navigate(-1)}>
             Quay lại
           </button>
-          <button className="bd-save-btn" onClick={exportBill}>
+          {/* <button className="bd-save-btn" onClick={exportBill}>
             Xuất hóa đơn
-          </button>
+          </button> */}
         </div>
       </div>
       <Footer toggleDarkMode={() => setDarkMode(!darkMode)} darkMode={darkMode} />

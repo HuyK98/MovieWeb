@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import "../styles/NewsAndOffers.css";
+import "../styles/NewsAndOffers.css"; // File CSS riêng cho phần nội dung đặc thù
 import offer1Image from "../assets/offer1.png";
 import offer2Image from "../assets/offer2.png";
 import offer3Image from "../assets/offer3.png";
@@ -12,12 +11,15 @@ import newsImage1 from "../assets/news1.png";
 import newsImage2 from "../assets/news2.jpg";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import { useLanguage } from "../pages/LanguageContext";
+import translations from "../pages/translations";
 
 const NewsAndOffers = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { language } = useLanguage(); // Lấy ngôn ngữ từ context
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -28,18 +30,18 @@ const NewsAndOffers = () => {
     document.body.classList.toggle("dark-mode", !darkMode);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    setUser(null);
+    navigate("/");
+  };
+
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (userInfo) {
       setUser(userInfo);
     }
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    setUser(null);
-    navigate("/");
-  };
 
   //scroll header
   useEffect(() => {
@@ -119,15 +121,25 @@ const NewsAndOffers = () => {
       <div className="home-content">
         <main className="news-offers-main">
           <div className="offers-section">
-            <h2>KHUYẾN MÃI MỚI</h2>
+            <h2>{translations[language].newOffers}</h2>
             <div className="offers-grid">
               {offers.map((offer, index) => (
-                <div key={index} className="offer-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
-                  <img src={offer.image} alt={offer.title} className="offer-image" />
+                <div
+                  key={index}
+                  className="offer-item"
+                  style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
+                >
+                  <img
+                    src={offer.image}
+                    alt={offer.title}
+                    className="offer-image"
+                  />
                   <div className="offer-content">
                     <h3>{offer.title}</h3>
                     <p>{offer.description}</p>
-                    <button className="cta-button">Xem Chi Tiết</button>
+                    <button className="cta-button">
+                      {translations[language].viewDetails}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -135,15 +147,25 @@ const NewsAndOffers = () => {
           </div>
 
           <div className="news-section">
-            <h2>TIN BÊN LỀ</h2>
+            <h2>{translations[language].sideNews}</h2>
             <div className="news-grid">
               {news.map((item, index) => (
-                <div key={index} className="news-item" style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}>
-                  <img src={item.image} alt={item.title} className="news-image" />
+                <div
+                  key={index}
+                  className="news-item"
+                  style={{ animation: `fadeIn 0.5s ease-in ${index * 0.1}s` }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="news-image"
+                  />
                   <div className="news-content">
                     <h3>{item.title}</h3>
                     <p>{item.description}</p>
-                    <button className="cta-button">Xem Thêm</button>
+                    <button className="cta-button">
+                      {translations[language].viewMore}
+                    </button>
                   </div>
                 </div>
               ))}

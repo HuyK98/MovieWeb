@@ -1,139 +1,139 @@
 /* Footer */
 .footer {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-    padding: 1.5rem 0;
-    margin-top: 40px;
-    position: relative;
-  }
-  
-  .footer-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    width: 80%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .footer-section {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .footer-section h3 {
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
-    letter-spacing: 1px;
-    position: relative;
-    padding-bottom: 0.5rem;
-  }
-  
-  .footer-section h3::after {
-    content: "";
-    position: absolute;
-    width: 50px;
-    height: 2px;
-    background-color: var(--primary-color);
-    bottom: 0;
-    left: 0;
-  }
-  
-  .footer-section.center h3::after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .footer-section.center {
-    text-align: center;
-    align-items: center;
-  }
-  
-  .footer-section.center .logo {
-    margin-bottom: 1rem;
-  }
-  
-  .footer-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .footer-section li {
-    margin-bottom: 0.8rem;
-    font-size: 0.9rem;
-    transition: var(--transition);
-  }
-  
-  .footer-section li:hover {
-    color: var(--primary-color);
-  }
-  
-  .toggle-button {
-    background-color: transparent;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    margin-top: 1rem;
-  }
-  
-  .toggle-button:hover {
-    background-color: var(--primary-color);
-    color: white;
-  }
-  
-  .social-links {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .social-links a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    color: white;
-    transition: var(--transition);
-  }
-  
-  .social-links a:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-3px);
-  }
-  
-  .social-links a.facebook:hover {
-    background-color: #3b5998;
-  }
-  
-  .social-links a.youtube:hover {
-    background-color: #c4302b;
-  }
-  
-  .social-links a.tiktok:hover {
-    background-color: #000000;
-  }
-  
-  .social-links a.instagram:hover {
-    background: linear-gradient(
-      45deg,
-      #f09433,
-      #e6683c,
-      #dc2743,
-      #cc2366,
-      #bc1888
-    );
-  }
-  
-  .footer-section p {
-    margin: 0.3rem 0;
-    font-size: 0.9rem;
-  }
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+  padding: 1.5rem 0;
+  margin-top: 40px;
+  position: relative;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-section h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.footer-section h3::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 2px;
+  background-color: var(--primary-color);
+  bottom: 0;
+  left: 0;
+}
+
+.footer-section.center h3::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.footer-section.center {
+  text-align: center;
+  align-items: center;
+}
+
+.footer-section.center .logo {
+  margin-bottom: 1rem;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section li {
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.footer-section li:hover {
+  color: var(--primary-color);
+}
+
+.toggle-button {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  margin-top: 1rem;
+}
+
+.toggle-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.social-links a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: white;
+  transition: var(--transition);
+}
+
+.social-links a:hover {
+  background-color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.social-links a.facebook:hover {
+  background-color: #3b5998;
+}
+
+.social-links a.youtube:hover {
+  background-color: #c4302b;
+}
+
+.social-links a.tiktok:hover {
+  background-color: #000000;
+}
+
+.social-links a.instagram:hover {
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888
+  );
+}
+
+.footer-section p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}

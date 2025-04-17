@@ -1,16 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { FaPaperPlane, FaSmile, FaPaperclip } from 'react-icons/fa';
+import { format } from 'date-fns';
 import { io } from 'socket.io-client';
 import '../styles/Chat.css';
 
 const socket = io('http://localhost:5000');
 
 function Chat() {
-  const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef(null);
+
+  const formatTimestamp = (timestamp) => {
+    try {
+      return format(new Date(timestamp), 'HH:mm:ss dd/MM/yyyy'); // Định dạng giờ:phút:giây ngày/tháng/năm
+    } catch (error) {
+      console.error('Lỗi định dạng thời gian:', error);
+      return 'Invalid date';
+    }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -21,8 +32,7 @@ function Chat() {
             Authorization: `Bearer ${token}`,
           },
         });
-        //lọc chỉ lấy ng dùng có role là user
-        const filteredUsers = data.filter(user => user.role === 'user');
+        const filteredUsers = data.filter((user) => user.role === 'user');
         setUsers(filteredUsers);
       } catch (error) {
         console.error('Lỗi khi lấy danh sách người dùng:', error.response?.data || error.message);
@@ -45,98 +55,157 @@ function Chat() {
     };
   }, []);
 
-  const handleUserClick = (user) => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleUserClick = async (user) => {
     setSelectedUser(user);
-    if (!messages[user._id]) {
-      setMessages((prev) => ({ ...prev, [user._id]: [] }));
+
+    try {
+      const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${user._id}`);
+      setMessages((prev) => ({ ...prev, [user._id]: data }));
+    } catch (error) {
+      console.error('Lỗi khi lấy tin nhắn:', error.response?.data || error.message);
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim() && selectedUser) {
       const newMessage = {
         text: input,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toISOString(),
         sender: 'admin',
         userId: selectedUser._id,
+        isAdmin: true,
       };
 
-      // Gửi tin nhắn qua Socket.IO, không cập nhật state ở đây
-      socket.emit('sendMessage', newMessage);
+      try {
+        await axios.post('http://localhost:5000/api/chat/messages', newMessage);
 
-      setInput('');
+        setMessages((prev) => ({
+          ...prev,
+          [selectedUser._id]: [...(prev[selectedUser._id] || []), newMessage],
+        }));
+
+        setInput('');
+      } catch (error) {
+        console.error('Lỗi khi gửi tin nhắn:', error.response?.data || error.message);
+      }
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
+  const sendImage = async (file) => {
+    if (file && selectedUser) {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('userId', selectedUser._id);
+
+      try {
+        const { data } = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        const newMessage = {
+          text: '[Hình ảnh]',
+          imageUrl: data.imageUrl,
+          timestamp: new Date().toISOString(),
+          sender: 'admin',
+          userId: selectedUser._id,
+        };
+
+        setMessages((prev) => ({
+          ...prev,
+          [selectedUser._id]: [...(prev[selectedUser._id] || []), newMessage],
+        }));
+
+        socket.emit('sendMessage', newMessage);
+      } catch (error) {
+        console.error('Lỗi khi upload hình ảnh:', error.response?.data || error.message);
+      }
     }
   };
 
   const filteredMessages = selectedUser ? messages[selectedUser._id] || [] : [];
 
   return (
-    <div className="chat-container-admin">
-      <button
-        className="chat-toggle-btn-admin"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        💬 Chat
-      </button>
-
-      {isOpen && (
-        <div className="chat-popup-admin">
-          <div className="chat-sidebar-admin">
-            <h4>Danh sách người dùng</h4>
-            <ul>
-              {users.map((user) => (
-                <li
-                  key={user._id}
-                  className={selectedUser?._id === user._id ? 'active-user' : ''}
-                  onClick={() => handleUserClick(user)}
-                >
-                  {user.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="chat-main-admin">
-            {selectedUser ? (
-              <>
-                <div className="chat-header-admin">
-                  <h3>Đang chat với {selectedUser.name}</h3>
-                </div>
-                <div className="chat-messages-admin">
-                  {filteredMessages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={msg.sender === 'admin' ? 'admin-msg' : 'user-msg'}
-                    >
-                      <p>{msg.text}</p>
-                      <span className="timestamp">{msg.timestamp}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="chat-input-admin">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Nhập tin nhắn..."
-                  />
-                  <button onClick={sendMessage}>Gửi</button>
-                </div>
-              </>
-            ) : (
-              <div className="chat-placeholder-admin">
-                <p>Chọn một người dùng để bắt đầu chat</p>
+    <div className="chat-container-modern">
+      <div className="chat-sidebar-modern">
+        <h3>Danh sách người dùng</h3>
+        <ul>
+          {users.map((user) => (
+            <li
+              key={user._id}
+              className={`chat-user-modern ${selectedUser?._id === user._id ? 'active' : ''}`}
+              onClick={() => handleUserClick(user)}
+            >
+              <img
+                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
+                alt={user.name}
+                className="user-avatar-modern"
+              />
+              <div className="user-info-modern">
+                <h4>{user.name}</h4>
+                <p>Last message...</p>
               </div>
-            )}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="chat-main-modern">
+        {selectedUser ? (
+          <>
+            <div className="chat-header-modern">
+              <img
+                src={selectedUser.avatar || `https://ui-avatars.com/api/?name=${selectedUser.name}`}
+                alt={selectedUser.name}
+                className="user-avatar-modern"
+              />
+              <h3>{selectedUser.name}</h3>
+            </div>
+            <div className="chat-messages-modern">
+              {filteredMessages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`chat-message-modern ${msg.sender === 'admin' ? 'outgoing' : 'incoming'
+                    }`}
+                >
+                  {msg.imageUrl ? (
+                    <img src={msg.imageUrl} alt="Uploaded" className="chat-image-modern" />
+                  ) : (
+                    <p>{msg.text}</p>
+                  )}
+                  <span className="timestamp-modern">{formatTimestamp(msg.timestamp)}</span>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="chat-input-modern">
+              <button className="icon-button-modern">
+                <FaPaperclip />
+              </button>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Nhập tin nhắn..."
+              />
+              <button className="icon-button-modern">
+                <FaSmile />
+              </button>
+              <button className="send-button-modern" onClick={sendMessage}>
+                <FaPaperPlane />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="chat-placeholder-admin">
+            <h3>Chọn một người dùng để bắt đầu chat</h3>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

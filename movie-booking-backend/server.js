@@ -12,6 +12,7 @@ const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
 const billRoutes = require('./routes/billRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const path = require('path');
 
 const app = express();
@@ -56,6 +57,12 @@ app.use('/api/showtimes', showtimesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/chat', chatRoutes);
+// Static folder để phục vụ file ảnh
+app.use('/uploads', express.static('uploads'));
+
+// Routes
+app.use('/api/chat', chatRoutes);
 
 // Phục vụ file tĩnh từ thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

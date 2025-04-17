@@ -5,22 +5,22 @@ import axios from "axios"; // Thêm import axios
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlay,
-  faTimes,
-  faHeart,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faTimes, faHeart } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
 import moment from "moment";
+import translations from "../pages/translations";
+import { useLanguage } from "../pages/LanguageContext";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
+  const [user, setUser] = useState(null);
+  const { language, toggleLanguage } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -64,10 +64,10 @@ const AnimatedSection = ({
           animation === "fade-up"
             ? "translateY(50px)"
             : animation === "fade-left"
-              ? "translateX(-50px)"
-              : animation === "fade-right"
-                ? "translateX(50px)"
-                : "translateY(50px)",
+            ? "translateX(-50px)"
+            : animation === "fade-right"
+            ? "translateX(50px)"
+            : "translateY(50px)",
       }}
     >
       {children}
@@ -90,8 +90,6 @@ const ListMovie = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSeat, setActiveSeat] = useState(null);
   // trừ các số ghế đã đặt
   const [availableSeats, setAvailableSeats] = useState(70);
   const [bookings, setBookings] = useState([]); // Thêm state để lưu trữ dữ liệu bookings
@@ -99,6 +97,9 @@ const ListMovie = () => {
   const [selectedGenre, setSelectedGenre] = useState("Tất cả");
   const [favorites, setFavorites] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { language, toggleLanguage } = useLanguage();
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -125,31 +126,6 @@ const ListMovie = () => {
     setBookingInfo(null);
   };
 
-  const handleCloseShowtimesPopup = (e) => {
-    // Nếu có sự kiện và nhấp vào bên trong nội dung popup, không đóng
-    if (e && e.target.closest(".showtimes-content")) {
-      return;
-    }
-    setShowPopup(false);
-    setSelectedMovie(null);
-    setSelectedShowtime(null);
-    setSelectedSeat(null);
-    setBookingInfo(null);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        handleCloseShowtimesPopup();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
   const handleDateClick = (date) => {
     const showtimeForDate = showtimes.find(
       (showtime) =>
@@ -161,7 +137,6 @@ const ListMovie = () => {
 
   const handleSeatClick = (showtime, timeSlot) => {
     setSelectedSeat(timeSlot);
-    setActiveSeat(timeSlot.time);
     setSelectedShowtime({
       ...showtime,
       time: timeSlot.time, // Gán giá trị time từ timeSlot
@@ -172,11 +147,13 @@ const ListMovie = () => {
       imageUrl: selectedMovie.imageUrl,
       genre: selectedMovie.genre,
       description: selectedMovie.description,
-      cinema: "Rạp CINEMA",
+      cinema: translations[language].cinema,
       date: showtime.date,
       time: timeSlot.time,
       seat: timeSlot.seats,
-      status: timeSlot.isBooked ? "Đã đặt" : "Ghế trống",
+      status: timeSlot.isBooked
+        ? translations[language].booked
+        : translations[language].available,
     });
   };
 
@@ -229,7 +206,7 @@ const ListMovie = () => {
         }
       } catch (err) {
         console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
+        setError(translations[language].errorLoading);
       }
     };
     fetchMovies();
@@ -301,18 +278,11 @@ const ListMovie = () => {
     document.body.classList.toggle("dark-mode");
   };
 
-  useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites"));
-    if (storedFavorites) {
-      setFavorites(storedFavorites);
-    }
-  }, []);
-
   // Thêm useEffect để lấy dữ liệu từ bookings
   useEffect(() => {
     const fetchBookedSeats = async () => {
       if (!selectedMovie || !selectedShowtime) {
-        console.warn("Missing required parameters for fetching booked seats.");
+        // console.warn("Missing required parameters for fetching booked seats.");
         return;
       }
 
@@ -354,35 +324,26 @@ const ListMovie = () => {
     fetchBookedSeats();
   }, [selectedMovie, selectedShowtime]);
 
+  // Thêm hàm để xử lý sự kiện click vào ưu thích phim
   const handleFavoriteClick = (movie) => {
-    if (!user) {
-      alert("Bạn cần đăng nhập để thêm vào danh sách yêu thích.");
-      return;
-    }
-
     setFavorites((prevFavorites) => {
-      const updatedFavorites = prevFavorites.some((fav) => fav._id === movie._id)
-        ? prevFavorites.filter((fav) => fav._id !== movie._id)
-        : [...prevFavorites, movie];
-
-      // Lưu danh sách yêu thích vào localStorage
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-      return updatedFavorites;
+      if (prevFavorites.some((fav) => fav._id === movie._id)) {
+        // Nếu phim đã có trong danh sách yêu thích, xóa nó
+        return prevFavorites.filter((fav) => fav._id !== movie._id);
+      } else {
+        // Nếu chưa có, thêm vào danh sách yêu thích
+        return [...prevFavorites, movie];
+      }
     });
   };
 
   const handleRemoveFavorite = (movieId) => {
-    setFavorites((prevFavorites) => {
-      const updatedFavorites = prevFavorites.filter((movie) => movie._id !== movieId);
-
-      // Cập nhật lại localStorage
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-
-      return updatedFavorites;
-    });
+    setFavorites((prevFavorites) =>
+      prevFavorites.filter((movie) => movie._id !== movieId)
+    );
   };
 
-  // scroll header
+  // Thêm useEffect để cuộn trang khi người dùng cuộn
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -397,29 +358,29 @@ const ListMovie = () => {
   }, []);
 
   return (
-    <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
-      <Header
-        user={user}
-        handleLogout={handleLogout}
-        searchTerm={searchTerm}
-        handleSearchChange={handleSearchChange}
-        favorites={favorites}
-        toggleFavorites={() => setShowFavorites(!showFavorites)}
-        showFavorites={showFavorites}
-        isScrolled={isScrolled}
-      />
+    <div className="home-content">
+      <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
+        <Header
+          user={user}
+          handleLogout={handleLogout}
+          searchTerm={searchTerm}
+          handleSearchChange={handleSearchChange}
+          favorites={favorites}
+          toggleFavorites={() => setShowFavorites(!showFavorites)}
+          showFavorites={showFavorites}
+        />
 
-      <AnimatedSection animation="fade-right" delay={150}>
-        <div className="home-content">
+        <AnimatedSection animation="fade-right" delay={150}>
           <div className="card-items">
-            <h2>Danh sách phim</h2>
+            <h2>{translations[language].movieList}</h2>
             <div className="genre-filter">
               {Array.from(new Set(movies.map((movie) => movie.genre))).map(
                 (genre) => (
                   <button
                     key={genre}
-                    className={`genre-button ${selectedGenre === genre ? "active" : ""
-                      }`}
+                    className={`genre-button ${
+                      selectedGenre === genre ? "active" : ""
+                    }`}
                     onClick={() => setSelectedGenre(genre)}
                   >
                     {genre}
@@ -427,8 +388,9 @@ const ListMovie = () => {
                 )
               )}
               <button
-                className={`genre-button ${selectedGenre === "Tất cả" ? "active" : ""
-                  }`}
+                className={`genre-button ${
+                  selectedGenre === "Tất cả" ? "active" : ""
+                }`}
                 onClick={() => setSelectedGenre("Tất cả")}
               >
                 Tất cả
@@ -440,206 +402,240 @@ const ListMovie = () => {
               <div className="movies-grid">
                 {filteredMovies.length > 0 ? (
                   <>
-                    {filteredMovies.filter((movie) =>
-                      selectedGenre === "Tất cả" || movie.genre === selectedGenre
-                    )
-                      .map((movie, index) => (
-                        <AnimatedSection
-                          key={movie._id}
-                          animation="fade-up"
-                          delay={index * 100}
-                        >
-                          <div className="movie-item">
-                            <div className="movie-image-container">
-                              <img src={movie.imageUrl} alt={movie.title} />
-                              <button
-                                className={`favorite-button ${favorites.some((fav) => fav._id === movie._id)
+                    {filteredMovies.map((movie, index) => (
+                      <AnimatedSection
+                        key={movie._id}
+                        animation="fade-up"
+                        delay={index * 100}
+                      >
+                        <div className="movie-item">
+                          <div className="movie-image-container">
+                            <img src={movie.imageUrl} alt={movie.title} />
+                            <button
+                              className={`favorite-button ${
+                                favorites.some((fav) => fav._id === movie._id)
                                   ? "active"
                                   : ""
-                                  }`}
-                                onClick={() => handleFavoriteClick(movie)}
-                              >
-                                <FontAwesomeIcon icon={faHeart} />
-                              </button>
-                              <button
-                                className="trailer-button"
-                                onClick={() => handleTrailerClick(movie.videoUrl)}
-                              >
-                                <FontAwesomeIcon
-                                  icon={faPlay}
-                                  style={{ marginRight: "8px" }}
-                                />
-                                Trailer
-                              </button>
-                            </div>
-                            <div className="movie-title">
-                              <h3
-                                className="movie-title-link"
-                                onClick={() => navigate(`/movie/${movie._id}`)}
-                              >
-                                {movie.title}
-                              </h3>
-                              <p>Thể Loại: {movie.genre}</p>
-                              <p>Thời Lượng: {movie.description}</p>
-                              <p>
-                                Ngày phát hành:{" "}
-                                {new Date(movie.releaseDate).toLocaleDateString()}
-                              </p>
-                            </div>
+                              }`}
+                              onClick={() => handleFavoriteClick(movie)}
+                            >
+                              <FontAwesomeIcon icon={faHeart} />
+                            </button>
+                            <button
+                              className="trailer-button"
+                              onClick={() => handleTrailerClick(movie.videoUrl)}
+                            >
+                              <FontAwesomeIcon
+                                icon={faPlay}
+                                style={{ marginRight: "8px" }}
+                              />
+                              {translations[language].trailer}
+                            </button>
+                          </div>
+                          <div className="movie-title">
+                            <h3
+                              className="movie-title-link"
+                              onClick={() => navigate(`/movie/${movie._id}`)}
+                            >
+                              {movie.title}
+                            </h3>
+                            <p>
+                              {translations[language].genre}: {movie.genre}
+                            </p>
+                            <p>
+                              {translations[language].duration}:{" "}
+                              {movie.description}
+                            </p>
+                            <p>
+                              {translations[language].releaseDate}:{" "}
+                              {new Date(movie.releaseDate).toLocaleDateString()}
+                            </p>
                           </div>
                           <button
                             className="card-button"
                             onClick={() => handleBuyTicketClick(movie)}
                           >
-                            MUA VÉ
+                            {translations[language].buyTicket}
                           </button>
-                        </AnimatedSection>
-                      ))}
+                        </div>
+                      </AnimatedSection>
+                    ))}
                   </>
                 ) : (
-                  <p>Không có phim nào</p>
+                  <p>{translations[language].noMovies}</p>
                 )}
               </div>
             )}
           </div>
-        </div>
-      </AnimatedSection>
+        </AnimatedSection>
 
-      {trailerUrl && (
-        <div className="trailer-modal" onClick={handleCloseTrailer}>
-          <div className="trailer-content">
-            <button className="close-trailer" onClick={handleCloseTrailer}>
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-            <video src={trailerUrl} controls autoPlay />
+        {trailerUrl && (
+          <div className="trailer-modal" onClick={handleCloseTrailer}>
+            <div className="trailer-content">
+              <button className="close-trailer" onClick={handleCloseTrailer}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+              <video src={trailerUrl} controls autoPlay />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showPopup && selectedMovie && (
-        <div className="showtimes-pop-up" onClick={handleCloseShowtimesPopup}>
-          <div className="showtimes-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={handleClosePopup}>
-              X
-            </button>
-            <h2>LỊCH CHIẾU - {selectedMovie.title}</h2>
-            <h1>Rạp CINEMA</h1>
-            <ul className="date-showtime">
-              {showtimes
-                .map((showtime) => showtime.date)
-                .filter((date, index, self) => self.indexOf(date) === index)
-                .map((date) => (
-                  <li
-                    key={date}
-                    onClick={() => handleDateClick(date)}
-                    className={
-                      selectedShowtime && selectedShowtime.date === date
-                        ? "selected"
-                        : ""
-                    }
-                  >
-                    {formatDate(date)}
-                  </li>
-                ))}
-            </ul>
-            {selectedShowtime && (
-              <div className="seats">
-                {selectedShowtime.times.map((timeSlot) => {
-                  // Tìm số ghế còn trống cho khung giờ hiện tại
-                  const booking = bookings.find(
-                    (b) => b.time === timeSlot.time
-                  );
-                  const availableSeats = booking ? booking.availableSeats : 70; // Nếu không có dữ liệu, mặc định là 70
-
-                  return (
-                    <div
-                      key={timeSlot._id}
-                      className={`seat ${timeSlot.isBooked ? "booked" : "available"} ${activeSeat === timeSlot.time ? "active" : ""
-                        }`}
-                      onClick={() => handleSeatClick(selectedShowtime, timeSlot)}
-                    >
-                      <p>Giờ: {timeSlot.time}</p>
-                      <p>{availableSeats} ghế trống</p>
-                      <div className="seat-status">
-                        {timeSlot.isBooked ? "Đã đặt" : "Ghế trống"}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {bookingInfo && (
-            <div className="booking-info">
+        {showPopup && selectedMovie && (
+          <div className="showtimes-pop-up">
+            <div className="showtimes-content">
               <button className="close-button" onClick={handleClosePopup}>
                 X
               </button>
-              <h3>BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
-              <h2>{bookingInfo.movieTitle}</h2>
-              <table>
-                <tbody>
-                  <tr>
-                    <th>RẠP CHIẾU</th>
-                    <th>NGÀY CHIẾU</th>
-                    <th>GIỜ CHIẾU</th>
-                  </tr>
-                  <tr>
-                    <td>{bookingInfo.cinema}</td>
-                    <td>{formatDate(bookingInfo.date)}</td>
-                    <td>{bookingInfo.time}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <button className="confirm-button" onClick={handleConfirmBooking}>
-                ĐỒNG Ý
-              </button>
+              <h2>
+                {translations[language].showtimeTitle} - {selectedMovie.title}
+              </h2>
+              <h1>{translations[language].cinema}</h1>
+              <ul className="date-showtime">
+                {showtimes
+                  .map((showtime) => showtime.date)
+                  .filter((date, index, self) => self.indexOf(date) === index)
+                  .map((date) => (
+                    <li
+                      key={date}
+                      onClick={() => handleDateClick(date)}
+                      className={
+                        selectedShowtime && selectedShowtime.date === date
+                          ? "selected"
+                          : ""
+                      }
+                    >
+                      {formatDate(date)}
+                    </li>
+                  ))}
+              </ul>
+              {selectedShowtime && (
+                <div className="seats">
+                  {selectedShowtime.times.map((timeSlot) => {
+                    // Tìm số ghế còn trống cho khung giờ hiện tại
+                    const booking = bookings.find(
+                      (b) => b.time === timeSlot.time
+                    );
+                    const availableSeats = booking
+                      ? booking.availableSeats
+                      : 70; // Nếu không có dữ liệu, mặc định là 70
+
+                    return (
+                      <div
+                        key={timeSlot._id}
+                        className={`seat ${
+                          timeSlot.isBooked ? "booked" : "available"
+                        }`}
+                        onClick={() =>
+                          handleSeatClick(selectedShowtime, timeSlot)
+                        }
+                      >
+                        <p>
+                          {translations[language].timeLabel}: {timeSlot.time}
+                        </p>
+                        <p>
+                          {availableSeats}{" "}
+                          {translations[language].seatsAvailable}
+                        </p>{" "}
+                        {/* Hiển thị số ghế còn trống */}
+                        <div className="seat-status">
+                          {timeSlot.isBooked
+                            ? translations[language].booked
+                            : translations[language].available}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
-      {/* // Thêm phần hiển thị danh sách yêu thích */}
-      {showFavorites && (
-        <div className="favorites-overlay" onClick={() => setShowFavorites(false)}>
-          <div className="favorites-list" onClick={(e) => e.stopPropagation()}>
-            <button className="close-favorites" onClick={() => setShowFavorites(false)}>
-              X
-            </button>
-            <h2>Danh sách yêu thích</h2>
-            {favorites.length > 0 ? (
-              <div className="favorites-grid">
-                {favorites.map((movie) => (
-                  <div key={movie._id} className="favorite-item">
-                    <div className="favorite-image-container">
-                      <img src={movie.imageUrl} alt={movie.title} className="favorite-image" />
-                      <button
-                        className="favorite-remove-button"
-                        onClick={() => handleRemoveFavorite(movie._id)}
-                      >
-                        -
-                      </button>
-                    </div>
-                    <div className="favorite-title">
-                      <h3
-                        className="movie-title-link"
-                        onClick={() => navigate(`/movie/${movie._id}`)}
-                      >
-                        {movie.title}
-                      </h3>
-                      <p>Thể Loại: {movie.genre}</p>
-                    </div>
-                  </div>
-                ))}
+
+            {bookingInfo && (
+              <div className="booking-info">
+                <button className="close-button" onClick={handleClosePopup}>
+                  X
+                </button>
+                <h3>{translations[language].bookingTitle}</h3>
+                <h2>{bookingInfo.movieTitle}</h2>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>{translations[language].cinemaHeader}</th>
+                      <th>{translations[language].dateHeader}</th>
+                      <th>{translations[language].timeHeader}</th>
+                    </tr>
+                    <tr>
+                      <td>{bookingInfo.cinema}</td>
+                      <td>{formatDate(bookingInfo.date)}</td>
+                      <td>{bookingInfo.time}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button
+                  className="confirm-button"
+                  onClick={handleConfirmBooking}
+                >
+                  {translations[language].confirm}
+                </button>
               </div>
-            ) : (
-              <p>Không có phim nào trong danh sách yêu thích.</p>
             )}
           </div>
-        </div>
-      )}
-      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-      <ChatButton />
-      <Chatbot />
+        )}
+        {/* // Thêm phần hiển thị danh sách yêu thích */}
+        {showFavorites && (
+          <div
+            className="favorites-overlay"
+            onClick={() => setShowFavorites(false)}
+          >
+            <div
+              className="favorites-list"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="close-favorites"
+                onClick={() => setShowFavorites(false)}
+              >
+                X
+              </button>
+              <h2>Danh sách yêu thích</h2>
+              {favorites.length > 0 ? (
+                <div className="favorites-grid">
+                  {favorites.map((movie) => (
+                    <div key={movie._id} className="favorite-item">
+                      <div className="favorite-image-container">
+                        <img
+                          src={movie.imageUrl}
+                          alt={movie.title}
+                          className="favorite-image"
+                        />
+                        <button
+                          className="favorite-remove-button"
+                          onClick={() => handleRemoveFavorite(movie._id)}
+                        >
+                          -
+                        </button>
+                      </div>
+                      <div className="favorite-title">
+                        <h3
+                          className="movie-title-link"
+                          onClick={() => navigate(`/movie/${movie._id}`)}
+                        >
+                          {movie.title}
+                        </h3>
+                        <p>Thể Loại: {movie.genre}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>Không có phim nào trong danh sách yêu thích.</p>
+              )}
+            </div>
+          </div>
+        )}
+        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+        <ChatButton />
+        <Chatbot />
+      </div>
     </div>
   );
 };
