@@ -17,6 +17,18 @@ const AdminDashboard = () => {
     }
   }, [navigate]);
 
+  // Kiểm tra nếu `location.pathname` thuộc submenu "Quản lý phim"
+  useEffect(() => {
+    if (
+      location.pathname === "/admin/movies" ||
+      location.pathname === "/admin/add-movie" ||
+      location.pathname === "/admin/movie-detail" ||
+      location.pathname === "/admin/chat"
+    ) {
+      setIsMoviesOpen(true); // Giữ trạng thái mở
+    }
+  }, [location.pathname]);
+
   return (
     <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       <HeaderAdmin />

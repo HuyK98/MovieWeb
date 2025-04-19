@@ -1,407 +1,406 @@
 /* Showtimes popup */
 .showtimes-pop-up {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
 
-  .showtimes-content,
-  .booking-info {
-    background-color: white;
-    border-radius: 10px;
-    padding: 2rem;
-    width: 80%;
-    max-width: 800px;
-    position: relative;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
-  }
+.showtimes-content,
+.booking-info {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 80%;
+  max-width: 800px;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
 
-  .dark-mode .showtimes-content,
-  .dark-mode .booking-info {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-  }
+.dark-mode .showtimes-content,
+.dark-mode .booking-info {
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+}
 
-  .close-button {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--gray-dark);
-    transition: var(--transition);
-  }
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-dark);
+  transition: var(--transition);
+}
 
-  .close-button:hover {
-    color: var(--primary-color);
-  }
+.close-button:hover {
+  color: var(--primary-color);
+}
 
-  .dark-mode .close-button {
-    color: var(--gray-light);
-  }
+.dark-mode .close-button {
+  color: var(--gray-light);
+}
 
-  .showtimes-content h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-top: 0;
-  }
+.showtimes-content h2 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: 0;
+}
 
-  .showtimes-content h1 {
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-  }
+.showtimes-content h1 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
 
-  .date-showtime {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
-    flex-wrap: wrap;
-  }
+.date-showtime {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  flex-wrap: wrap;
+}
 
-  .date-showtime li {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--gray-light);
-    border-radius: 25px;
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 500;
-  }
+.date-showtime li {
+  padding: 0.8rem 1.5rem;
+  background-color: var(--gray-light);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
 
-  .dark-mode .date-showtime li {
-    background-color: rgba(60, 60, 80, 0.8);
-  }
+.dark-mode .date-showtime li {
+  background-color: rgba(60, 60, 80, 0.8);
+}
 
-  .date-showtime li:hover,
-  .date-showtime li.selected {
-    background-color: var(--primary-color);
-    color: white;
-  }
+.date-showtime li:hover,
+.date-showtime li.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
 
-  .seats {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
 
-  .seat {
-    border: 1px solid var(--gray-medium);
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-  }
+.seat {
+  border: 1px solid var(--gray-medium);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
 
-  .seat:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 1px var(--primary-color);
-  }
+.seat:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
 
-  .seat.available {
-    background-color: #fff;
-  }
+.seat.available {
+  background-color: #fff;
+}
 
-  .seat.booked {
-    background-color: rgba(255, 0, 0, 0.1);
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.seat.booked {
+  background-color: rgba(255, 0, 0, 0.1);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-  .seat p {
-    margin: 0.5rem 0;
-  }
+.seat p {
+  margin: 0.5rem 0;
+}
 
-  .seat-status {
-    font-weight: 600;
-    color: green;
-  }
+.seat-status {
+  font-weight: 600;
+  color: green;
+}
 
-  .seat.booked .seat-status {
-    color: red;
-  }
+.seat.booked .seat-status {
+  color: red;
+}
 
-  /* Booking info */
-  .booking-info {
-    text-align: center;
-  }
+/* Booking info */
+.booking-info {
+  text-align: center;
+}
 
-  .booking-info h3 {
-    color: var(--gray-dark);
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
+.booking-info h3 {
+  color: var(--gray-dark);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
 
-  .dark-mode .booking-info h3 {
-    color: var(--gray-medium);
-  }
+.dark-mode .booking-info h3 {
+  color: var(--gray-medium);
+}
 
-  .booking-info h2 {
-    color: var(--primary-color);
-    margin-top: 0;
-    margin-bottom: 2rem;
-  }
+.booking-info h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
 
-  .booking-info table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem;
-  }
+.booking-info table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
 
-  .booking-info th,
-  .booking-info td {
-    padding: 1rem;
-    text-align: center;
-    border: 1px solid var(--gray-light);
-  }
+.booking-info th,
+.booking-info td {
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--gray-light);
+}
 
-  .dark-mode .booking-info th,
-  .dark-mode .booking-info td {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
+.dark-mode .booking-info th,
+.dark-mode .booking-info td {
+  border-color: rgba(255, 255, 255, 0.1);
+}
 
-  .booking-info th {
-    background-color: var(--gray-light);
-    font-weight: 600;
-  }
+.booking-info th {
+  background-color: var(--gray-light);
+  font-weight: 600;
+}
 
-  .dark-mode .booking-info th {
-    background-color: rgba(60, 60, 80, 0.8);
-  }
+.dark-mode .booking-info th {
+  background-color: rgba(60, 60, 80, 0.8);
+}
 
-  .confirm-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 1rem 3rem;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    letter-spacing: 1px;
-    font-size: 1rem;
-  }
+.confirm-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 1px;
+  font-size: 1rem;
+}
+.confirm-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
 
-  .confirm-button:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-  }
+/* Showtimes popup */
+.showtimes-pop-up {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
 
-  /* Showtimes popup */
-  .showtimes-pop-up {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-  }
+.showtimes-content,
+.booking-info {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 80%;
+  max-width: 800px;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
 
-  .showtimes-content,
-  .booking-info {
-    background-color: white;
-    border-radius: 10px;
-    padding: 2rem;
-    width: 80%;
-    max-width: 800px;
-    position: relative;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
-  }
+.dark-mode .showtimes-content,
+.dark-mode .booking-info {
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+}
 
-  .dark-mode .showtimes-content,
-  .dark-mode .booking-info {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-  }
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-dark);
+  transition: var(--transition);
+}
 
-  .close-button {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--gray-dark);
-    transition: var(--transition);
-  }
+.close-button:hover {
+  color: var(--primary-color);
+}
 
-  .close-button:hover {
-    color: var(--primary-color);
-  }
+.dark-mode .close-button {
+  color: var(--gray-light);
+}
 
-  .dark-mode .close-button {
-    color: var(--gray-light);
-  }
+.showtimes-content h2 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: 0;
+}
 
-  .showtimes-content h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-top: 0;
-  }
+.showtimes-content h1 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
 
-  .showtimes-content h1 {
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-  }
+.date-showtime {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  flex-wrap: wrap;
+}
 
-  .date-showtime {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
-    flex-wrap: wrap;
-  }
+.date-showtime li {
+  padding: 0.8rem 1.5rem;
+  background-color: var(--gray-light);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
 
-  .date-showtime li {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--gray-light);
-    border-radius: 25px;
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 500;
-  }
+.dark-mode .date-showtime li {
+  background-color: rgba(60, 60, 80, 0.8);
+}
 
-  .dark-mode .date-showtime li {
-    background-color: rgba(60, 60, 80, 0.8);
-  }
+.date-showtime li:hover,
+.date-showtime li.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
 
-  .date-showtime li:hover,
-  .date-showtime li.selected {
-    background-color: var(--primary-color);
-    color: white;
-  }
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
 
-  .seats {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
+.seat {
+  border: 1px solid var(--gray-medium);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
 
-  .seat {
-    border: 1px solid var(--gray-medium);
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-  }
+.seat:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
 
-  .seat:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 1px var(--primary-color);
-  }
+.seat.available {
+  background-color: #fff;
+}
 
-  .seat.available {
-    background-color: #fff;
-  }
+.seat.available.active {
+  border: 2px solid var(--primary-color);
+}
 
-  .seat.available.active {
-    border: 2px solid var(--primary-color); 
-  }
+.seat.booked {
+  background-color: rgba(255, 0, 0, 0.1);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-  .seat.booked {
-    background-color: rgba(255, 0, 0, 0.1);
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.seat p {
+  margin: 0.5rem 0;
+}
 
-  .seat p {
-    margin: 0.5rem 0;
-  }
+.seat-status {
+  font-weight: 600;
+  color: green;
+}
 
-  .seat-status {
-    font-weight: 600;
-    color: green;
-  }
+.seat.booked .seat-status {
+  color: red;
+}
 
-  .seat.booked .seat-status {
-    color: red;
-  }
+/* Booking info */
+.booking-info {
+  text-align: center;
+}
 
-  /* Booking info */
-  .booking-info {
-    text-align: center;
-  }
+.booking-info h3 {
+  color: var(--gray-dark);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
 
-  .booking-info h3 {
-    color: var(--gray-dark);
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
+.dark-mode .booking-info h3 {
+  color: var(--gray-medium);
+}
 
-  .dark-mode .booking-info h3 {
-    color: var(--gray-medium);
-  }
+.booking-info h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
 
-  .booking-info h2 {
-    color: var(--primary-color);
-    margin-top: 0;
-    margin-bottom: 2rem;
-  }
+.booking-info table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
 
-  .booking-info table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem;
-  }
+.booking-info th,
+.booking-info td {
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--gray-light);
+}
 
-  .booking-info th,
-  .booking-info td {
-    padding: 1rem;
-    text-align: center;
-    border: 1px solid var(--gray-light);
-  }
+.dark-mode .booking-info th,
+.dark-mode .booking-info td {
+  border-color: rgba(255, 255, 255, 0.1);
+}
 
-  .dark-mode .booking-info th,
-  .dark-mode .booking-info td {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
+.booking-info th {
+  background-color: var(--gray-light);
+  font-weight: 600;
+}
 
-  .booking-info th {
-    background-color: var(--gray-light);
-    font-weight: 600;
-  }
+.dark-mode .booking-info th {
+  background-color: rgba(60, 60, 80, 0.8);
+}
 
-  .dark-mode .booking-info th {
-    background-color: rgba(60, 60, 80, 0.8);
-  }
+.confirm-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 1px;
+  font-size: 1rem;
+}
 
-  .confirm-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 1rem 3rem;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    letter-spacing: 1px;
-    font-size: 1rem;
-  }
-
-  .confirm-button:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-  }
+.confirm-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}

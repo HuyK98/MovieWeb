@@ -11,6 +11,7 @@ const FavoritesAndBookings = ({
   showFavorites,
   setShowFavorites,
   handleRemoveFavorite,
+  updateTotalNotifications,
 }) => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
@@ -20,6 +21,62 @@ const FavoritesAndBookings = ({
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const [readItems, setReadItems] = useState(() => {
+    const savedReadItems = JSON.parse(localStorage.getItem("readItems")) || [];
+    return savedReadItems;
+  });
+
+  // Cập nhật useEffect để tính tổng số lượng thông báo
+  useEffect(() => {
+    // Tính tổng số lượng
+    const totalNotifications =
+      favorites.length + userBookings.length + momoBills.length;
+
+    // Truyền tổng số lượng lên component cha
+    if (typeof updateTotalNotifications === "function") {
+      updateTotalNotifications(totalNotifications);
+    }
+  }, [favorites, userBookings, momoBills, updateTotalNotifications]);
+
+  const handleRemoveFromList = (id, type) => {
+    const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
+    deletedItems.push(id);
+    localStorage.setItem("deletedItems", JSON.stringify(deletedItems));
+
+    if (type === "cash") {
+      setUserBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking._id !== id)
+      );
+    } else if (type === "momo") {
+      setMomoBills((prevBills) =>
+        prevBills.filter((booking) => booking._id !== id)
+      );
+    } else if (type === "favorite") {
+      handleRemoveFavorite(id);
+    }
+
+    // Cập nhật tổng số lượng sau khi xóa
+    const totalNotifications =
+      favorites.length + userBookings.length + momoBills.length - 1;
+    updateTotalNotifications(totalNotifications);
+  };
+
+  useEffect(() => {
+    // Lấy danh sách đã đọc từ localStorage khi component được mount
+    const savedReadItems = JSON.parse(localStorage.getItem("readItems")) || [];
+    setReadItems(savedReadItems);
+
+    // Tính toán lại số lượng tổng
+    const totalNotifications =
+      favorites.length +
+      userBookings.length +
+      momoBills.length -
+      savedReadItems.length;
+
+    if (typeof updateTotalNotifications === "function") {
+      updateTotalNotifications(totalNotifications);
+    }
+  }, [favorites, userBookings, momoBills, updateTotalNotifications]);
 
   // Lấy thông tin người dùng từ localStorage khi component được mount
   useEffect(() => {
@@ -63,15 +120,19 @@ const FavoritesAndBookings = ({
     const fetchAllBookings = async () => {
       if (currentUser) {
         try {
-          const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
+          const deletedItems =
+            JSON.parse(localStorage.getItem("deletedItems")) || [];
 
           // Fetch bookings with "cash" payment method
-          const cashResponse = await axios.get("http://localhost:5000/api/bookings", {
-            params: {
-              userId: currentUser._id,
-              paymentMethod: "cash",
-            },
-          });
+          const cashResponse = await axios.get(
+            "http://localhost:5000/api/bookings",
+            {
+              params: {
+                userId: currentUser._id,
+                paymentMethod: "cash",
+              },
+            }
+          );
 
           // Loại bỏ các mục đã bị xóa
           const filteredCashBookings = cashResponse.data.filter(
@@ -79,12 +140,15 @@ const FavoritesAndBookings = ({
           );
 
           // Fetch bookings with "momo" payment method
-          const momoResponse = await axios.get("http://localhost:5000/api/bookings", {
-            params: {
-              userId: currentUser._id,
-              paymentMethod: "momo",
-            },
-          });
+          const momoResponse = await axios.get(
+            "http://localhost:5000/api/bookings",
+            {
+              params: {
+                userId: currentUser._id,
+                paymentMethod: "momo",
+              },
+            }
+          );
 
           // Loại bỏ các mục đã bị xóa
           const filteredMomoBookings = momoResponse.data.filter(
@@ -103,25 +167,6 @@ const FavoritesAndBookings = ({
     fetchAllBookings();
   }, [currentUser]);
 
-  // Hàm xử lý xóa hóa đơn khỏi danh sách
-  const handleRemoveFromList = (id, type) => {
-    // Lưu ID của mục đã xóa vào localStorage
-    const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
-    deletedItems.push(id);
-    localStorage.setItem("deletedItems", JSON.stringify(deletedItems));
-
-    // Xóa mục khỏi danh sách hiển thị
-    if (type === "cash") {
-      setUserBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking._id !== id)
-      );
-    } else if (type === "momo") {
-      setMomoBills((prevBills) =>
-        prevBills.filter((booking) => booking._id !== id)
-      );
-    }
-  };
-
   const handleToggleMenu = (id) => {
     setSelectedMenu((prev) => (prev === id ? null : id));
   };
@@ -137,19 +182,45 @@ const FavoritesAndBookings = ({
     setShowConfirmModal(false);
   };
 
-  const handleMarkAsRead = (id) => {
-    // Thêm logic để đánh dấu là đã đọc
-    console.log(`Đánh dấu booking ${id} là đã đọc`);
-    setSelectedMenu(null);
+  const handleMarkAsRead = (id, type) => {
+    // Nếu mục đã được đánh dấu là đã đọc, không làm gì
+    if (readItems.includes(id)) return;
+
+    // Thêm ID vào danh sách các mục đã đọc
+    const updatedReadItems = [...readItems, id];
+    setReadItems(updatedReadItems);
+
+    // Lưu danh sách đã đọc vào localStorage
+    localStorage.setItem("readItems", JSON.stringify(updatedReadItems));
+
+    // Tính toán số lượng tổng mới
+    const totalNotifications =
+      favorites.length +
+      userBookings.length +
+      momoBills.length -
+      updatedReadItems.length;
+
+    // Cập nhật tổng số lượng thông báo
+    if (typeof updateTotalNotifications === "function") {
+      updateTotalNotifications(totalNotifications);
+    }
+
+    console.log(`Đánh dấu ${type} với ID ${id} là đã đọc`);
   };
 
   return (
     <div>
       {/* Hiển thị danh sách yêu thích và hóa đơn */}
       {showFavorites && (
-        <div className="favorites-overlay" onClick={() => setShowFavorites(false)}>
+        <div
+          className="favorites-overlay"
+          onClick={() => setShowFavorites(false)}
+        >
           <div className="favorites-list" onClick={(e) => e.stopPropagation()}>
-            <button className="close-favorites" onClick={() => setShowFavorites(false)}>
+            <button
+              className="close-favorites"
+              onClick={() => setShowFavorites(false)}
+            >
               X
             </button>
             <h2>THÔNG BÁO</h2>
@@ -158,9 +229,19 @@ const FavoritesAndBookings = ({
             {favorites.length > 0 ? (
               <div className="favorites-grid">
                 {favorites.map((movie) => (
-                  <div key={movie._id} className="favorite-item">
+                  <div
+                    key={movie._id}
+                    className={`favorite-item ${
+                      readItems.includes(movie._id) ? "read" : ""
+                    }`}
+                  >
                     <div className="favorite-image-container">
-                      <img src={movie.imageUrl} alt={movie.title} className="favorite-image" />
+                      <img
+                        src={movie.imageUrl}
+                        alt={movie.title}
+                        className="favorite-image"
+                        onClick={() => handleMarkAsRead(movie._id, "favorite")}
+                      />
                       <div className="favorite-icon">
                         <FontAwesomeIcon icon={faHeart} />
                       </div>
@@ -190,16 +271,21 @@ const FavoritesAndBookings = ({
             {/* Hiển thị danh sách hóa đơn */}
             {userBookings.length > 0 ? (
               userBookings.map((booking, index) => (
-                <div key={booking._id} className="favorite-item">
+                <div
+                  key={booking._id}
+                  className={`favorite-item ${
+                    readItems.includes(booking._id) ? "read" : ""
+                  }`}
+                >
                   <div className="favorite-image-container">
                     <img
                       src={booking.imageUrl}
                       className="favorite-image"
+                      onClick={() => handleMarkAsRead(booking._id, "cash")}
                     />
                     <div className="bill-icon">
                       <FontAwesomeIcon icon={faShoppingCart} />
                     </div>
-                    {/* Nút "..." */}
                     <div className="menu-icon">
                       <button
                         className="menu-button"
@@ -217,7 +303,9 @@ const FavoritesAndBookings = ({
                           </button>
                           <button
                             className="menu-item-favorite"
-                            onClick={() => handleMarkAsRead(booking._id)}
+                            onClick={() =>
+                              handleMarkAsRead(booking._id, "cash")
+                            }
                           >
                             Đánh dấu là đã đọc
                           </button>
@@ -232,10 +320,28 @@ const FavoritesAndBookings = ({
                     >
                       {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
-                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
-                    <p><strong>Phương thức:</strong> Tiền mặt</p>
-                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
+                    <p>
+                      Ngày chiếu:{" "}
+                      {booking.date
+                        ? moment(booking.date).format("DD/MM/YYYY")
+                        : "Không có ngày chiếu"}
+                    </p>
+                    <p>
+                      Ghế:{" "}
+                      {Array.isArray(booking.seats)
+                        ? booking.seats.join(", ")
+                        : "Không có thông tin ghế"}
+                    </p>
+                    <p>
+                      <strong>Phương thức:</strong> Tiền mặt
+                    </p>
+                    <p>
+                      <strong>Tổng tiền:</strong>{" "}
+                      {booking.totalPrice
+                        ? booking.totalPrice.toLocaleString()
+                        : "0"}{" "}
+                      VND
+                    </p>
                   </div>
                 </div>
               ))
@@ -246,11 +352,17 @@ const FavoritesAndBookings = ({
             {/* Hiển thị danh sách hóa đơn MOMO */}
             {momoBills.length > 0 ? (
               momoBills.map((booking, index) => (
-                <div key={booking._id} className="favorite-item">
+                <div
+                  key={booking._id}
+                  className={`favorite-item ${
+                    readItems.includes(booking._id) ? "read" : ""
+                  }`}
+                >
                   <div className="favorite-image-container">
                     <img
-                      src={booking.movie?.imageUrl}
+                      src={booking.imageUrl}
                       className="favorite-image"
+                      onClick={() => handleMarkAsRead(booking._id, "momo")}
                     />
                     <div className="bill-icon">
                       <FontAwesomeIcon icon={faShoppingCart} />
@@ -266,13 +378,15 @@ const FavoritesAndBookings = ({
                         <div className="menu-list">
                           <button
                             className="menu-item-favorite"
-                            onClick={() => handleOpenModal(booking._id, "cash")}
+                            onClick={() => handleOpenModal(booking._id, "momo")}
                           >
                             Xóa khỏi danh sách
                           </button>
                           <button
                             className="menu-item-favorite"
-                            onClick={() => handleMarkAsRead(booking._id)}
+                            onClick={() =>
+                              handleMarkAsRead(booking._id, "momo")
+                            }
                           >
                             Đánh dấu là đã đọc
                           </button>
@@ -287,10 +401,28 @@ const FavoritesAndBookings = ({
                     >
                       {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
-                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
-                    <p><strong>Phương thức:</strong> MOMO</p>
-                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
+                    <p>
+                      Ngày chiếu:{" "}
+                      {booking.date
+                        ? moment(booking.date).format("DD/MM/YYYY")
+                        : "Không có ngày chiếu"}
+                    </p>
+                    <p>
+                      Ghế:{" "}
+                      {Array.isArray(booking.seats)
+                        ? booking.seats.join(", ")
+                        : "Không có thông tin ghế"}
+                    </p>
+                    <p>
+                      <strong>Phương thức:</strong> momo
+                    </p>
+                    <p>
+                      <strong>Tổng tiền:</strong>{" "}
+                      {booking.totalPrice
+                        ? booking.totalPrice.toLocaleString()
+                        : "0"}{" "}
+                      VND
+                    </p>
                   </div>
                 </div>
               ))

@@ -25,6 +25,7 @@ const Header = ({
   favorites = [],
   toggleFavorites,
   isScrolled,
+  totalNotifications,
 }) => {
   const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Trạng thái hiển thị menu
@@ -100,7 +101,6 @@ const Header = ({
           <li>
             <Link to="/news">{texts[language].news}</Link>
           </li>
-        
         </ul>
       </nav>
       <div className="search-bar">
@@ -125,8 +125,9 @@ const Header = ({
 
       <div className="favorites-icon" onClick={toggleFavorites}>
         <FontAwesomeIcon icon={faBell} />
-        {favorites.length > 0 && (
-          <span className="favorites-count">{favorites.length}</span>
+
+        {totalNotifications > 0 && (
+          <span className="favorites-count">{totalNotifications}</span>
         )}
       </div>
 

@@ -16,14 +16,11 @@ import ShowtimesPopup from "../components/ShowtimesPopup";
 import { getMovies } from "../api";
 import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlay,
-  faHeart,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faHeart } from "@fortawesome/free-solid-svg-icons";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
 import TrailerModal from "../components/TrailerModal";
-import moment from 'moment';
+import moment from "moment";
 import PosterSection from "../components/PosterSection";
 import "../styles/ManageGenres.css";
 
@@ -74,10 +71,10 @@ const AnimatedSection = ({
           animation === "fade-up"
             ? "translateY(50px)"
             : animation === "fade-left"
-              ? "translateX(-50px)"
-              : animation === "fade-right"
-                ? "translateX(50px)"
-                : "translateY(50px)",
+            ? "translateX(-50px)"
+            : animation === "fade-right"
+            ? "translateX(50px)"
+            : "translateY(50px)",
       }}
     >
       {children}
@@ -106,6 +103,7 @@ const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showOrders, setShowOrders] = useState(false);
   const [activeSeat, setActiveSeat] = useState(null);
+  const [totalNotifications, setTotalNotifications] = useState(0);
 
   // Thêm các state để quản lý phim đang chiếu và phim sắp chiếu
   const [currentTab, setCurrentTab] = useState("now-showing");
@@ -156,9 +154,9 @@ const Home = () => {
   };
 
   const handleDateClick = (date) => {
-
     const showtimeForDate = showtimes.find(
-      (showtime) => new Date(showtime.date).toDateString() === new Date(date).toDateString()
+      (showtime) =>
+        new Date(showtime.date).toDateString() === new Date(date).toDateString()
     );
     setSelectedShowtime(showtimeForDate);
     setSelectedSeat(null);
@@ -223,7 +221,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [posters.length]);
 
-
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -273,9 +270,7 @@ const Home = () => {
   };
 
   const handleFeaturedNext = () => {
-    setFeaturedIndex((prev) =>
-      (prev + 1) % nowShowingMovies.length
-    );
+    setFeaturedIndex((prev) => (prev + 1) % nowShowingMovies.length);
   };
 
   const handleUpcomingPrev = () => {
@@ -285,9 +280,7 @@ const Home = () => {
   };
 
   const handleUpcomingNext = () => {
-    setUpcomingIndex((prev) =>
-      (prev + 1) % upcomingMovies.length
-    );
+    setUpcomingIndex((prev) => (prev + 1) % upcomingMovies.length);
   };
 
   const handleTrailerClick = (url) => {
@@ -305,6 +298,10 @@ const Home = () => {
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const updateTotalNotifications = (total) => {
+    setTotalNotifications(total); // Cập nhật tổng số lượng thông báo
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -331,7 +328,9 @@ const Home = () => {
     }
 
     setFavorites((prevFavorites) => {
-      const updatedFavorites = prevFavorites.some((fav) => fav._id === movie._id)
+      const updatedFavorites = prevFavorites.some(
+        (fav) => fav._id === movie._id
+      )
         ? prevFavorites.filter((fav) => fav._id !== movie._id)
         : [...prevFavorites, movie];
 
@@ -343,7 +342,9 @@ const Home = () => {
 
   const handleRemoveFavorite = (movieId) => {
     setFavorites((prevFavorites) => {
-      const updatedFavorites = prevFavorites.filter((movie) => movie._id !== movieId);
+      const updatedFavorites = prevFavorites.filter(
+        (movie) => movie._id !== movieId
+      );
 
       // Cập nhật lại localStorage
       localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
@@ -426,12 +427,18 @@ const Home = () => {
 
   const visibleMovies = [
     ...nowShowingMovies.slice(featuredIndex, featuredIndex + 6),
-    ...nowShowingMovies.slice(0, Math.max(0, featuredIndex + 6 - nowShowingMovies.length)),
+    ...nowShowingMovies.slice(
+      0,
+      Math.max(0, featuredIndex + 6 - nowShowingMovies.length)
+    ),
   ];
 
   const visibleUpcomingMovies = [
     ...upcomingMovies.slice(upcomingIndex, upcomingIndex + 6),
-    ...upcomingMovies.slice(0, Math.max(0, upcomingIndex + 6 - upcomingMovies.length)),
+    ...upcomingMovies.slice(
+      0,
+      Math.max(0, upcomingIndex + 6 - upcomingMovies.length)
+    ),
   ];
 
   // Thêm useEffect để lấy dữ liệu từ bookings
@@ -443,16 +450,21 @@ const Home = () => {
       }
 
       try {
-        const formattedDate = moment(new Date(selectedShowtime.date)).format('YYYY-MM-DD');
+        const formattedDate = moment(new Date(selectedShowtime.date)).format(
+          "YYYY-MM-DD"
+        );
         // console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
         // console.log('fetchBookedSeats - formattedDate:', formattedDate);
 
-        const response = await axios.get('http://localhost:5000/api/payment/seats/page', {
-          params: {
-            movieTitle: selectedMovie.title,
-            date: formattedDate,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/payment/seats/page",
+          {
+            params: {
+              movieTitle: selectedMovie.title,
+              date: formattedDate,
+            },
+          }
+        );
 
         const bookedSeatsByTime = response.data;
         // console.log('Booked seats by time:', bookedSeatsByTime);
@@ -468,7 +480,7 @@ const Home = () => {
 
         setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
       } catch (error) {
-        console.error('Error fetching booked seats:', error);
+        console.error("Error fetching booked seats:", error);
       }
     };
 
@@ -498,7 +510,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const storedBookings = JSON.parse(localStorage.getItem('bookings')) || [];
+    const storedBookings = JSON.parse(localStorage.getItem("bookings")) || [];
     setBookings(storedBookings);
   }, []);
 
@@ -515,8 +527,8 @@ const Home = () => {
         // showFavorites={showFavorites}
         toggleFavorites={() => setShowFavorites(!showFavorites)}
         isScrolled={isScrolled}
+        totalNotifications={totalNotifications}
       />
-
       <div className="home-content">
         <div className="poster-container">
           <button onClick={handlePrev} className="arrow-button prev">
@@ -569,17 +581,23 @@ const Home = () => {
           <div className="card-items">
             <h2>Danh sách phim</h2>
             <div className="genre-filter">
-              {Array.from(new Set(movies.map((movie) => movie.genre))).map((genre) => (
-                <button
-                  key={genre}
-                  className={`genre-button ${selectedGenre === genre ? "active" : ""}`}
-                  onClick={() => setSelectedGenre(genre)}
-                >
-                  {genre}
-                </button>
-              ))}
+              {Array.from(new Set(movies.map((movie) => movie.genre))).map(
+                (genre) => (
+                  <button
+                    key={genre}
+                    className={`genre-button ${
+                      selectedGenre === genre ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedGenre(genre)}
+                  >
+                    {genre}
+                  </button>
+                )
+              )}
               <button
-                className={`genre-button ${selectedGenre === "Tất cả" ? "active" : ""}`}
+                className={`genre-button ${
+                  selectedGenre === "Tất cả" ? "active" : ""
+                }`}
                 onClick={() => setSelectedGenre("Tất cả")}
               >
                 Tất cả
@@ -592,8 +610,10 @@ const Home = () => {
                 {filteredMovies.length > 0 ? (
                   <>
                     {filteredMovies
-                      .filter((movie) =>
-                        selectedGenre === "Tất cả" || movie.genre === selectedGenre
+                      .filter(
+                        (movie) =>
+                          selectedGenre === "Tất cả" ||
+                          movie.genre === selectedGenre
                       )
                       .map((movie, index) => (
                         <AnimatedSection
@@ -605,14 +625,20 @@ const Home = () => {
                             <div className="movie-image-container">
                               <img src={movie.imageUrl} alt={movie.title} />
                               <button
-                                className={`favorite-button ${favorites.some((fav) => fav._id === movie._id) ? "active" : ""}`}
+                                className={`favorite-button ${
+                                  favorites.some((fav) => fav._id === movie._id)
+                                    ? "active"
+                                    : ""
+                                }`}
                                 onClick={() => handleFavoriteClick(movie)}
                               >
                                 <FontAwesomeIcon icon={faHeart} />
                               </button>
                               <button
                                 className="trailer-button"
-                                onClick={() => handleTrailerClick(movie.videoUrl)}
+                                onClick={() =>
+                                  handleTrailerClick(movie.videoUrl)
+                                }
                               >
                                 <FontAwesomeIcon
                                   icon={faPlay}
@@ -632,7 +658,9 @@ const Home = () => {
                               <p>Thời Lượng: {movie.description}</p>
                               <p>
                                 Ngày phát hành:{" "}
-                                {new Date(movie.releaseDate).toLocaleDateString()}
+                                {new Date(
+                                  movie.releaseDate
+                                ).toLocaleDateString()}
                               </p>
                             </div>
                             <button
@@ -677,6 +705,7 @@ const Home = () => {
         showFavorites={showFavorites}
         setShowFavorites={setShowFavorites}
         handleRemoveFavorite={handleRemoveFavorite}
+        updateTotalNotifications={updateTotalNotifications}
       />
       <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
       <ChatButton />

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookF, faYoutube, faTiktok, faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
 import translations from "../pages/translations";
+import "../styles/Footer.css";
 
 const Footer = ({ toggleDarkMode, darkMode }) => {
   const { language, toggleLanguage } = useLanguage(); // Get language and toggle function from context

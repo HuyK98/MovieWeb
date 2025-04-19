@@ -3,6 +3,7 @@ const router = express.Router();
 const Movie = require("../models/Movie");
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
+const client = require('../utils/redisClient'); // Đường dẫn tùy thuộc vào vị trí file
 
 // Cấu hình Cloudinary từ .env
 cloudinary.config({
@@ -70,6 +71,41 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Lỗi server" });
   }
 });
+// router.get("/", async (req, res) => {
+//   const cacheKey = "movies:all"; // Key Redis cho danh sách phim
+
+//   client.get(cacheKey, async (err, cachedData) => {
+//     if (err) {
+//       console.error("❌ Error getting movies from Redis:", err);
+//       return res.status(500).json({ error: "Lỗi server" });
+//     }
+
+//     if (cachedData) {
+//       console.log("✅ Movies from Redis cache:", cachedData);
+//       return res.status(200).json(JSON.parse(cachedData));
+//     }
+
+//     try {
+//       const movies = await Movie.find();
+//       console.log("📋 Movies from MongoDB:", movies);
+
+//       // Lưu vào Redis cache
+//       console.log("🔄 Đang lưu movies vào Redis cache với key:", cacheKey);
+//       client.setEx(cacheKey, 86400, JSON.stringify(movies), (err) => {
+//         if (err) {
+//           console.error("❌ Error saving movies to Redis:", err);
+//         } else {
+//           console.log("✅ Movies saved to Redis cache");
+//         }
+//       });
+
+//       res.status(200).json(movies);
+//     } catch (error) {
+//       console.error("Lỗi khi lấy danh sách phim:", error);
+//       res.status(500).json({ error: "Lỗi server" });
+//     }
+//   });
+// });
 
 // 📌 **Lấy thông tin phim theo ID**
 router.get("/:id", async (req, res) => {

@@ -96,12 +96,44 @@ router.get('/seats/page', async (req, res) => {
       },
     ]);
 
-    console.log('Booked seats by time:', bookedSeatsByTime);
+    // console.log('Booked seats by time:', bookedSeatsByTime);
 
     res.status(200).json(bookedSeatsByTime);
   } catch (error) {
     console.error('Error fetching booked seats:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
+router.get('/seats', async (req, res) => {
+  const { movieTitle, date, time } = req.query;
+  // console.log('Received query parameters:', { movieTitle, date, time });
+
+  try {
+    if (!date || isNaN(new Date(date).getTime())) {
+      throw new Error(`Invalid date format: ${date}`);
+    }
+
+    const filter = { date: new Date(date) };
+    if (movieTitle) {
+      filter.movieTitle = movieTitle;
+    }
+    if (time) {
+      filter.time = time;
+    }
+
+    const bookings = await Booking.find(filter);
+    const bookedSeats = bookings.reduce((acc, booking) => {
+      return acc.concat(booking.seats);
+    }, []);
+
+    // console.log('Booked seats:', bookedSeats);
+
+    res.json(bookedSeats);
+  } catch (error) {
+    console.error('Error fetching booked seats:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 });
 
@@ -140,7 +172,7 @@ router.get('/seats', async (req, res) => {
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
 router.get('/seats', async (req, res) => {
   const { movieTitle, date, time } = req.query;
-  // console.log('Received query parameters:', { movieTitle, date, time });
+  console.log('Received query parameters:', { movieTitle, date, time });
 
   try {
     if (!date || isNaN(new Date(date).getTime())) {
@@ -477,4 +509,3 @@ router.get('/weekly', async (req, res) => {
 // });
 
 module.exports = router;
-

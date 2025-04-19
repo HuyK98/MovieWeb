@@ -66,6 +66,11 @@ const bookingSchema = mongoose.Schema({
   timestamps: true,
 });
 
+
+// Tạo index để tối ưu hóa truy vấn
+bookingSchema.index({ isRead: 1, createdAt: -1 }); // Index cho thông báo chưa đọc
+
 const Booking = mongoose.model('Booking', bookingSchema);
 
 module.exports = Booking;
+

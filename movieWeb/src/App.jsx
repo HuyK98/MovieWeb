@@ -29,6 +29,7 @@ import Vouchers from "./pages/Vouchers";
 import MemberCard from "./pages/MemberCard"; // Import trang thẻ thành viên
 import MovieJourney from "./pages/MovieJourney";
 
+
 const App = () => {
   return (
     <LanguageProvider>
@@ -56,12 +57,12 @@ const App = () => {
         <Route path="/movie/:movieId" element={<FilmDetail />} />
         <Route path="/booking/:bookingId" element={<BookingDetail />} />
         <Route path="/admin/bills" element={<BillsManage />} />
-
         <Route path="/account" element={<Account />} />
         <Route path="/points" element={<Points />} />
         <Route path="/vouchers" element={<Vouchers />} />
         <Route path="/movie-journey" element={<MovieJourney />} />
         <Route path="/member-card" element={<MemberCard />} /> {/* Thêm route này */}
+
       </Routes>
     </LanguageProvider>
   );

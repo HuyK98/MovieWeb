@@ -1,49 +1,68 @@
-// socket-server.js
-const http = require('http');
-const { Server } = require('socket.io');
-const app = require('./app'); // Express app nếu bạn đang dùng
+// websocket.js
+const { Server } = require("socket.io");
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000', // Frontend origin
-    methods: ['GET', 'POST'],
-  },
-});
+let io; // Biến toàn cục để lưu thể hiện io
 
-// Lưu trữ client nếu cần (tuỳ vào tính năng mở rộng)
-const clients = new Set();
-
-io.on('connection', (socket) => {
-  console.log('🔌 New client connected:', socket.id);
-  clients.add(socket);
-
-  // Xử lý tin nhắn từ client
-  socket.on('sendMessage', (data) => {
-    console.log('💬 Chat message:', data);
-    io.emit('receiveMessage', data); // Gửi cho tất cả client
+/**
+ * Khởi tạo Socket.IO với HTTP server
+ * @param {http.Server} server - server HTTP được tạo từ Express
+ */
+function initSocket(server) {
+  io = new Server(server, {
+    cors: {
+      origin: 'http://localhost:5173',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      credentials: true,
+    },
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
-  // Xử lý thông báo realtime (có thể phân biệt nếu muốn)
-  socket.on('sendNotification', (notification) => {
-    console.log('🔔 Notification:', notification);
-    io.emit('receiveNotification', notification); // Gửi tất cả
+  console.log("🟢 Socket.IO initialized");
+
+  io.on('connection', (socket) => {
+    // console.log("🔌 New client connected:", socket.id);
+
+    socket.on('sendMessage', (data) => {
+      console.log("💬 Received message:", data);
+      io.emit('receiveMessage', data);
+    });
+
+    socket.on('sendNotification', (notification) => {
+      console.log("🔔 Notification:", notification);
+      io.emit('receiveNotification', notification);
+    });
+
+    socket.on('disconnect', (reason) => {
+      // console.log("❌ Client disconnected:", socket.id, "| Reason:", reason);
+    });
   });
+}
 
-  socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
-    clients.delete(socket);
-  });
-});
+/**
+ * Trả về thể hiện io để sử dụng ở nơi khác
+ */
+function getIO() {
+  if (!io) {
+    throw new Error("❗Socket.IO chưa được khởi tạo! Hãy gọi initSocket(server) trước.");
+  }
+  return io;
+}
 
-
-// Hàm xuất ra để gửi notification từ chỗ khác trong server
-const sendNotification = (notification) => {
+/**
+ * Gửi thông báo từ bất kỳ đâu trong server
+ * @param {Object} notification - Nội dung thông báo
+ */
+function sendNotification(notification) {
+  if (!io) {
+    throw new Error("❗Socket.IO chưa được khởi tạo! Không thể gửi notification.");
+  }
+  // console.log("📢 Gửi notification từ server:", notification);
   io.emit('receiveNotification', notification);
+}
+
+module.exports = {
+  initSocket,
+  getIO,
+  sendNotification, // 👈 Xuất thêm hàm này
 };
-
-server.listen(5000, () => {
-  console.log('Server is running on port 5000');
-});
-
-module.exports = { server, io, sendNotification };

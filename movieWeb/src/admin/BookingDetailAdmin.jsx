@@ -14,26 +14,32 @@ const BookingDetail = () => {
   const billRef = useRef(null);
   const [base64Image, setBase64Image] = useState("");
   const [user, setUser] = useState(null);
-  // const [searchTerm, setSearchTerm] = useState("");
-  // const [favorites, setFavorites] = useState([]);
-  // const [showFavorites, setShowFavorites] = useState(false);
-  // const [isScrolled, setIsScrolled] = useState(false);
-  // const [darkMode, setDarkMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
+  const [loading, setLoading] = useState(true);
 
   // Fetch booking data
   useEffect(() => {
     const fetchBookingAndMovie = async () => {
       try {
+        setLoading(true); // Bắt đầu tải
         // Fetch booking data
+        console.log('Fetching booking for ID:', bookingId);
         const bookingResponse = await fetch(
           `http://localhost:5000/api/bookings/booking/${bookingId}`
         );
+        if (!bookingResponse.ok) {
+          throw new Error(`HTTP error! status: ${bookingResponse.status}`);
+        }
         const bookingData = await bookingResponse.json();
+        console.log('Booking data:', bookingData);
 
         // Fetch movies data
         const moviesResponse = await fetch("http://localhost:5000/api/movies");
+        if (!moviesResponse.ok) {
+          throw new Error(`HTTP error! status: ${moviesResponse.status}`);
+        }
         const moviesData = await moviesResponse.json();
+        console.log('Movies data:', moviesData);
 
         // Tìm phim khớp với movieTitle trong booking
         const movie = moviesData.find(
@@ -51,6 +57,8 @@ const BookingDetail = () => {
         }
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu:", error);
+      } finally {
+        setLoading(false); // Kết thúc tải
       }
     };
 
@@ -144,7 +152,7 @@ const BookingDetail = () => {
 
       if (response.ok) {
         const data = await response.json();
-        // console.log(data.message); // Log kết quả
+        console.log(data.message); // Log kết quả
       } else {
         console.error("Lỗi khi cập nhật imageUrl:", response.statusText);
       }
@@ -202,6 +210,9 @@ const BookingDetail = () => {
     }
   };
 
+  if (loading) {
+    return <p>Đang tải dữ liệu...</p>;
+  }
   // Handle missing booking data
   if (!booking) {
     return (

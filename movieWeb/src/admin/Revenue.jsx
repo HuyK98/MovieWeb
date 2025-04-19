@@ -151,6 +151,7 @@ const Revenue = () => {
     fetchRevenueByMovie();
   }, []);
 
+
   const dailyData = {
     labels: dailyRevenue.map((item) => item._id),
     datasets: [
@@ -276,6 +277,7 @@ const Revenue = () => {
         return month === parseInt(selectedMonth);
       });
     }
+
     // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
       filtered = filtered.filter((transaction) => {
@@ -548,6 +550,7 @@ const Revenue = () => {
             />
           )}
           {selectedChart === "monthly" && (
+
             <Bar
               data={monthlyData}
               options={{
@@ -561,6 +564,7 @@ const Revenue = () => {
             />
           )}
           {selectedChart === "movie" && (
+
             <Bar
               data={movieData}
               options={{
@@ -573,6 +577,7 @@ const Revenue = () => {
               }}
             />
           )}
+
         </div>
 
         <div className="transactions">
