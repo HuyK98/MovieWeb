@@ -54,7 +54,7 @@ router.get("/booking/:id", async (req, res) => {
       // Lưu dữ liệu vào Redis cache
       client.setEx(
         `booking:${bookingId}`,
-        300,
+        3600,
         JSON.stringify(booking),
         (err) => {
           if (err) {
@@ -132,7 +132,7 @@ router.get("/notifications", async (req, res) => {
       // Lưu dữ liệu vào Redis cache
       client.setEx(
         "notifications",
-        1100,
+        3600,
         JSON.stringify(notifications),
         (err) => {
           if (err) {
@@ -188,6 +188,11 @@ router.post("/create-booking", async (req, res) => {
       user: populatedBooking.user,
       movieTitle: populatedBooking.movieTitle,
       createdAt: populatedBooking.createdAt,
+    });
+
+    client.del("notifications", (err) => {
+      if (err) console.error("❌ Error clearing notifications cache:", err);
+      else console.log("✅ Notifications cache cleared after new booking");
     });
 
     res.status(201).json(populatedBooking);
