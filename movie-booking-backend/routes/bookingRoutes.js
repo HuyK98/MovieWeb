@@ -132,7 +132,7 @@ router.get("/notifications", async (req, res) => {
       // Lưu dữ liệu vào Redis cache
       client.setEx(
         "notifications",
-        300,
+        1100,
         JSON.stringify(notifications),
         (err) => {
           if (err) {
@@ -186,7 +186,7 @@ router.post("/create-booking", async (req, res) => {
     sendNotification({
       _id: populatedBooking._id,
       user: populatedBooking.user,
-      movieTitle: populatedBooking.movie.title,
+      movieTitle: populatedBooking.movieTitle,
       createdAt: populatedBooking.createdAt,
     });
 

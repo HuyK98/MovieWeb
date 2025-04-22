@@ -16,19 +16,17 @@ const userRoutes = require('./routes/userRoutes');
 // Create a WebSocket server on port 8080
 const { initSocket } = require("./websocket"); // 👈 Import websocket
 
-
 const app = express();
-
 // Tạo server HTTP từ Express app
 const server = http.createServer(app);
 
 // Khởi tạo socket server
 initSocket(server); // 👈 Gọi đúng 1 lần
-app.use(cors({
-  origin: "http://localhost:5173", // Địa chỉ frontend
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: "http://localhost:5173", // Địa chỉ frontend
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//   credentials: true,
+// }));
 
 // Cấu hình CORS cho Express
 app.use(cors());
