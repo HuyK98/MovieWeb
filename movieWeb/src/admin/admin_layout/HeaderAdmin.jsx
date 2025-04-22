@@ -17,7 +17,7 @@ const HeaderAdmin = () => {
 
   // Kết nối với server WebSocket qua socket.io
   useEffect(() => {
-    const socket = io("http://localhost:5000", {
+    const socket = io("https://movieweb-dh5r.onrender.com", {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

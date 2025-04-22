@@ -23,6 +23,7 @@ import TrailerModal from "../components/TrailerModal";
 import moment from "moment";
 import PosterSection from "../components/PosterSection";
 import "../styles/ManageGenres.css";
+import API_URL from "../api/config";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -123,7 +124,7 @@ const Home = () => {
     setSelectedMovie(movie);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/showtimes?movieId=${movie._id}`
+        `${API_URL}/api/showtimes?movieId=${movie._id}`
       );
 
       // Chuyển đổi date từ chuỗi ISO thành kiểu Date
@@ -382,7 +383,7 @@ const Home = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/movies");
+        const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
 
         if (Array.isArray(data)) {
@@ -405,7 +406,7 @@ const Home = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/movies");
+        const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
 
         if (Array.isArray(data)) {
@@ -457,7 +458,7 @@ const Home = () => {
         // console.log('fetchBookedSeats - formattedDate:', formattedDate);
 
         const response = await axios.get(
-          "http://localhost:5000/api/payment/seats/page",
+          `${API_URL}/api/payment/seats/page`,
           {
             params: {
               movieTitle: selectedMovie.title,

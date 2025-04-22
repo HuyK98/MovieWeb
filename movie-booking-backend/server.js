@@ -22,14 +22,13 @@ const server = http.createServer(app);
 
 // Khởi tạo socket server
 initSocket(server); // 👈 Gọi đúng 1 lần
-// app.use(cors({
-//   origin: "http://localhost:5173", // Địa chỉ frontend
-//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: "https://movie-web-ace9f.web.app", // Địa chỉ frontend
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true,
+}));
 
 // Cấu hình CORS cho Express
-app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
