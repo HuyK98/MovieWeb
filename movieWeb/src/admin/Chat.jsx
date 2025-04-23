@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { FaPaperPlane, FaSmile, FaPaperclip } from 'react-icons/fa';
+import { FaPaperPlane, FaSmile, FaPaperclip, FaArrowLeft } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Chat.css';
 
 const socket = io('http://localhost:5000');
@@ -13,6 +14,7 @@ function Chat() {
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const formatTimestamp = (timestamp) => {
     try {
@@ -21,6 +23,10 @@ function Chat() {
       console.error('Lỗi định dạng thời gian:', error);
       return 'Invalid date';
     }
+  };
+
+  const handleBackClick = () => {
+    navigate('/admin');
   };
 
   useEffect(() => {
@@ -133,25 +139,42 @@ function Chat() {
   return (
     <div className="chat-container-modern">
       <div className="chat-sidebar-modern">
-        <h3>Danh sách người dùng</h3>
+        <div className="sidebar-header-chat">
+          <button className="back-button" onClick={handleBackClick}>
+            <FaArrowLeft /> Quay lại
+          </button>
+          <h3>Danh sách người dùng</h3>
+        </div>
         <ul>
-          {users.map((user) => (
-            <li
-              key={user._id}
-              className={`chat-user-modern ${selectedUser?._id === user._id ? 'active' : ''}`}
-              onClick={() => handleUserClick(user)}
-            >
-              <img
-                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
-                alt={user.name}
-                className="user-avatar-modern"
-              />
-              <div className="user-info-modern">
-                <h4>{user.name}</h4>
-                <p>Last message...</p>
-              </div>
-            </li>
-          ))}
+          {users.map((user) => {
+            const lastMessage =
+              messages[user._id] && messages[user._id].length > 0
+                ? messages[user._id][messages[user._id].length - 1]
+                : null;
+
+            return (
+              <li
+                key={user._id}
+                className={`chat-user-modern ${selectedUser?._id === user._id ? 'active' : ''}`}
+                onClick={() => handleUserClick(user)}
+              >
+                <img
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
+                  alt={user.name}
+                  className="user-avatar-modern"
+                />
+                <div className="user-info-modern">
+                  <h4>{user.name}</h4>
+                  <p>{lastMessage ? lastMessage.text : 'No messages yet'}</p> {/* Hiển thị tin nhắn mới nhất */}
+                  {lastMessage && (
+                    <span className="timestamp-modern">
+                      {formatTimestamp(lastMessage.timestamp)} {/* Hiển thị thời gian tin nhắn cuối */}
+                    </span>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </div>
       <div className="chat-main-modern">

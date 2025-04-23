@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -12,6 +12,8 @@ function ChatButton() {
   const [userName, setUserName] = useState('');
   const [socket, setSocket] = useState(null);
 
+  const messagesEndRef = useRef(null);
+
   const formatTimestamp = (timestamp) => {
     try {
       return format(new Date(timestamp), 'HH:mm:ss dd/MM/yyyy'); // Định dạng giờ:phút:giây ngày/tháng/năm
@@ -20,6 +22,25 @@ function ChatButton() {
       return 'Invalid date';
     }
   };
+
+  // Cuộn đến tin nhắn mới nhất
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Gọi scrollToBottom mỗi khi danh sách tin nhắn thay đổi
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Cuộn đến tin nhắn mới nhất khi mở phần chat
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [isOpen]);
 
   // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
@@ -216,6 +237,7 @@ function ChatButton() {
                 </div>
               );
             })}
+            <div ref={messagesEndRef} />
           </div>
           <div className="chat-input">
             <input

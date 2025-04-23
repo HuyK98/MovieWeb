@@ -90,7 +90,7 @@
 
 .chat-message-modern {
   margin-bottom: 10px;
-  max-width: 70%;
+  max-width: 40%;
 }
 
 .chat-message-modern.incoming {
@@ -160,4 +160,57 @@
   align-items: center;
   justify-content: center;
   color: #888;
+}
+
+/* back btn */
+.sidebar-header-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:hover {
+  background-color: #303f9f;
+}
+
+.back-button svg {
+  font-size: 16px;
+}
+
+.sidebar-header h3 {
+  margin: 5px 0;
+}
+
+/* trạng thái đọc tin nhắn */
+.chat-user-modern.unread {
+  background-color: #f0f8ff; /* Làm sáng phần tin nhắn chưa đọc */
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #007bff; /* Chấm xanh */
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
 }
