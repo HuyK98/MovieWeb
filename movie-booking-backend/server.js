@@ -7,7 +7,6 @@ require("dotenv").config();
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const movieRoutes = require("./routes/movieRoutes");
-const Movie = require("./models/Movie");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
 const billRoutes = require('./routes/billRoutes');

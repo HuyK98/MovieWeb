@@ -7,8 +7,10 @@ const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000', // Frontend URL
     methods: ['GET', 'POST'],
+    credentials: true, // Cho phép gửi cookie từ client
   },
 });
+
 
 // Lưu trữ mapping giữa userId và socketId
 const userSockets = {};
