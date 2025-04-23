@@ -31,7 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Cấu hình CORS cho Express
-app.use(cors());
+app.use(cors({
+  origin: "https://movieweb-5cb58.web.app", // Địa chỉ frontend
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true,
+}));
 
 // Kiểm tra biến môi trường MONGO_URI
 if (!process.env.MONGO_URI) {
