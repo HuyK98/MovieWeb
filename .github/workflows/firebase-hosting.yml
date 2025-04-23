@@ -34,4 +34,4 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           channelId: live
-          projectId: your-firebase-project-id  # ❗ nếu cần chỉ định rõ
+          projectId: movieweb-5cb58  # ❗ nếu cần chỉ định rõ
