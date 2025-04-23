@@ -16,11 +16,15 @@ jobs:
         with:
           node-version: '18'
 
-      - run: npm ci
-        if: exists('package-lock.json')
+      - run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          fi
 
-      - run: npm run build
-        if: exists('package.json')
+      - run: |
+          if [ -f package.json ]; then
+            npm run build
+          fi
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
