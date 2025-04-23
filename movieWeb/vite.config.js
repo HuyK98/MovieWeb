@@ -7,4 +7,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@react-oauth/google'],
   },
+  build: {
+    outDir: 'dist',
+  },
 });
