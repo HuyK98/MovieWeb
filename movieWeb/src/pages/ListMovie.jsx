@@ -14,6 +14,7 @@ import Chatbot from "../components/Chatbot";
 import moment from "moment";
 import translations from "../pages/translations";
 import { useLanguage } from "../pages/LanguageContext";
+import API_URL from "../api/config";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -106,7 +107,7 @@ const ListMovie = () => {
     setSelectedMovie(movie);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/showtimes?movieId=${movie._id}`
+        `${API_URL}/api/showtimes?movieId=${movie._id}`
       );
       setShowtimes(response.data);
       if (response.data.length > 0) {
@@ -294,7 +295,7 @@ const ListMovie = () => {
         console.log("fetchBookedSeats - formattedDate:", formattedDate);
 
         const response = await axios.get(
-          "http://localhost:5000/api/payment/seats/page",
+          `${API_URL}/api/payment/seats/page`,
           {
             params: {
               movieTitle: selectedMovie.title,
