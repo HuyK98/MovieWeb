@@ -7,7 +7,7 @@ import Footer from "../layout/Footer";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { FaGooglePlusG } from "react-icons/fa";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
-
+import API_URL from "../api/config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -26,9 +26,6 @@ const Login = () => {
 
   const location = useLocation(); // Lấy thông tin state từ navigate
   const { language } = useLanguage(); // Lấy ngôn ngữ từ context
-
-
-
 
   const texts = {
     vi: {
@@ -86,7 +83,7 @@ const Login = () => {
     try {
       if (isRegister) {
         const response = await axios.post(
-          "http://localhost:5000/api/auth/register",
+          `${API_URL}/api/auth/register`,
           { name, email, password, phone }
         );
         setSuccess(texts[language].registerSuccess);
@@ -97,7 +94,7 @@ const Login = () => {
         }, 2000);
       } else {
         const response = await axios.post(
-          "http://localhost:5000/api/auth/login",
+          `${API_URL}/api/auth/login`,
           { email, password }
         );
         localStorage.setItem("userInfo", JSON.stringify(response.data));
@@ -142,7 +139,7 @@ const Login = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
+        `${API_URL}/api/auth/google-login`,
         {
           tokenId: credential,
         }
