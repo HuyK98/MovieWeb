@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -22,6 +21,7 @@ import logo from "../assets/logo.jpg";
 import "../styles/ManageGenres.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../api/config"; // Import API_URL từ file config
 
 const ManageGenres = () => {
   const [genres, setGenres] = useState([]);
@@ -33,7 +33,7 @@ const ManageGenres = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/movies");
+        const response = await axios.get(`${API_URL}/api/movies`);
         const movies = response.data;
 
         // Get unique genres and group movies by genre

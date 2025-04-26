@@ -8,7 +8,7 @@ import momoIcon from "../assets/momo.ico";
 import moment from "moment";
 import translations from "../pages/translations";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
-
+import API_URL from "../api/config";
 const PaymentInfo = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const PaymentInfo = () => {
           throw new Error("No token found");
         }
         const response = await axios.get(
-          "http://localhost:5000/api/auth/profile",
+          `${API_URL}/api/auth/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ const PaymentInfo = () => {
       if (paymentMethod === "momo") {
         // Xử lý thanh toán qua ví MoMo
         const momoResponse = await axios.post(
-          "http://localhost:5000/api/payment/momo",
+          `${API_URL}/api/payment/momo`,
           {
             bookingInfo,
             selectedSeats,
@@ -142,7 +142,7 @@ const PaymentInfo = () => {
       } else {
         // Xử lý thanh toán thông thường
         const response = await axios.post(
-          "http://localhost:5000/api/payment/pay",
+          `${API_URL}/api/payment/pay`,
           {
             bookingInfo,
             selectedSeats,

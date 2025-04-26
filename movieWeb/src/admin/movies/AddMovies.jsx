@@ -21,6 +21,7 @@ import "../../styles/AddMovies.css";
 import logo from "../../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../../api/config"; // Đường dẫn API từ file config
 
 const AddMovie = () => {
   const [title, setTitle] = useState("");
@@ -75,15 +76,11 @@ const AddMovie = () => {
     formData.append("video", video); // Đảm bảo tên trường là "video"
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/movies/add",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/api/movies/add`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("Phim đã thêm thành công!");
       navigate("/admin/movies");
     } catch (error) {

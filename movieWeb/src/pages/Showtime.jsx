@@ -7,6 +7,7 @@ import "../styles/Showtime.css";
 import moment from "moment";
 import { useLanguage } from "../pages/LanguageContext";
 import translations from "../pages/translations";
+import API_URL from "../api/config"; // Đường dẫn đến API_URL
 
 const Showtime = () => {
   const [movie, setMovie] = useState(null);
@@ -98,7 +99,7 @@ const Showtime = () => {
     setSelectedMovie(movie);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/showtimes?movieId=${movie._id}`
+        `${API_URL}/api/showtimes?movieId=${movie._id}`
       );
 
       // Chuyển đổi date từ chuỗi ISO thành kiểu Date
@@ -171,14 +172,14 @@ const Showtime = () => {
       try {
         // Fetch movies
         const moviesResponse = await axios.get(
-          "http://localhost:5000/api/movies"
+          `${API_URL}/api/movies`
         );
         // console.log("Movies fetched:", moviesResponse.data);
         setMovie(moviesResponse.data);
 
         // Fetch showtimes
         const showtimesResponse = await axios.get(
-          "http://localhost:5000/api/showtimes"
+          `${API_URL}/api/showtimes`
         );
         // console.log("Showtimes fetched:", showtimesResponse.data);
         setShowtimes(showtimesResponse.data);
@@ -312,7 +313,7 @@ const Showtime = () => {
       const formattedDate = moment(selectedShowtime.date).format("YYYY-MM-DD");
 
       const response = await axios.get(
-        "http://localhost:5000/api/payment/seats/page",
+        `${API_URL}/api/payment/seats/page`,
         {
           params: {
             date: formattedDate, // Chỉ truyền ngày, không truyền movieTitle

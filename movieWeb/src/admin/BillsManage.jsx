@@ -22,6 +22,7 @@ import {
 import axios from "axios";
 import moment from "moment";
 import "../styles/BillsManage.css";
+import API_URL from "../api/config"; // Import API_URL từ file config
 
 const BillsManage = () => {
   const [bills, setBills] = useState([]);
@@ -34,7 +35,7 @@ const BillsManage = () => {
   const editBill = async (id, updatedData) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/bills/${id}`,
+        `${API_URL}/api/bills/${id}`,
         updatedData
       );
       if (response.status === 200) {
@@ -51,9 +52,7 @@ const BillsManage = () => {
 
   const deleteBill = async (id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/bills/${id}`
-      );
+      const response = await axios.delete(`${API_URL}/api/bills/${id}`);
       if (response.status === 200) {
         setBills(bills.filter((bill) => bill._id !== id)); // Cập nhật danh sách hóa đơn sau khi xóa
         alert("Hóa đơn đã được xóa thành công!");
@@ -67,7 +66,7 @@ const BillsManage = () => {
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/bills");
+        const response = await axios.get(`${API_URL}/api/bills`);
         setBills(response.data);
         setLoading(false);
       } catch (err) {

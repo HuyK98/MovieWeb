@@ -5,6 +5,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import "../styles/FavoritesAndBookings.css";
 import axios from "axios";
+import API_URL from "../api/config"; // Đường dẫn đến tệp apiUrl.js
 
 const FavoritesAndBookings = ({
   favorites,
@@ -125,7 +126,7 @@ const FavoritesAndBookings = ({
 
           // Fetch bookings with "cash" payment method
           const cashResponse = await axios.get(
-            "http://localhost:5000/api/bookings",
+            `${API_URL}/api/bookings`,
             {
               params: {
                 userId: currentUser._id,
@@ -141,7 +142,7 @@ const FavoritesAndBookings = ({
 
           // Fetch bookings with "momo" payment method
           const momoResponse = await axios.get(
-            "http://localhost:5000/api/bookings",
+            `${API_URL}/api/bookings`,
             {
               params: {
                 userId: currentUser._id,

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import '../styles/Chatbot.css';
-import { getChatbotResponse } from '../../../movie-booking-backend/routes/chatbotLogic';
+import React, { useState } from "react";
+import "../styles/Chatbot.css";
+import { getChatbotResponse } from "../../../movie-booking-backend/routes/chatbotLogic";
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const sendMessage = () => {
     if (input.trim()) {
@@ -18,23 +18,22 @@ function Chatbot() {
         { text: `Bot: ${chatbotResponse}`, isUser: false },
       ]);
 
-      setInput('');
+      setInput("");
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       sendMessage();
     }
   };
 
   return (
     <div className="chatbot-container">
-      <button
-        className="chatbot-toggle-btn"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span role="img" aria-label="chat">🤖</span>
+      <button className="chatbot-toggle-btn" onClick={() => setIsOpen(!isOpen)}>
+        <span role="img" aria-label="chat">
+          🤖
+        </span>
       </button>
 
       {isOpen && (
@@ -52,7 +51,7 @@ function Chatbot() {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={msg.isUser ? 'chatbot-user-msg' : 'chatbot-bot-msg'}
+                className={msg.isUser ? "chatbot-user-msg" : "chatbot-bot-msg"}
               >
                 <p>{msg.text}</p>
               </div>

@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import "../styles/BookingDetail.css";
+import API_URL from "../api/config"; // Import API_URL từ config
 
 const BookingDetail = () => {
   const { bookingId } = useParams();
@@ -26,12 +27,12 @@ const BookingDetail = () => {
       try {
         // Fetch booking data
         const bookingResponse = await fetch(
-          `http://localhost:5000/api/bookings/booking/${bookingId}`
+          `${API_URL}/api/bookings/booking/${bookingId}`
         );
         const bookingData = await bookingResponse.json();
 
         // Fetch movies data
-        const moviesResponse = await fetch("http://localhost:5000/api/movies");
+        const moviesResponse = await fetch(`${API_URL}/api/movies`);
         const moviesData = await moviesResponse.json();
 
         // Tìm phim khớp với movieTitle trong booking
@@ -113,7 +114,7 @@ const BookingDetail = () => {
 
     console.log("Dữ liệu hóa đơn gửi đến API:", billData);
     try {
-      const response = await fetch("http://localhost:5000/api/bills/create", {
+      const response = await fetch(`${API_URL}/api/bills/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +136,7 @@ const BookingDetail = () => {
   const updateAllImageUrls = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/bookings/update-image-urls",
+        `${API_URL}/api/bookings/update-image-urls`,
         {
           method: "PATCH",
         }

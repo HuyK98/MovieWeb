@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client"; // Import socket.io-client
 import "../../styles/HeaderAdmin.css";
+import API_URL from "../../api/config";
 
 const HeaderAdmin = () => {
   const [user, setUser] = useState(null); // Lưu thông tin người dùng
@@ -17,7 +18,7 @@ const HeaderAdmin = () => {
 
   // Kết nối với server WebSocket qua socket.io
   useEffect(() => {
-    const socket = io("https://movieweb-dh5r.onrender.com", {
+    const socket = io(`$${API_URL}`, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -53,7 +54,7 @@ const HeaderAdmin = () => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/bookings/notifications"
+          `${API_URL}/api/bookings/notifications`
         );
         setNotifications(response.data); // Lưu danh sách thông báo vào state
 
@@ -90,7 +91,7 @@ const HeaderAdmin = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:5000/api/auth/profile",
+          `${API_URL}/api/auth/profile`,
           {
             headers: {
               Authorization: `Bearer ${userInfo.token}`, // Gửi token trong header
@@ -117,7 +118,7 @@ const HeaderAdmin = () => {
     try {
       // Đánh dấu thông báo đã đọc trong backend
       await axios.put(
-        `http://localhost:5000/api/bookings/notifications/${notificationId}/read`
+        `${API_URL}/api/bookings/notifications/${notificationId}/read`
       );
 
       // Cập nhật trạng thái isRead trong danh sách thông báo
@@ -203,7 +204,7 @@ const HeaderAdmin = () => {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <img
-            src={`http://localhost:5000${user?.image || "/default-avatar.png"}`}
+            src={`${API_URL}${user?.image || "/default-avatar.png"}`}
             alt="Admin Avatar"
             className="profile-image"
           />

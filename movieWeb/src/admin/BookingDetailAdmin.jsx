@@ -7,6 +7,8 @@ import HeaderAdmin from "./admin_layout/HeaderAdmin";
 import Sidebar from "./admin_layout/Sidebar";
 import "../styles/BookingDetail.css";
 import { FaBars } from "react-icons/fa";
+import API_URL from "../api/config";
+
 const BookingDetail = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
@@ -23,23 +25,23 @@ const BookingDetail = () => {
       try {
         setLoading(true); // Bắt đầu tải
         // Fetch booking data
-        console.log('Fetching booking for ID:', bookingId);
+        console.log("Fetching booking for ID:", bookingId);
         const bookingResponse = await fetch(
-          `http://localhost:5000/api/bookings/booking/${bookingId}`
+          `${API_URL}/api/bookings/booking/${bookingId}`
         );
         if (!bookingResponse.ok) {
           throw new Error(`HTTP error! status: ${bookingResponse.status}`);
         }
         const bookingData = await bookingResponse.json();
-        console.log('Booking data:', bookingData);
+        console.log("Booking data:", bookingData);
 
         // Fetch movies data
-        const moviesResponse = await fetch("http://localhost:5000/api/movies");
+        const moviesResponse = await fetch(`${API_URL}/api/movies`);
         if (!moviesResponse.ok) {
           throw new Error(`HTTP error! status: ${moviesResponse.status}`);
         }
         const moviesData = await moviesResponse.json();
-        console.log('Movies data:', moviesData);
+        console.log("Movies data:", moviesData);
 
         // Tìm phim khớp với movieTitle trong booking
         const movie = moviesData.find(
@@ -122,7 +124,7 @@ const BookingDetail = () => {
 
     console.log("Dữ liệu hóa đơn gửi đến API:", billData);
     try {
-      const response = await fetch("http://localhost:5000/api/bills/create", {
+      const response = await fetch(`${API_URL}/api/bills/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +146,7 @@ const BookingDetail = () => {
   const updateAllImageUrls = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/bookings/update-image-urls",
+        `${API_URL}/api/bookings/update-image-urls`,
         {
           method: "PATCH",
         }

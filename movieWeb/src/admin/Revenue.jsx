@@ -43,6 +43,7 @@ Chart.register(
   Title,
   Legend
 );
+import API_URL from "../api/config"; // Import API_URL từ file config.js
 
 const Revenue = () => {
   const [summary, setSummary] = useState({});
@@ -64,7 +65,7 @@ const Revenue = () => {
     const fetchSummary = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/summary"
+          `${API_URL}/api/payment/summary`
         );
         setSummary(response.data);
       } catch (error) {
@@ -76,7 +77,7 @@ const Revenue = () => {
     const fetchTransactions = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/transactions"
+          `${API_URL}/api/payment/transactions`
         );
         setTransactions(response.data);
 
@@ -99,7 +100,7 @@ const Revenue = () => {
     const fetchDailyRevenue = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/daily"
+          `${API_URL}/api/payment/daily`
         );
         setDailyRevenue(response.data);
       } catch (error) {
@@ -111,7 +112,7 @@ const Revenue = () => {
     const fetchWeeklyRevenue = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/weekly"
+          `${API_URL}/api/payment/weekly`
         );
         setWeeklyRevenue(response.data);
       } catch (error) {
@@ -123,7 +124,7 @@ const Revenue = () => {
     const fetchMonthlyRevenue = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/monthly"
+          `${API_URL}/api/payment/monthly`
         );
         setMonthlyRevenue(response.data);
       } catch (error) {
@@ -134,7 +135,7 @@ const Revenue = () => {
     const fetchRevenueByMovie = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payment/by-movie"
+          `${API_URL}/api/payment/by-movie`
         );
         setRevenueByMovie(response.data);
       } catch (error) {

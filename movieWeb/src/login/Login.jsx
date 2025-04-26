@@ -27,9 +27,6 @@ const Login = () => {
   const location = useLocation(); // Lấy thông tin state từ navigate
   const { language } = useLanguage(); // Lấy ngôn ngữ từ context
 
-
-
-
   const texts = {
     vi: {
       createAccount: "Tạo Tài Khoản",

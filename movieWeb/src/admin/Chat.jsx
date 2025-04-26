@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import '../styles/Chat.css';
-
+import API_URL from '../api/config'; // Đường dẫn API của bạn
 const socket = io('http://localhost:5000');
 
 function Chat() {
@@ -16,7 +16,7 @@ function Chat() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/auth/users', {
+        const { data } = await axios.get(`${API_URL}/api/auth/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

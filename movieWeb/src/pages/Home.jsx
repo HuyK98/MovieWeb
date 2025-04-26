@@ -385,6 +385,7 @@ const Home = () => {
       try {
         const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
+        console.log("Data from API:", data); // Log dữ liệu trả về từ API
 
         if (Array.isArray(data)) {
           const nowShowing = data.filter(

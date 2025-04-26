@@ -23,7 +23,7 @@ const server = http.createServer(app);
 // Khởi tạo socket server
 initSocket(server); // 👈 Gọi đúng 1 lần
 app.use(cors({
-  origin: "https://movie-web-ace9f.web.app", // Địa chỉ frontend
+  origin: ["https://movie-web-ace9f.web.app","http://localhost:5173"], // Địa chỉ frontend
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true,
 }));

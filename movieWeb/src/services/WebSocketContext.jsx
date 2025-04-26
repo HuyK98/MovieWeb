@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import API_URL from "../api/config"; // Đường dẫn đến API_URL
 
 const WebSocketContext = createContext();
 
@@ -9,7 +10,7 @@ export const WebSocketProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(`${API_URL}`, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

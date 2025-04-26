@@ -7,7 +7,7 @@ import axios from "axios";
 import moment from "moment";
 import translations from "../pages/translations";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
-
+import API_URL from "../api/config"; // Đường dẫn đến API_URL
 
 const MovieDetail = () => {
   const location = useLocation();
@@ -22,7 +22,6 @@ const MovieDetail = () => {
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
-
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -53,16 +52,13 @@ const MovieDetail = () => {
           return;
         }
 
-        const response = await axios.get(
-          "http://localhost:5000/api/payment/seats",
-          {
-            params: {
-              movieTitle: bookingInfo.movieTitle,
-              date: formattedDate,
-              time: bookingInfo.time,
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/api/payment/seats`, {
+          params: {
+            movieTitle: bookingInfo.movieTitle,
+            date: formattedDate,
+            time: bookingInfo.time,
+          },
+        });
 
         const bookedSeats = response.data;
         const allSeats = Array.from({ length: 70 }, (_, i) => ({
