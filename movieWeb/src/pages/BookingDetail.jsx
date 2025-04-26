@@ -1,18 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import moment from 'moment';
-import html2canvas from 'html2canvas';
-import QRCode from 'qrcode';
+import React, { useRef, useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import moment from "moment";
+import html2canvas from "html2canvas";
+import QRCode from "qrcode";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import "../styles/BookingDetail.css";
+import API_URL from "../api/config"; // Import API_URL từ config
 
 const BookingDetail = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const billRef = useRef(null);
-  const [base64Image, setBase64Image] = useState('');
+  const [base64Image, setBase64Image] = useState("");
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [favorites, setFavorites] = useState([]);
@@ -25,15 +26,19 @@ const BookingDetail = () => {
     const fetchBookingAndMovie = async () => {
       try {
         // Fetch booking data
-        const bookingResponse = await fetch(`http://localhost:5000/api/bookings/booking/${bookingId}`);
+        const bookingResponse = await fetch(
+          `${API_URL}/api/bookings/booking/${bookingId}`
+        );
         const bookingData = await bookingResponse.json();
-  
+
         // Fetch movies data
-        const moviesResponse = await fetch('http://localhost:5000/api/movies');
+        const moviesResponse = await fetch(`${API_URL}/api/movies`);
         const moviesData = await moviesResponse.json();
-  
+
         // Tìm phim khớp với movieTitle trong booking
-        const movie = moviesData.find((m) => m.title === bookingData.movieTitle);
+        const movie = moviesData.find(
+          (m) => m.title === bookingData.movieTitle
+        );
         if (movie) {
           setBooking({
             ...bookingData,
@@ -45,10 +50,10 @@ const BookingDetail = () => {
           setBooking(bookingData); // Nếu không tìm thấy phim, chỉ set dữ liệu booking
         }
       } catch (error) {
-        console.error('Lỗi khi fetch dữ liệu:', error);
+        console.error("Lỗi khi fetch dữ liệu:", error);
       }
     };
-  
+
     fetchBookingAndMovie();
   }, [bookingId]);
 
@@ -64,7 +69,7 @@ const BookingDetail = () => {
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.error('Lỗi khi chuyển đổi hình ảnh:', error);
+      console.error("Lỗi khi chuyển đổi hình ảnh:", error);
       return null;
     }
   };
@@ -83,7 +88,7 @@ const BookingDetail = () => {
   // Save bill to database
   const saveBillToDatabase = async () => {
     if (!booking) {
-      console.error('Không có dữ liệu booking để lưu hóa đơn.');
+      console.error("Không có dữ liệu booking để lưu hóa đơn.");
       return;
     }
 
@@ -109,44 +114,47 @@ const BookingDetail = () => {
 
     console.log("Dữ liệu hóa đơn gửi đến API:", billData);
     try {
-      const response = await fetch('http://localhost:5000/api/bills/create', {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/bills/create`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(billData),
       });
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Hóa đơn đã được lưu vào cơ sở dữ liệu!');
+        console.log("Hóa đơn đã được lưu vào cơ sở dữ liệu!");
       } else {
-        console.error('Lỗi khi lưu hóa đơn:', data.message);
+        console.error("Lỗi khi lưu hóa đơn:", data.message);
       }
     } catch (error) {
-      console.error('Lỗi khi gửi yêu cầu:', error);
+      console.error("Lỗi khi gửi yêu cầu:", error);
     }
   };
 
   const updateAllImageUrls = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/bookings/update-image-urls', {
-        method: 'PATCH',
-      });
-  
+      const response = await fetch(
+        `${API_URL}/api/bookings/update-image-urls`,
+        {
+          method: "PATCH",
+        }
+      );
+
       if (response.ok) {
         const data = await response.json();
         console.log(data.message); // Log kết quả
       } else {
-        console.error('Lỗi khi cập nhật imageUrl:', response.statusText);
+        console.error("Lỗi khi cập nhật imageUrl:", response.statusText);
       }
     } catch (error) {
-      console.error('Lỗi khi gọi API cập nhật imageUrl:', error);
+      console.error("Lỗi khi gọi API cập nhật imageUrl:", error);
     }
   };
-  
+
   // Gọi hàm để cập nhật tất cả imageUrl
-  updateAllImageUrls(); 
+  updateAllImageUrls();
 
   // Generate QR Code
   const generateQRCode = async (billData) => {
@@ -155,51 +163,53 @@ const BookingDetail = () => {
       const qrCodeData = await QRCode.toDataURL(qrContent);
       return qrCodeData;
     } catch (error) {
-      console.error('Lỗi khi tạo mã QR:', error);
+      console.error("Lỗi khi tạo mã QR:", error);
       return null;
     }
   };
 
   // Export bill
-  // const exportBill = async () => {
-  //   if (!booking) {
-  //     console.error('Không có dữ liệu booking để xuất hóa đơn.');
-  //     return;
-  //   }
+  const exportBill = async () => {
+    if (!booking) {
+      console.error("Không có dữ liệu booking để xuất hóa đơn.");
+      return;
+    }
 
-  //   // Save bill to database
-  //   await saveBillToDatabase();
+    // Save bill to database
+    await saveBillToDatabase();
 
-  //   // Generate QR Code
-  //   const qrCodeData = await generateQRCode({
-  //     user: booking.user,
-  //     movie: booking.movie,
-  //     booking: booking,
-  //   });
+    // Generate QR Code
+    const qrCodeData = await generateQRCode({
+      user: booking.user,
+      movie: booking.movie,
+      booking: booking,
+    });
 
-  //   // Capture bill as image
-  //   if (billRef.current) {
-  //     html2canvas(billRef.current, { useCORS: true }).then((canvas) => {
-  //       const link = document.createElement('a');
-  //       link.download = 'bill.png';
-  //       link.href = canvas.toDataURL('image/png');
-  //       link.click();
-  //     });
-  //   }
+    // Capture bill as image
+    if (billRef.current) {
+      html2canvas(billRef.current, { useCORS: true }).then((canvas) => {
+        const link = document.createElement("a");
+        link.download = "bill.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
 
-  //   // Display QR Code (if needed)
-  //   if (qrCodeData) {
-  //     const qrWindow = window.open();
-  //     qrWindow.document.write(`<img src="${qrCodeData}" alt="QR Code" />`);
-  //   }
-  // };
+    // Display QR Code (if needed)
+    if (qrCodeData) {
+      const qrWindow = window.open();
+      qrWindow.document.write(`<img src="${qrCodeData}" alt="QR Code" />`);
+    }
+  };
 
   // Handle missing booking data
   if (!booking) {
     return (
       <div className="bd-not-found">
         <p>Không tìm thấy thông tin hóa đơn.</p>
-        <button className="bd-back-btn" onClick={() => navigate(-1)}>Quay lại</button>
+        <button className="bd-back-btn" onClick={() => navigate(-1)}>
+          Quay lại
+        </button>
       </div>
     );
   }
@@ -240,15 +250,21 @@ const BookingDetail = () => {
               <h3 className="bd-section-title">Thông tin phim</h3>
               <div className="bd-info-item">
                 <span className="bd-label">Tên phim:</span>
-                <span className="bd-value">{booking.movieTitle || "Không có tiêu đề"}</span>
+                <span className="bd-value">
+                  {booking.movieTitle || "Không có tiêu đề"}
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Thể loại:</span>
-                <span className="bd-value">{booking.movie?.genre || "Không có thể loại"}</span>
+                <span className="bd-value">
+                  {booking.movie?.genre || "Không có thể loại"}
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Ngày phát hành:</span>
-                <span className="bd-value">{moment(booking.movie?.releaseDate).format('DD/MM/YYYY')}</span>
+                <span className="bd-value">
+                  {moment(booking.movie?.releaseDate).format("DD/MM/YYYY")}
+                </span>
               </div>
             </div>
           </div>
@@ -259,15 +275,21 @@ const BookingDetail = () => {
               <h3 className="bd-section-title">Thông tin người dùng</h3>
               <div className="bd-info-item">
                 <span className="bd-label">Tên:</span>
-                <span className="bd-value">{booking.user?.name || "Không có tên"}</span>
+                <span className="bd-value">
+                  {booking.user?.name || "Không có tên"}
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Email:</span>
-                <span className="bd-value">{booking.user?.email || "Không có email"}</span>
+                <span className="bd-value">
+                  {booking.user?.email || "Không có email"}
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Số điện thoại:</span>
-                <span className="bd-value">{booking.user?.phone || "Không có số điện thoại"}</span>
+                <span className="bd-value">
+                  {booking.user?.phone || "Không có số điện thoại"}
+                </span>
               </div>
             </div>
 
@@ -275,11 +297,15 @@ const BookingDetail = () => {
               <h3 className="bd-section-title">Thông tin đặt vé</h3>
               <div className="bd-info-item">
                 <span className="bd-label">Ngày chiếu:</span>
-                <span className="bd-value">{moment(booking.booking?.date).format('DD/MM/YYYY')}</span>
+                <span className="bd-value">
+                  {moment(booking.booking?.date).format("DD/MM/YYYY")}
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Ghế:</span>
-                <span className="bd-value">{booking.seats.join(', ') || "Không có ghế"}</span>
+                <span className="bd-value">
+                  {booking.seats.join(", ") || "Không có ghế"}
+                </span>
               </div>
             </div>
 
@@ -287,11 +313,15 @@ const BookingDetail = () => {
               <h3 className="bd-section-title">Thông tin thanh toán</h3>
               <div className="bd-info-item">
                 <span className="bd-label">Tổng tiền:</span>
-                <span className="bd-value bd-price">{booking.totalPrice.toLocaleString() || "0"} VND</span>
+                <span className="bd-value bd-price">
+                  {booking.totalPrice.toLocaleString() || "0"} VND
+                </span>
               </div>
               <div className="bd-info-item">
                 <span className="bd-label">Phương thức thanh toán:</span>
-                <span className="bd-value">{booking.paymentMethod || "Không có phương thức"}</span>
+                <span className="bd-value">
+                  {booking.paymentMethod || "Không có phương thức"}
+                </span>
               </div>
             </div>
           </div>
@@ -301,12 +331,15 @@ const BookingDetail = () => {
           <button className="bd-back-btn" onClick={() => navigate(-1)}>
             Quay lại
           </button>
-          {/* <button className="bd-save-btn" onClick={exportBill}>
+          <button className="bd-save-btn" onClick={exportBill}>
             Xuất hóa đơn
-          </button> */}
+          </button>
         </div>
       </div>
-      <Footer toggleDarkMode={() => setDarkMode(!darkMode)} darkMode={darkMode} />
+      <Footer
+        toggleDarkMode={() => setDarkMode(!darkMode)}
+        darkMode={darkMode}
+      />
     </>
   );
 };

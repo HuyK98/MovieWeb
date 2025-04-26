@@ -5,6 +5,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import "../styles/FavoritesAndBookings.css";
 import axios from "axios";
+import API_URL from "../api/config"; // Đường dẫn đến tệp apiUrl.js
 
 const FavoritesAndBookings = ({
   favorites,
@@ -29,7 +30,8 @@ const FavoritesAndBookings = ({
   // Cập nhật useEffect để tính tổng số lượng thông báo
   useEffect(() => {
     // Tính tổng số lượng
-    const totalNotifications = favorites.length + userBookings.length + momoBills.length;
+    const totalNotifications =
+      favorites.length + userBookings.length + momoBills.length;
 
     // Truyền tổng số lượng lên component cha
     if (typeof updateTotalNotifications === "function") {
@@ -67,7 +69,10 @@ const FavoritesAndBookings = ({
 
     // Tính toán lại số lượng tổng
     const totalNotifications =
-      favorites.length + userBookings.length + momoBills.length - savedReadItems.length;
+      favorites.length +
+      userBookings.length +
+      momoBills.length -
+      savedReadItems.length;
 
     if (typeof updateTotalNotifications === "function") {
       updateTotalNotifications(totalNotifications);
@@ -77,7 +82,7 @@ const FavoritesAndBookings = ({
   // Lấy thông tin người dùng từ localStorage khi component được mount
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
+    // console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
 
     if (!userInfo) {
       navigate("/login");
@@ -116,15 +121,19 @@ const FavoritesAndBookings = ({
     const fetchAllBookings = async () => {
       if (currentUser) {
         try {
-          const deletedItems = JSON.parse(localStorage.getItem("deletedItems")) || [];
+          const deletedItems =
+            JSON.parse(localStorage.getItem("deletedItems")) || [];
 
           // Fetch bookings with "cash" payment method
-          const cashResponse = await axios.get("http://localhost:5000/api/bookings", {
-            params: {
-              userId: currentUser._id,
-              paymentMethod: "cash",
-            },
-          });
+          const cashResponse = await axios.get(
+            `${API_URL}/api/bookings`,
+            {
+              params: {
+                userId: currentUser._id,
+                paymentMethod: "cash",
+              },
+            }
+          );
 
           // Loại bỏ các mục đã bị xóa
           const filteredCashBookings = cashResponse.data.filter(
@@ -132,12 +141,15 @@ const FavoritesAndBookings = ({
           );
 
           // Fetch bookings with "momo" payment method
-          const momoResponse = await axios.get("http://localhost:5000/api/bookings", {
-            params: {
-              userId: currentUser._id,
-              paymentMethod: "momo",
-            },
-          });
+          const momoResponse = await axios.get(
+            `${API_URL}/api/bookings`,
+            {
+              params: {
+                userId: currentUser._id,
+                paymentMethod: "momo",
+              },
+            }
+          );
 
           // Loại bỏ các mục đã bị xóa
           const filteredMomoBookings = momoResponse.data.filter(
@@ -184,7 +196,10 @@ const FavoritesAndBookings = ({
 
     // Tính toán số lượng tổng mới
     const totalNotifications =
-      favorites.length + userBookings.length + momoBills.length - updatedReadItems.length;
+      favorites.length +
+      userBookings.length +
+      momoBills.length -
+      updatedReadItems.length;
 
     // Cập nhật tổng số lượng thông báo
     if (typeof updateTotalNotifications === "function") {
@@ -198,9 +213,15 @@ const FavoritesAndBookings = ({
     <div>
       {/* Hiển thị danh sách yêu thích và hóa đơn */}
       {showFavorites && (
-        <div className="favorites-overlay" onClick={() => setShowFavorites(false)}>
+        <div
+          className="favorites-overlay"
+          onClick={() => setShowFavorites(false)}
+        >
           <div className="favorites-list" onClick={(e) => e.stopPropagation()}>
-            <button className="close-favorites" onClick={() => setShowFavorites(false)}>
+            <button
+              className="close-favorites"
+              onClick={() => setShowFavorites(false)}
+            >
               X
             </button>
             <h2>THÔNG BÁO</h2>
@@ -211,7 +232,9 @@ const FavoritesAndBookings = ({
                 {favorites.map((movie) => (
                   <div
                     key={movie._id}
-                    className={`favorite-item ${readItems.includes(movie._id) ? "read" : ""}`}
+                    className={`favorite-item ${
+                      readItems.includes(movie._id) ? "read" : ""
+                    }`}
                   >
                     <div className="favorite-image-container">
                       <img
@@ -251,7 +274,9 @@ const FavoritesAndBookings = ({
               userBookings.map((booking, index) => (
                 <div
                   key={booking._id}
-                  className={`favorite-item ${readItems.includes(booking._id) ? "read" : ""}`}
+                  className={`favorite-item ${
+                    readItems.includes(booking._id) ? "read" : ""
+                  }`}
                 >
                   <div className="favorite-image-container">
                     <img
@@ -279,7 +304,9 @@ const FavoritesAndBookings = ({
                           </button>
                           <button
                             className="menu-item-favorite"
-                            onClick={() => handleMarkAsRead(booking._id, "cash")}
+                            onClick={() =>
+                              handleMarkAsRead(booking._id, "cash")
+                            }
                           >
                             Đánh dấu là đã đọc
                           </button>
@@ -294,10 +321,28 @@ const FavoritesAndBookings = ({
                     >
                       {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
-                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
-                    <p><strong>Phương thức:</strong> Tiền mặt</p>
-                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
+                    <p>
+                      Ngày chiếu:{" "}
+                      {booking.date
+                        ? moment(booking.date).format("DD/MM/YYYY")
+                        : "Không có ngày chiếu"}
+                    </p>
+                    <p>
+                      Ghế:{" "}
+                      {Array.isArray(booking.seats)
+                        ? booking.seats.join(", ")
+                        : "Không có thông tin ghế"}
+                    </p>
+                    <p>
+                      <strong>Phương thức:</strong> Tiền mặt
+                    </p>
+                    <p>
+                      <strong>Tổng tiền:</strong>{" "}
+                      {booking.totalPrice
+                        ? booking.totalPrice.toLocaleString()
+                        : "0"}{" "}
+                      VND
+                    </p>
                   </div>
                 </div>
               ))
@@ -310,7 +355,9 @@ const FavoritesAndBookings = ({
               momoBills.map((booking, index) => (
                 <div
                   key={booking._id}
-                  className={`favorite-item ${readItems.includes(booking._id) ? "read" : ""}`}
+                  className={`favorite-item ${
+                    readItems.includes(booking._id) ? "read" : ""
+                  }`}
                 >
                   <div className="favorite-image-container">
                     <img
@@ -338,7 +385,9 @@ const FavoritesAndBookings = ({
                           </button>
                           <button
                             className="menu-item-favorite"
-                            onClick={() => handleMarkAsRead(booking._id, "momo")}
+                            onClick={() =>
+                              handleMarkAsRead(booking._id, "momo")
+                            }
                           >
                             Đánh dấu là đã đọc
                           </button>
@@ -353,10 +402,28 @@ const FavoritesAndBookings = ({
                     >
                       {booking.movieTitle}
                     </h3>
-                    <p>Ngày chiếu: {booking.date ? moment(booking.date).format("DD/MM/YYYY") : "Không có ngày chiếu"}</p>
-                    <p>Ghế: {Array.isArray(booking.seats) ? booking.seats.join(", ") : "Không có thông tin ghế"}</p>
-                    <p><strong>Phương thức:</strong> momo</p>
-                    <p><strong>Tổng tiền:</strong> {booking.totalPrice ? booking.totalPrice.toLocaleString() : "0"} VND</p>
+                    <p>
+                      Ngày chiếu:{" "}
+                      {booking.date
+                        ? moment(booking.date).format("DD/MM/YYYY")
+                        : "Không có ngày chiếu"}
+                    </p>
+                    <p>
+                      Ghế:{" "}
+                      {Array.isArray(booking.seats)
+                        ? booking.seats.join(", ")
+                        : "Không có thông tin ghế"}
+                    </p>
+                    <p>
+                      <strong>Phương thức:</strong> momo
+                    </p>
+                    <p>
+                      <strong>Tổng tiền:</strong>{" "}
+                      {booking.totalPrice
+                        ? booking.totalPrice.toLocaleString()
+                        : "0"}{" "}
+                      VND
+                    </p>
                   </div>
                 </div>
               ))

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Chat.css';
+import API_URL from '../api/config'; // Đường dẫn API của bạn
 
 const socket = io('http://localhost:5000');
 
@@ -32,19 +33,14 @@ function Chat() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/auth/users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const filteredUsers = data.filter((user) => user.role === 'user');
-        setUsers(filteredUsers);
+        // Gọi API mới để lấy danh sách người dùng
+        const { data } = await axios.get(`${API_URL}/api/auth/users/all`);
+        setUsers(data); // Cập nhật danh sách người dùng vào state
       } catch (error) {
         console.error('Lỗi khi lấy danh sách người dùng:', error.response?.data || error.message);
       }
     };
-
+  
     fetchUsers();
   }, []);
 
@@ -69,7 +65,7 @@ function Chat() {
     setSelectedUser(user);
 
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${user._id}`);
+      const { data } = await axios.get(`${API_URL}/api/chat/messages/${user._id}`);
       setMessages((prev) => ({ ...prev, [user._id]: data }));
     } catch (error) {
       console.error('Lỗi khi lấy tin nhắn:', error.response?.data || error.message);
@@ -87,7 +83,7 @@ function Chat() {
       };
 
       try {
-        await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+        await axios.post(`${API_URL}/api/chat/messages`, newMessage);
 
         setMessages((prev) => ({
           ...prev,
@@ -108,7 +104,7 @@ function Chat() {
       formData.append('userId', selectedUser._id);
 
       try {
-        const { data } = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+        const { data } = await axios.post(`${API_URL}/api/chat/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

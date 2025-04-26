@@ -21,6 +21,7 @@ import "../styles/UserList.css";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../api/config";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -43,7 +44,7 @@ const UserList = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:5000/api/auth/users",
+          `${API_URL}/api/auth/users`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -76,7 +77,7 @@ const UserList = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:5000/api/auth/users/${editUser._id}`,
+        `${API_URL}/api/auth/users/${editUser._id}`,
         {
           name: editName,
           email: editEmail,
@@ -109,7 +110,7 @@ const UserList = () => {
         throw new Error("No token found");
       }
 
-      await axios.delete(`http://localhost:5000/api/auth/users/${userId}`, {
+      await axios.delete(`${API_URL}/api/auth/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

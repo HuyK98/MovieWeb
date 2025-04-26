@@ -22,6 +22,7 @@ import {
 } from "react-icons/md";
 import logo from "../../assets/logo.jpg";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../../api/config"; // Import API_URL từ file config
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
@@ -55,7 +56,7 @@ const MovieList = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/movies");
+        const response = await axios.get(`${API_URL}/api/movies`);
         // console.log("Movies fetched:", response.data);
         if (Array.isArray(response.data)) {
           setMovies(response.data);
@@ -89,7 +90,7 @@ const MovieList = () => {
   const handleConfirmDelete = async () => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/movies/${movieToDelete._id}`
+        `${API_URL}/api/movies/${movieToDelete._id}`
       );
       console.log("Delete response:", response.data);
       setMovies(movies.filter((movie) => movie._id !== movieToDelete._id));
@@ -123,7 +124,7 @@ const MovieList = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/movies/${editMovie._id}`,
+        `${API_URL}/api/movies/${editMovie._id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -166,7 +167,7 @@ const MovieList = () => {
   const handleAddShowtimeSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/showtimes", {
+      const response = await axios.post(`${API_URL}/api/showtimes`, {
         movieId: selectedMovieForShowtime._id,
         date: showtimeDate,
         time: showtimeTime,

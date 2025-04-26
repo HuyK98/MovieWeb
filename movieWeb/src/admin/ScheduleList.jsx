@@ -21,6 +21,7 @@ import "../styles/ScheduleList.css";
 import logo from "../assets/logo.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../api/config";
 
 const ScheduleList = () => {
   const [showtimes, setShowtimes] = useState([]);
@@ -35,7 +36,7 @@ const ScheduleList = () => {
   useEffect(() => {
     const fetchShowtimes = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/showtimes");
+        const response = await axios.get(`${API_URL}/api/showtimes`);
         setShowtimes(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy lịch chiếu:", error);
@@ -47,7 +48,7 @@ const ScheduleList = () => {
   const handleAddTime = async (showtimeId) => {
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/showtimes/${showtimeId}/time`,
+        `${API_URL}/api/showtimes/${showtimeId}/time`,
         {
           time: newTime,
           seats: 70, // Mặc định số ghế là 70
@@ -72,7 +73,7 @@ const ScheduleList = () => {
     }
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/showtimes/${showtimeId}/time/${timeId}`,
+        `${API_URL}/api/showtimes/${showtimeId}/time/${timeId}`,
         {
           time: timeToEdit,
           seats: 70, // Mặc định số ghế là 70
@@ -92,7 +93,7 @@ const ScheduleList = () => {
   const handleDeleteTime = async (showtimeId, timeId) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/showtimes/${showtimeId}/time/${timeId}`
+        `${API_URL}/api/showtimes/${showtimeId}/time/${timeId}`
       );
       alert("Giờ chiếu đã được xóa thành công!");
       setShowtimes(

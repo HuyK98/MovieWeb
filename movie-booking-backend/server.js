@@ -32,7 +32,7 @@ app.use(express.json());
 
 // Cấu hình CORS cho Express
 app.use(cors({
-  origin: "https://movieweb-5cb58.web.app", // Địa chỉ frontend
+  origin: ["https://movieweb-5cb58.web.app","http://localhost:5173"], // Địa chỉ frontend
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true,
 }));

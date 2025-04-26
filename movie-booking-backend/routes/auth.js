@@ -103,6 +103,18 @@ router.get('/users', protect, async (req, res) => {
   }
 });
 
+// Lấy danh sách người dùng không cần token
+router.get('/users/all', async (req, res) => {
+  try {
+    // Lấy tất cả người dùng có role là "user"
+    const users = await User.find({ role: 'user' }).select('-password'); // Không trả về password
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách người dùng:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+});
+
 // Chỉnh sửa người dùng
 router.put('/users/:id', protect, async (req, res) => {
   const { name, email, phone, role } = req.body;
