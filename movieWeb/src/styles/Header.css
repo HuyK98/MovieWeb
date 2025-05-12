@@ -9,8 +9,8 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  z-index: 1000;
+  width: 100%; 
+  z-index: 1000; 
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -139,7 +139,7 @@ nav button:hover::after {
   position: relative;
   cursor: pointer;
   font-size: 1.5rem;
-  color: black;
+  color: black; 
   transition: color 0.3s ease;
 }
 
@@ -148,7 +148,7 @@ nav button:hover::after {
 }
 
 .favorites-icon.active {
-  color: red;
+  color: red; 
 }
 
 .favorites-count {
@@ -162,85 +162,156 @@ nav button:hover::after {
   padding: 2px 6px;
 }
 
+
 /* Bọc phần user-menu */
 .user-menu {
-  position: relative;
-  display: inline-block;
-  margin-left: -20px;
+position: relative;
+display: inline-block;
+margin-left: -20px;
 }
 
 /* Nút Xin chào */
 .user-button {
-  background-color: transparent;
-  border: none;
-  color: rgb(16, 16, 16);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 5px;
-  margin-left: 40px;
+background-color: transparent;
+border: none;
+color: rgb(16, 16, 16);
+cursor: pointer;
+font-size: 16px;
+padding: 5px;
+margin-left: 40px;
+
 }
 
 /* Dropdown menu */
 .dropdown-menu-login {
-  display: none; /* Ẩn menu */
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: hsl(0, 10%, 94%);
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
+display: none; /* Ẩn menu */
+position: absolute;
+top: 100%;
+left: 0;
+background: hsl(0, 10%, 94%);
+box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+border-radius: 5px;
+width: 200px;
+display: flex;
+flex-direction: column;
+z-index: 1000;
 }
 
 .user-menu.active .dropdown-menu-login {
-  display: flex; /* Hiển thị menu */
+display: flex;  /* Hiển thị menu */
 }
 
 /* Các mục trong dropdown */
-.dropdown-menu-login a,
-.dropdown-menu-login button {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  text-decoration: none;
-  color: rgb(21, 20, 20);
-  border-bottom: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
+.dropdown-menu-login a, .dropdown-menu-login button {
+display: flex;
+align-items: center;
+padding: 10px;
+text-decoration: none;
+color: rgb(21, 20, 20);
+border-bottom: 1px solid #ddd;
+background: white;
+cursor: pointer;
+font-size: 14px;
 }
 
 /* Icon và chữ căn đều */
-.dropdown-menu-login a svg,
-.dropdown-menu-login button svg {
-  margin-right: 10px;
+.dropdown-menu-login a svg, .dropdown-menu-login button svg {
+margin-right: 10px;
 }
 
 /* Hiệu ứng hover */
-.dropdown-menu-login a:hover,
-.dropdown-menu-login button:hover {
-  background: hsla(0, 10%, 94%, 0.727);
+.dropdown-menu-login a:hover, .dropdown-menu-login button:hover {
+background: hsla(0, 10%, 94%, 0.727);
 }
 
 /* Định dạng nút logout */
 .logout-button {
-  width: 100%;
-  border: none;
-  background: white;
-  cursor: pointer;
-  text-align: left;
+width: 100%;
+border: none;
+background: white;
+cursor: pointer;
+text-align: left;
 }
 
 /* img lá cờ */
 .language-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
+background: none;
+border: none;
+cursor: pointer;
 }
 
 .language-toggle img {
-  height: 20px; /* Adjust flag size */
+height: 20px; /* Adjust flag size */
+}
+
+/* Hamburger menu */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Responsive cho tablet và mobile */
+@media (max-width: 768px) {
+  /* Hamburger menu hiển thị */
+  .hamburger {
+    display: block;
+  }
+
+  /* Ẩn menu điều hướng mặc định */
+  nav ul {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 100%;
+    padding: 10px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  /* Hiển thị menu khi mở */
+  nav.menu-open ul {
+    display: flex;
+  }
+
+  nav ul li {
+    padding: 10px 20px;
+    text-align: left;
+  }
+
+  /* Logo */
+  .logo {
+    height: 40px;
+  }
+
+  /* Thanh tìm kiếm */
+  .search-bar {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .search-bar input {
+    width: 100%;
+  }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 576px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .favorites-icon {
+    font-size: 18px;
+  }
+
+  .language-toggle img {
+    height: 20px;
+  }
 }

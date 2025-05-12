@@ -23,11 +23,12 @@
 .movie-item {
   flex: 1 1 calc(20.333% - 20px); /* Adjust the width and gap as needed */
   box-sizing: border-box;
-  display: flex;
   flex-direction: column;
   padding: 0px;
-  background-color: #fff;
+  height: 550px; /* Đặt chiều cao cố định */
+  overflow: hidden; /* Ẩn nội dung vượt quá chiều cao */
 }
+
 .movie-image-container{
   max-width: 100%;
   height: auto;

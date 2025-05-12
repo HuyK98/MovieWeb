@@ -59,6 +59,9 @@ body.dark-mode {
   margin-top: 100px;
 }
 
+.home-container{
+  background-color: white;
+}
 /* Poster section */
 .poster-container {
   position: relative;
@@ -180,14 +183,16 @@ body.dark-mode {
 
 .movie-item {
   display: flex;
-  flex-direction: row; 
-  align-items: center;
-  justify-content: space-between; 
-  height: 90%;
-  width: 90%;
+  flex-direction: column; /* Sắp xếp các phần tử theo cột */
+  align-items: flex-start; /* Căn chỉnh tất cả phần tử về bên trái */
+  justify-content: flex-start;
+  padding: 15px; /* Thêm padding để tạo khoảng cách bên trong */
+  box-sizing: border-box; /* Đảm bảo padding không ảnh hưởng đến kích thước */
   background-color: white;
   border: none;
   border-radius: 0%;
+  width: 90%; /* Đảm bảo thẻ chiếm toàn bộ chiều rộng */
+  margin: 30px 0;
 }
 
 
@@ -260,39 +265,50 @@ body.dark-mode {
 
 /* Nội dung phim */
 .movie-item h3 {
-  margin-top: 5px;
+  margin: 10px 0; /* Loại bỏ margin-left và căn chỉnh đều */
   font-size: 1.1rem;
+  color: hsl(204, 88%, 42%);
+  text-align: left; /* Căn chỉnh văn bản về bên trái */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  justify-content: left;
-  color: hsl(204, 88%, 42%);
 }
 
 .movie-item p {
-  margin: 3px;
+  margin: 3px 0; /* Loại bỏ margin-left và căn chỉnh đều */
   font-size: 0.9rem;
-  color: black;
+  color: #2d2d2d; /* Màu chữ thường */
+  text-align: left; /* Căn chỉnh văn bản về bên trái */
 }
-.movie-title{
-  padding: 5 20px;
-  text-align: left;
-  margin-left: -100px;
+
+.movie-title p span {
+  font-weight: bold; /* In đậm nhãn */
+  color: #000; /* Màu chữ đậm cho nhãn */
+}
+
+.movie-title p .value {
+  font-weight: normal; /* Chữ thường cho nội dung */
+  color: #2d2d2d; /* Màu chữ thường */
+}
+
+.movie-title {
+  padding: 0; /* Loại bỏ padding không cần thiết */
+  text-align: left; /* Căn chỉnh văn bản về bên trái */
+  margin: 0; /* Loại bỏ margin-left */
 }
 
 /* Nút mua vé */
 .card-button {
-  margin: auto 15px 15px;
+  margin: auto 0px 15px;
   background-color: hsl(204, 88%, 42%);
   color: white;
   border: none;
-  padding: 5px 130px;
+  padding: 10px 130px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s ease;
-  margin-top: -5px; /* Đẩy nút xuống dưới cùng */
-  margin-bottom: 5px;
+  white-space: nowrap; /* Ngăn nội dung xuống dòng */
 }
 
 .card-button:hover {
@@ -300,7 +316,7 @@ body.dark-mode {
 }
 
 /* Animation classes */
-.animated-section {
+/* .animated-section {
   opacity: 0;
   transition: opacity 0.8s ease, transform 0.8s ease;
   will-change: opacity, transform;
@@ -309,6 +325,17 @@ body.dark-mode {
 .animated-section.visible {
   opacity: 1 !important;
   transform: translate(0, 0) !important;
+} */
+
+.animated-section {
+  opacity: 1; /* Hiển thị mặc định */
+  transform: translate(0, 0); /* Không dịch chuyển mặc định */
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.animated-section:not(.visible) {
+  opacity: 0; /* Ẩn nếu không visible */
+  transform: translateY(50px); /* Dịch chuyển xuống */
 }
 
 .movie-tabs {
@@ -335,3 +362,177 @@ body.dark-mode {
 .movie-tabs button:hover {
   color: #007bff;
 }
+
+
+/* Responsive cho tablet và mobile */
+@media (max-width: 768px) {
+  /* Điều chỉnh lưới phim */
+  .movies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
+    gap: 20px; /* Khoảng cách giữa các ô */
+    margin: 20px 20px; /* Lề hai bên gọn hơn */
+  }
+
+  /* Điều chỉnh thẻ phim */
+  .movie-item {
+    width: 100%; /* Chiếm full chiều rộng cột */
+    background-color: #fff; /* Nền trắng */
+    border-radius: 8px; /* Bo góc nhẹ */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* Bóng nhẹ */
+    overflow: hidden; /* Không bị tràn */
+  }
+
+  .card-button:hover {
+    background-color: hsl(204, 88%, 32%);
+  }
+
+  /* Tiêu đề phim */
+  .movie-title {
+    padding: 10px;
+  }
+
+  .movie-title h3 {
+    font-size: 1rem; /* Tiêu đề vừa đẹp */
+    margin-bottom: 5px;
+    color: hsl(204, 88%, 42%);
+  }
+
+  .movie-title p {
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+    color: #555;
+  }
+}
+
+
+/* Responsive cho mobile */
+@media (max-width: 576px) {
+  /* Điều chỉnh lưới phim */
+  .movies-grid {
+    grid-template-columns: 1fr; /* 1 cột trên mobile */
+    gap: 15px; /* Tăng khoảng cách giữa các thẻ */
+  }
+
+  /* Điều chỉnh thẻ phim */
+  .movie-item {
+    padding: 10px; /* Giảm padding bên trong */
+  }
+
+
+  /* Tiêu đề phim */
+  .movie-title h3 {
+    font-size: 0.9rem; /* Giảm kích thước chữ tiêu đề */
+  }
+
+  .movie-title p {
+    font-size: 0.7rem; /* Giảm kích thước chữ mô tả */
+  }
+}
+
+/* Responsive cho Samsung Galaxy S8 (360px x 740px) */
+@media (max-width: 360px) {
+  /* Poster trên cùng */
+  .poster-container {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+  }
+
+  .poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Dưới poster: danh sách phim */
+  .movies-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+    margin-top: 10px;
+  }
+
+  .movie-tabs .active{
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  /* Card phim */
+  .movie-item {
+    display: flex;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: -300px;
+  }
+
+  /* Ảnh phim */
+  .movie-image-container {
+    flex-shrink: 0;
+    width: 170px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 5px;
+    margin-left: -135px;
+    margin-right: 20px;
+  }
+
+  .movie-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Nội dung phim */
+  .movie-title {
+    flex-grow: 1;
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    margin-top: -270px;
+    margin-right: -180px;
+  }
+
+  .movie-title h3 {
+    font-size: 14px;
+    color: hsl(204, 88%, 42%);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .movie-title p {
+    font-size: 12px;
+    color: #555;
+    margin: 2px 0;
+  }
+
+  .movie-title p span {
+    font-weight: bold;
+    color: #000;
+  }
+
+  /* Button Mua Vé */
+  .card-button {
+    align-self: flex-start;
+    background-color: hsl(204, 88%, 42%);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 500px;
+    margin-left: 170px;
+    padding: 10px 35px;
+
+  }
+
+  .card-button:hover {
+    background-color: hsl(204, 88%, 32%);
+  }
+}
+

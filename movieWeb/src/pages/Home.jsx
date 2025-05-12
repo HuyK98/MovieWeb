@@ -39,10 +39,19 @@ const useIntersectionObserver = (options = {}) => {
       observer.observe(ref.current);
     }
 
+    const handleResize = () => {
+      if (ref.current) {
+        observer.observe(ref.current); // Quan sát lại khi thay đổi kích thước
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
       if (ref.current) {
         observer.unobserve(ref.current);
       }
+      window.removeEventListener("resize", handleResize);
     };
   }, [options]);
 
@@ -67,15 +76,16 @@ const AnimatedSection = ({
       className={`animated-section ${animation} ${isVisible ? "visible" : ""}`}
       style={{
         transitionDelay: `${delay}ms`,
-        opacity: 0,
-        transform:
-          animation === "fade-up"
-            ? "translateY(50px)"
-            : animation === "fade-left"
-            ? "translateX(-50px)"
-            : animation === "fade-right"
-            ? "translateX(50px)"
-            : "translateY(50px)",
+        opacity: isVisible ? 1 : 0, // Hiển thị nếu visible
+        transform: isVisible
+          ? "translate(0, 0)"
+          : animation === "fade-up"
+          ? "translateY(50px)"
+          : animation === "fade-left"
+          ? "translateX(-50px)"
+          : animation === "fade-right"
+          ? "translateX(50px)"
+          : "translateY(50px)",
       }}
     >
       {children}
@@ -385,7 +395,7 @@ const Home = () => {
       try {
         const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
-        console.log("Data from API:", data); // Log dữ liệu trả về từ API
+        // console.log("Data from API:", data); // Log dữ liệu trả về từ API
 
         if (Array.isArray(data)) {
           const nowShowing = data.filter(
@@ -656,13 +666,19 @@ const Home = () => {
                               >
                                 {movie.title}
                               </h3>
-                              <p>Thể Loại: {movie.genre}</p>
-                              <p>Thời Lượng: {movie.description}</p>
                               <p>
-                                Ngày phát hành:{" "}
-                                {new Date(
-                                  movie.releaseDate
-                                ).toLocaleDateString()}
+                                <span>Thể Loại: </span>
+                                <span className="value">{movie.genre}</span>
+                              </p>
+                              <p>
+                                <span>Thời Lượng: </span>
+                                <span className="value">{movie.description}</span>
+                              </p>
+                              <p>
+                                <span>Ngày phát hành: </span>
+                                <span className="value">
+                                  {new Date(movie.releaseDate).toLocaleDateString()}
+                                </span>
                               </p>
                             </div>
                             <button

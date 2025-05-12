@@ -2,7 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import API_URL from "../api/config"; // Đường dẫn đến API_URL
 
-const WebSocketContext = createContext();
+const WebSocketContext = createContext({
+  socket: null,
+  notifications: [],
+  unreadCount: 0,
+  setNotifications: () => {},
+  setUnreadCount: () => {},
+});
 
 export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -26,16 +32,28 @@ export const WebSocketProvider = ({ children }) => {
       setUnreadCount((prevCount) => prevCount + 1);
     });
 
-    newSocket.on("disconnect", () => {
-      console.warn("Socket.IO disconnected");
+    newSocket.on("disconnect", (reason) => {
+      console.warn("Socket.IO disconnected:", reason);
+      if (reason === "io server disconnect") {
+        // Kết nối lại nếu server ngắt kết nối
+        newSocket.connect();
+      }
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket.IO connection error:", error);
     });
 
     setSocket(newSocket);
 
     return () => {
+      newSocket.off("connect");
+      newSocket.off("receiveNotification");
+      newSocket.off("disconnect");
+      newSocket.off("connect_error");
       newSocket.disconnect();
     };
-  }, []);
+  }, [API_URL]);
 
   return (
     <WebSocketContext.Provider value={{ socket, notifications, unreadCount, setNotifications, setUnreadCount }}>

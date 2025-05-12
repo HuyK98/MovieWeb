@@ -7,7 +7,7 @@ import Footer from "../layout/Footer";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { FaGooglePlusG } from "react-icons/fa";
 import { useLanguage } from "../pages/LanguageContext"; // Import context
-import API_URL from "../api/config";
+import API_URL from "../api/config"; // Import API_URL từ config
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -194,6 +194,7 @@ const Login = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  console.log("API_URL:", API_URL);
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>

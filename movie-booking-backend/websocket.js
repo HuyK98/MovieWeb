@@ -10,7 +10,7 @@ let io; // Biến toàn cục để lưu thể hiện io
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: 'http://localhost:5173',
+      origin: ["http://localhost:5173", "https://movie-web-ace9f.web.app"],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       credentials: true,
     },

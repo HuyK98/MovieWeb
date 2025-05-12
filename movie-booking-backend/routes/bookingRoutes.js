@@ -30,6 +30,7 @@ router.get("/", async (req, res) => {
 router.get("/booking/:id", async (req, res) => {
   try {
     const bookingId = req.params.id;
+    console.log("API CALLED - Booking ID:", bookingId);
 
     // Kiểm tra dữ liệu trong Redis cache
     client.get(`booking:${bookingId}`, async (err, cachedData) => {
@@ -54,7 +55,7 @@ router.get("/booking/:id", async (req, res) => {
       // Lưu dữ liệu vào Redis cache
       client.setEx(
         `booking:${bookingId}`,
-        3600,
+        3600, // Cache trong 1 giờ
         JSON.stringify(booking),
         (err) => {
           if (err) {
@@ -110,15 +111,21 @@ router.patch("/update-image-urls", async (req, res) => {
   }
 });
 
+
 // API để lấy danh sách thông báo booking mới nhất thông báo về Admin
 router.get("/notifications", async (req, res) => {
   try {
     // Kiểm tra dữ liệu trong Redis cache
+    const startTime = Date.now(); // Đo thời gian xử lý
     client.get("notifications", async (err, cachedData) => {
       if (err) {
         console.error("❌ Error getting notifications from Redis:", err);
-      } else if (cachedData) {
-        console.log("✅ Notifications from Redis cache:", cachedData);
+        return res.status(500).json({ message: "Error fetching notifications from Redis" });
+      }
+
+      if (cachedData) {
+        console.log("✅ Notifications from Redis cache");
+        console.log(`⏱️ Redis fetch time: ${Date.now() - startTime}ms`);
         return res.status(200).json(JSON.parse(cachedData));
       }
 
@@ -126,13 +133,14 @@ router.get("/notifications", async (req, res) => {
       const notifications = await Booking.find({ isRead: false })
         .sort({ createdAt: -1 })
         .limit(10)
-        .populate("user", "name")
-        .populate("movie", "title");
+        .select("user movie createdAt") // Chỉ lấy các trường cần thiết
+        .populate("user", "name") // Populate trường "name" từ user
+        .populate("movie", "title"); // Populate trường "title" từ movie
 
       // Lưu dữ liệu vào Redis cache
       client.setEx(
         "notifications",
-        3600,
+        3600, // Cache trong 1 giờ
         JSON.stringify(notifications),
         (err) => {
           if (err) {
@@ -143,26 +151,38 @@ router.get("/notifications", async (req, res) => {
         }
       );
 
+      console.log(`⏱️ MongoDB fetch time: ${Date.now() - startTime}ms`);
       res.status(200).json(notifications);
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách thông báo:", error);
-    res
-      .status(500)
-      .json({ message: "Lỗi khi lấy danh sách thông báo.", error });
+    res.status(500).json({ message: "Lỗi khi lấy danh sách thông báo.", error });
   }
 });
 
 // Khi admin click vào một thông báo, cập nhật trạng thái isRead
+// router.put("/notifications/:id/read", async (req, res) => {
+//   try {
+//     const notification = await Booking.findById(req.params.id);
+//     if (!notification) {
+//       return res.status(404).json({ message: "Notification not found" });
+//     }
+
+//     notification.isRead = true; // Đánh dấu thông báo đã đọc
+//     await notification.save();
+
+//     res.status(200).json({ message: "Notification marked as read" });
+//   } catch (error) {
+//     console.error("Error marking notification as read:", error);
+//     res.status(500).json({ message: "Error marking notification as read" });
+//   }
+// });
 router.put("/notifications/:id/read", async (req, res) => {
   try {
-    const notification = await Booking.findById(req.params.id);
-    if (!notification) {
-      return res.status(404).json({ message: "Notification not found" });
-    }
+    const notificationId = req.params.id;
 
-    notification.isRead = true; // Đánh dấu thông báo đã đọc
-    await notification.save();
+    // Cập nhật trạng thái isRead mà không cần trả về toàn bộ thông báo
+    await Notification.updateOne({ _id: notificationId }, { isRead: true });
 
     res.status(200).json({ message: "Notification marked as read" });
   } catch (error) {

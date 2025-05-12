@@ -14,14 +14,17 @@ client.on('error', (err) => {
   console.error('❌ Redis Client Error:', err);
 });
 
-(async () => {
-  try {
-    await client.connect();
-    console.log('✅ Redis client connected');
-  } catch (error) {
-    console.error('❌ Redis connection error:', error);
-  }
-})();
+// Kết nối Redis chỉ một lần
+if (!client.isOpen) {
+  (async () => {
+    try {
+      await client.connect();
+      console.log('✅ Redis client connected');
+    } catch (error) {
+      console.error('❌ Redis connection error:', error);
+    }
+  })();
+}
 
 module.exports = client;
 

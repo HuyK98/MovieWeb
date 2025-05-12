@@ -24,8 +24,8 @@ const BookingDetail = () => {
     const fetchBookingAndMovie = async () => {
       try {
         setLoading(true); // Bắt đầu tải
+
         // Fetch booking data
-        console.log("Fetching booking for ID:", bookingId);
         const bookingResponse = await fetch(
           `${API_URL}/api/bookings/booking/${bookingId}`
         );
@@ -33,7 +33,6 @@ const BookingDetail = () => {
           throw new Error(`HTTP error! status: ${bookingResponse.status}`);
         }
         const bookingData = await bookingResponse.json();
-        console.log("Booking data:", bookingData);
 
         // Fetch movies data
         const moviesResponse = await fetch(`${API_URL}/api/movies`);
@@ -41,22 +40,37 @@ const BookingDetail = () => {
           throw new Error(`HTTP error! status: ${moviesResponse.status}`);
         }
         const moviesData = await moviesResponse.json();
-        console.log("Movies data:", moviesData);
 
         // Tìm phim khớp với movieTitle trong booking
         const movie = moviesData.find(
           (m) => m.title === bookingData.movieTitle
         );
+        let updatedBooking = bookingData;
+
         if (movie) {
-          setBooking({
+          updatedBooking = {
             ...bookingData,
             movie: {
               ...movie,
             },
-          });
-        } else {
-          setBooking(bookingData); // Nếu không tìm thấy phim, chỉ set dữ liệu booking
+          };
         }
+
+        // Convert image URL to Base64
+        if (updatedBooking.movie?.imageUrl) {
+          const base64 = await convertImageToBase64(
+            updatedBooking.movie.imageUrl
+          );
+          updatedBooking = {
+            ...updatedBooking,
+            movie: {
+              ...updatedBooking.movie,
+              base64Image: base64, // Thêm Base64 image vào booking
+            },
+          };
+        }
+
+        setBooking(updatedBooking); // Cập nhật booking với Base64 image
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu:", error);
       } finally {
@@ -122,7 +136,7 @@ const BookingDetail = () => {
       },
     };
 
-    console.log("Dữ liệu hóa đơn gửi đến API:", billData);
+    // console.log("Dữ liệu hóa đơn gửi đến API:", billData);
     try {
       const response = await fetch(`${API_URL}/api/bills/create`, {
         method: "POST",
@@ -154,7 +168,6 @@ const BookingDetail = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message); // Log kết quả
       } else {
         console.error("Lỗi khi cập nhật imageUrl:", response.statusText);
       }
@@ -252,7 +265,7 @@ const BookingDetail = () => {
           <div className="bd-movie-section">
             <div className="bd-movie-poster">
               <img
-                src={booking?.imageUrl}
+                src={booking?.movie?.base64Image || booking?.movie?.imageUrl}
                 alt={booking?.movie?.title || "Không có tiêu đề"}
                 className="bd-poster-img"
               />

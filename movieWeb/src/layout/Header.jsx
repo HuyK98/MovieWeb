@@ -12,6 +12,8 @@ import {
   faMapMarkerAlt,
   faGift,
   faSignOutAlt,
+  faBars,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import vietnamFlag from "../assets/poster/Vietnam.jpg";
 import englandFlag from "../assets/poster/england-flag.png";
@@ -30,6 +32,12 @@ const Header = ({
   const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Trạng thái hiển thị menu
   const dropdownRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Trạng thái menu hamburger
+
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen); // Toggle menu hamburger
+  };
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -84,7 +92,13 @@ const Header = ({
       <Link to="/">
         <img src={logo} alt="Logo" className="logo" />
       </Link>
-      <nav>
+
+      {/* Hamburger menu */}
+      <button className="hamburger" onClick={toggleMenu}>
+          <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} />
+      </button>
+
+      <nav className={isMenuOpen ? "menu-open" : ""}>
         <ul>
           <li>
             <Link to="/showtimes">{texts[language].showtimes}</Link>
@@ -123,9 +137,9 @@ const Header = ({
         />
       </button>
 
+      {/* Biểu tượng yêu thích */}
       <div className="favorites-icon" onClick={toggleFavorites}>
         <FontAwesomeIcon icon={faBell} />
-
         {totalNotifications > 0 && (
           <span className="favorites-count">{totalNotifications}</span>
         )}

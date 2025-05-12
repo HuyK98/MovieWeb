@@ -10,6 +10,8 @@ import {
   LineElement,
   Title,
   Legend,
+  LineController,
+  BarController,
 } from "chart.js";
 import "../styles/Revenue.css";
 import { Link } from "react-router-dom";
@@ -41,7 +43,9 @@ Chart.register(
   LineElement,
   PointElement,
   Title,
-  Legend
+  Legend,
+  LineController,
+  BarController
 );
 import API_URL from "../api/config"; // Import API_URL từ file config.js
 

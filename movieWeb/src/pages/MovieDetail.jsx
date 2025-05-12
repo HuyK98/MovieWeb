@@ -24,6 +24,11 @@ const MovieDetail = () => {
   const { language, toggleLanguage } = useLanguage(); // Lấy ngôn ngữ từ context
 
   useEffect(() => {
+    // Đặt thanh cuộn về đầu trang khi vào trang
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const fetchSeats = async () => {
       try {
         if (
