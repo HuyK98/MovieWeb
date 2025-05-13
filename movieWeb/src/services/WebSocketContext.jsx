@@ -2,64 +2,39 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import API_URL from "../api/config"; // Đường dẫn đến API_URL
 
-const WebSocketContext = createContext({
-  socket: null,
-  notifications: [],
-  unreadCount: 0,
-  setNotifications: () => {},
-  setUnreadCount: () => {},
-});
+const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    const newSocket = io(`${API_URL}`, {
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+    const socketInstance = io(`${API_URL}`, {
+      transports: ["websocket"], // Sử dụng WebSocket thay vì polling
+      timeout: 10000, // Tăng thời gian timeout nếu cần
     });
 
-    newSocket.on("connect", () => {
-      console.log("Socket.IO connected:", newSocket.id);
+    socketInstance.on("connect", () => {
+      console.log("✅ WebSocket connected");
     });
 
-    newSocket.on("receiveNotification", (newNotification) => {
-      console.log("New notification received:", newNotification);
-      setNotifications((prevNotifications) => [newNotification, ...prevNotifications].slice(0, 10));
-      setUnreadCount((prevCount) => prevCount + 1);
+    socketInstance.on("connect_error", (error) => {
+      console.error("❌ WebSocket connection error:", error);
     });
 
-    newSocket.on("disconnect", (reason) => {
-      console.warn("Socket.IO disconnected:", reason);
-      if (reason === "io server disconnect") {
-        // Kết nối lại nếu server ngắt kết nối
-        newSocket.connect();
-      }
-    });
-
-    newSocket.on("connect_error", (error) => {
-      console.error("Socket.IO connection error:", error);
-    });
-
-    setSocket(newSocket);
+    setSocket(socketInstance);
 
     return () => {
-      newSocket.off("connect");
-      newSocket.off("receiveNotification");
-      newSocket.off("disconnect");
-      newSocket.off("connect_error");
-      newSocket.disconnect();
+      socketInstance.disconnect();
     };
-  }, [API_URL]);
+  }, []);
 
   return (
-    <WebSocketContext.Provider value={{ socket, notifications, unreadCount, setNotifications, setUnreadCount }}>
+    <WebSocketContext.Provider value={{ socket }}>
       {children}
     </WebSocketContext.Provider>
   );
 };
 
-export const useWebSocket = () => useContext(WebSocketContext);
+export const useWebSocket = () => {
+  return useContext(WebSocketContext);
+};

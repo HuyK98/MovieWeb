@@ -10,7 +10,7 @@ const movieRoutes = require("./routes/movieRoutes");
 const showtimesRoutes = require('./routes/showtimes');
 const paymentRoutes = require('./routes/payment');
 const billRoutes = require('./routes/billRoutes'); 
-const bookingRoutes = require('./routes/bookingRoutes1');
+const bookingRoutes = require('./routes/bookingRoutes');
 const userRoutes = require('./routes/userRoutes');
 // require('./websocket'); // Khởi động WebSocket server 
 // Create a WebSocket server on port 8080

@@ -36,7 +36,7 @@ const AdminProvider = ({ children, API_URL, socket }) => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/bookings/notifications`);
-        console.log("Notifications API response:", response.data); // Log dữ liệu trả về
+        // console.log("Notifications API response:", response.data); // Log dữ liệu trả về
         const notifications = Array.isArray(response.data) ? response.data : response.data.data; // Kiểm tra nếu là mảng
         if (Array.isArray(notifications)) {
           setNotifications(notifications);

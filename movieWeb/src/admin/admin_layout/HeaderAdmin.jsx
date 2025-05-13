@@ -1,39 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import NotificationPopup from "../components/NotificationPopup";
 import MessagesIcon from "../components/MessagesIcon";
 import ProfileDropdown from "../components/ProfileDropdown";
 import "../../styles/HeaderAdmin.css";
-import API_URL from "../../api/config";
-import axios from "axios";
+import { AdminContext } from "../../services/AdminContext";
 
 const HeaderAdmin = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userInfo = localStorage.getItem("userInfo")
-          ? JSON.parse(localStorage.getItem("userInfo"))
-          : null;
-
-        if (!userInfo || !userInfo.token) {
-          throw new Error("No token found");
-        }
-
-        const response = await axios.get(`${API_URL}/api/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        });
-
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { user } = useContext(AdminContext); // Lấy thông tin người dùng từ AdminContext
 
   return (
     <header className="header-admin">
@@ -41,9 +14,9 @@ const HeaderAdmin = () => {
         <h1>Admin Dashboard</h1>
       </div>
       <div className="header-right">
-        <NotificationPopup API_URL={API_URL} />
+        <NotificationPopup />
         <MessagesIcon />
-        <ProfileDropdown user={user} API_URL={API_URL} />
+        <ProfileDropdown user={user} />
       </div>
     </header>
   );

@@ -4,6 +4,7 @@ const Booking = require("../models/Booking");
 const Movie = require("../models/Movie");
 const { sendNotification, clients } = require("../websocket");
 const client = require("../utils/redisClient");
+const { verifyToken } = require("../middleware/verifyToken");
 // API để lấy danh sách bookings và thông tin từ bảng Bill
 router.get("/", async (req, res) => {
   try {
@@ -30,7 +31,7 @@ router.get("/", async (req, res) => {
 router.get("/booking/:id", async (req, res) => {
   try {
     const bookingId = req.params.id;
-    console.log("API CALLED - Booking ID:", bookingId);
+    // console.log("API CALLED - Booking ID:", bookingId);
 
     // Kiểm tra dữ liệu trong Redis cache
     client.get(`booking:${bookingId}`, async (err, cachedData) => {
@@ -113,7 +114,7 @@ router.patch("/update-image-urls", async (req, res) => {
 
 
 // API để lấy danh sách thông báo booking mới nhất thông báo về Admin
-router.get("/notifications", async (req, res) => {
+router.get("/notifications", verifyToken,  async (req, res) => {
   try {
     // Kiểm tra dữ liệu trong Redis cache
     const startTime = Date.now(); // Đo thời gian xử lý
@@ -160,29 +161,26 @@ router.get("/notifications", async (req, res) => {
   }
 });
 
+
 // Khi admin click vào một thông báo, cập nhật trạng thái isRead
-// router.put("/notifications/:id/read", async (req, res) => {
-//   try {
-//     const notification = await Booking.findById(req.params.id);
-//     if (!notification) {
-//       return res.status(404).json({ message: "Notification not found" });
-//     }
-
-//     notification.isRead = true; // Đánh dấu thông báo đã đọc
-//     await notification.save();
-
-//     res.status(200).json({ message: "Notification marked as read" });
-//   } catch (error) {
-//     console.error("Error marking notification as read:", error);
-//     res.status(500).json({ message: "Error marking notification as read" });
-//   }
-// });
 router.put("/notifications/:id/read", async (req, res) => {
   try {
-    const notificationId = req.params.id;
+    const notification = await Booking.findById(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
 
-    // Cập nhật trạng thái isRead mà không cần trả về toàn bộ thông báo
-    await Notification.updateOne({ _id: notificationId }, { isRead: true });
+    notification.isRead = true;
+    await notification.save();
+
+    // Xóa cache notifications
+    client.del("notifications", (err) => {
+      if (err) {
+        console.error("❌ Error deleting notifications cache:", err);
+      } else {
+        console.log("✅ Notifications cache deleted");
+      }
+    });
 
     res.status(200).json({ message: "Notification marked as read" });
   } catch (error) {
@@ -190,6 +188,7 @@ router.put("/notifications/:id/read", async (req, res) => {
     res.status(500).json({ message: "Error marking notification as read" });
   }
 });
+
 
 // Khi tạo thông báo mới (ví dụ: khi có booking mới)
 router.post("/create-booking", async (req, res) => {

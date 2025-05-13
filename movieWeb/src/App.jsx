@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
+import HeaderAdmin from "./admin/admin_layout/HeaderAdmin";
 import AddMovies from "./admin/movies/AddMovies";
 import MovieList from "./admin/movies/MovieList";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -40,16 +41,6 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          {/* <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/movies" element={<MovieList />} />
-          <Route path="/admin/add-movie" element={<AddMovies />} />
-          <Route path="/admin/schedules" element={<ScheduleList />} />
-          <Route path="/admin/users" element={<UserList />} />
-          <Route path="/admin/revenue" element={<Revenue />} />
-          <Route path="/admin/booking-detail/:bookingId" element={<BookingDetailAdmin />} />
-          <Route path="/admin/chat" element={<Chat />} />
-          <Route path="/admin/bills" element={<BillsManage />} />
-          <Route path="/admin/genres" element={<ManageGenres />} /> */}
           <Route path="/movie-detail" element={<MovieDetail />} />
           <Route path="/payment" element={<PaymentInfo />} />
           <Route path="/movielist" element={<ListMovie />} />
@@ -70,7 +61,8 @@ const App = () => {
         </Routes>
 
         {/* giao diện cho admin */}
-        <AdminProvider>
+        <AdminProvider API_URL={API_URL}>
+          {/* <HeaderAdmin API_URL={API_URL}/> */}
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/movies" element={<MovieList />} />
@@ -78,10 +70,7 @@ const App = () => {
             <Route path="/admin/schedules" element={<ScheduleList />} />
             <Route path="/admin/users" element={<UserList />} />
             <Route path="/admin/revenue" element={<Revenue />} />
-            <Route
-              path="/admin/booking-detail/:bookingId"
-              element={<BookingDetailAdmin />}
-            />
+            <Route path="/admin/booking-detail/:bookingId" element={<BookingDetailAdmin />} />
             <Route path="/admin/chat" element={<Chat />} />
             <Route path="/admin/bills" element={<BillsManage />} />
             <Route path="/admin/genres" element={<ManageGenres />} />

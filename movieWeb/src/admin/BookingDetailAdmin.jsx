@@ -33,6 +33,7 @@ const BookingDetail = () => {
           throw new Error(`HTTP error! status: ${bookingResponse.status}`);
         }
         const bookingData = await bookingResponse.json();
+        // console.log("Booking data:", bookingData);
 
         // Fetch movies data
         const moviesResponse = await fetch(`${API_URL}/api/movies`);
@@ -73,6 +74,7 @@ const BookingDetail = () => {
         setBooking(updatedBooking); // Cập nhật booking với Base64 image
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu:", error);
+        alert("Không thể tải dữ liệu booking. Vui lòng thử lại sau.");
       } finally {
         setLoading(false); // Kết thúc tải
       }

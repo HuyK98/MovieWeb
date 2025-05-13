@@ -194,7 +194,6 @@ const Login = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  console.log("API_URL:", API_URL);
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
