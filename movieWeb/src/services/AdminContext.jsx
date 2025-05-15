@@ -35,12 +35,33 @@ const AdminProvider = ({ children, API_URL, socket }) => {
     // Fetch notifications
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/bookings/notifications`);
-        // console.log("Notifications API response:", response.data); // Log dữ liệu trả về
-        const notifications = Array.isArray(response.data) ? response.data : response.data.data; // Kiểm tra nếu là mảng
+        const userInfo = localStorage.getItem("userInfo")
+          ? JSON.parse(localStorage.getItem("userInfo"))
+          : null;
+
+        if (!userInfo || !userInfo.token) {
+          return;
+        }
+
+        const response = await axios.get(`${API_URL}/api/bookings/notifications`, {
+          headers: {
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        });
+        const notifications = Array.isArray(response.data)
+          ? response.data
+          : response.data.data;
+        // console.log("Notifications:", notifications);
         if (Array.isArray(notifications)) {
           setNotifications(notifications);
-          setUnreadCount(notifications.filter((n) => !n.isRead).length);
+          setUnreadCount(notifications.filter((n) => !n.isRead).length); // Đếm số thông báo chưa đọc
+
+          // Lưu vào localStorage
+          localStorage.setItem("notifications", JSON.stringify(notifications));
+          localStorage.setItem(
+            "unreadCount",
+            notifications.filter((n) => !n.isRead).length
+          );
         } else {
           console.error("Notifications API did not return an array:", response.data);
         }
@@ -48,6 +69,17 @@ const AdminProvider = ({ children, API_URL, socket }) => {
         console.error("Error fetching notifications:", error);
       }
     };
+
+    // Khôi phục trạng thái từ localStorage
+    const savedNotifications = localStorage.getItem("notifications");
+    const savedUnreadCount = localStorage.getItem("unreadCount");
+
+    if (savedNotifications && savedUnreadCount) {
+      setNotifications(JSON.parse(savedNotifications));
+      setUnreadCount(parseInt(savedUnreadCount, 10));
+    } else {
+      fetchNotifications();
+    }
 
     fetchUser();
     fetchNotifications();
@@ -58,7 +90,7 @@ const AdminProvider = ({ children, API_URL, socket }) => {
         setNotifications((prev) => [newNotification, ...prev].slice(0, 10));
         setUnreadCount((prev) => prev + 1);
       });
-    }
+    } 
 
     return () => {
       if (socket) {

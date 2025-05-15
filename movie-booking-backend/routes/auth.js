@@ -71,7 +71,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Lấy thông tin người dùng hiện tại and Cập nhật thông tin người dùng hiện tại
+// Lấy thông tin người dùng hiện tại and Cập nhật thông tin người dùng hiện tại (admin)
 router.get('/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);

@@ -74,7 +74,6 @@ const BookingDetail = () => {
         setBooking(updatedBooking); // Cập nhật booking với Base64 image
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu:", error);
-        alert("Không thể tải dữ liệu booking. Vui lòng thử lại sau.");
       } finally {
         setLoading(false); // Kết thúc tải
       }
@@ -159,27 +158,27 @@ const BookingDetail = () => {
     }
   };
 
-  const updateAllImageUrls = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/bookings/update-image-urls`,
-        {
-          method: "PATCH",
-        }
-      );
+  // const updateAllImageUrls = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${API_URL}/api/bookings/update-image-urls`,
+  //       {
+  //         method: "PATCH",
+  //       }
+  //     );
 
-      if (response.ok) {
-        const data = await response.json();
-      } else {
-        console.error("Lỗi khi cập nhật imageUrl:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Lỗi khi gọi API cập nhật imageUrl:", error);
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //     } else {
+  //       console.error("Lỗi khi cập nhật imageUrl:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi khi gọi API cập nhật imageUrl:", error);
+  //   }
+  // };
 
-  // Gọi hàm để cập nhật tất cả imageUrl
-  updateAllImageUrls();
+  // // Gọi hàm để cập nhật tất cả imageUrl
+  // updateAllImageUrls();
 
   // Generate QR Code
   const generateQRCode = async (billData) => {

@@ -23,7 +23,7 @@
   margin-right: 150px;
   position: absolute;
   top: 530px; /* Điều chỉnh vị trí */
-  right: 50px;
+  right: 100px;
 }
 
 .movie-info h2 {
@@ -43,9 +43,15 @@
 .movie-info .details {
   display: flex;
   flex-direction: column;
-  margin-right: 30px;
+  margin-right: -25px;
   margin-top: -15px;
+  align-items: flex-start;   /* Căn trái nội dung detail */
   font-size: 20px;
+  width: 350px;              /* Cố định chiều rộng, bạn có thể điều chỉnh */
+  max-width: 100%;           /* Đảm bảo không vượt quá container */
+  text-align: right;         /* Căn phải nội dung text */
+  word-break: break-word;    /* Nếu quá dài sẽ xuống dòng */
+  overflow-wrap: break-word; /* Đảm bảo không tràn ra ngoài */
 }
 
 .movie-info .booking-btn {

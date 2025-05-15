@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
 import NotificationPopup from "../components/NotificationPopup";
 import MessagesIcon from "../components/MessagesIcon";
-import ProfileDropdown from "../components/ProfileDropdown";
+import ProfileAdmin from "../components/ProfileAdmin";
 import "../../styles/HeaderAdmin.css";
 import { AdminContext } from "../../services/AdminContext";
+import API_URL from "../../api/config";
+
 
 const HeaderAdmin = () => {
   const { user } = useContext(AdminContext); // Lấy thông tin người dùng từ AdminContext
@@ -14,9 +16,9 @@ const HeaderAdmin = () => {
         <h1>Admin Dashboard</h1>
       </div>
       <div className="header-right">
-        <NotificationPopup />
+        <NotificationPopup API_URL={API_URL} />
         <MessagesIcon />
-        <ProfileDropdown user={user} />
+        <ProfileAdmin user={user} />
       </div>
     </header>
   );

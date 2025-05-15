@@ -32,6 +32,7 @@ import MovieJourney from "./pages/MovieJourney";
 import { WebSocketProvider } from "./services/WebSocketContext";
 import API_URL from "./api/config";
 import AdminProvider from "./services/AdminContext"; // Import AdminProvider
+import { useWebSocket } from "./services/WebSocketContext"; // Import socket từ WebSocketContext
 
 const App = () => {
   return (
