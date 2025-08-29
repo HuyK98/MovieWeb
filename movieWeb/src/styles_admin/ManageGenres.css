@@ -2,6 +2,7 @@
   flex-grow: 1;
   padding: 40px;
   margin-left: 210px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,7 +12,7 @@
 }
 
 .manage-genres h1 {
-  margin-bottom: 30px;
+  margin-bottom: 5px;
   text-align: center;
   font-size: 2.5rem;
   color: #333;

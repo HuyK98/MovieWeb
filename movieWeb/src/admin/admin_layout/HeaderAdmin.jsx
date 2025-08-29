@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import NotificationPopup from "../components/NotificationPopup";
 import MessagesIcon from "../components/MessagesIcon";
 import ProfileAdmin from "../components/ProfileAdmin";
-import "../../styles/HeaderAdmin.css";
+import "../../styles_admin/HeaderAdmin.css";
 import { AdminContext } from "../../services/AdminContext";
 import API_URL from "../../api/config";
 

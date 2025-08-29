@@ -249,7 +249,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// API để lấy thông tin booking theo ID
+// API để lấy thông tin booking theo ID(client)
 router.get('/booking/:id', async (req, res) => {
   try {
     const bookingId = req.params.id;

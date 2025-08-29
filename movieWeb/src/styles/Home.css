@@ -65,7 +65,6 @@ body.dark-mode {
 /* Poster section */
 .poster-container {
   position: relative;
-  height: 600px;
   overflow: hidden;
   margin-bottom: 3rem;
 }
@@ -123,6 +122,7 @@ body.dark-mode {
 
 /* the loai phim */
 .genre-filter {
+  font-family: Arial, sans-serif;
   display: flex;
   flex-wrap: wrap; 
   gap: 10px; 
@@ -134,7 +134,7 @@ body.dark-mode {
   padding: 0.5rem 1.2rem;
   border: none; 
   border-radius: 20px; 
-  background-color: hsl(204, 88%, 42%);
+  background-color: hsla(210, 5%, 8%, 0.734);
   color: white; 
   font-size: 0.9rem; 
   font-weight: 500;
@@ -150,7 +150,7 @@ body.dark-mode {
 }
 
 .genre-button.active {
-  background-color: hsl(204, 88%, 42%); 
+  background-color: hsla(210, 5%, 8%, 0.734);
   color: var(--text-light); 
 }
 
@@ -303,7 +303,7 @@ body.dark-mode {
   background-color: hsl(204, 88%, 42%);
   color: white;
   border: none;
-  padding: 10px 130px;
+  padding: 10px 120px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
@@ -370,7 +370,7 @@ body.dark-mode {
   .movies-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
-    gap: 20px; /* Khoảng cách giữa các ô */
+    gap: 10px; /* Khoảng cách giữa các ô */
     margin: 20px 20px; /* Lề hai bên gọn hơn */
   }
 
@@ -406,46 +406,16 @@ body.dark-mode {
 }
 
 
-/* Responsive cho mobile */
-@media (max-width: 576px) {
-  /* Điều chỉnh lưới phim */
-  .movies-grid {
-    grid-template-columns: 1fr; /* 1 cột trên mobile */
-    gap: 15px; /* Tăng khoảng cách giữa các thẻ */
-  }
-
-  /* Điều chỉnh thẻ phim */
-  .movie-item {
-    padding: 10px; /* Giảm padding bên trong */
-  }
-
-
-  /* Tiêu đề phim */
-  .movie-title h3 {
-    font-size: 0.9rem; /* Giảm kích thước chữ tiêu đề */
-  }
-
-  .movie-title p {
-    font-size: 0.7rem; /* Giảm kích thước chữ mô tả */
-  }
-}
-
 /* Responsive cho Samsung Galaxy S8 (360px x 740px) */
-@media (max-width: 360px) {
-  /* Poster trên cùng */
-  .poster-container {
-    width: 100%;
-    height: 180px;
-    overflow: hidden;
+@media (max-width: 480px) {
+  .card-items h2 {
+    font-size: 1.5rem;        /* Giảm kích thước tiêu đề */
+    display: flex;            /* Bật flexbox */
+    flex-direction: row; /* Chuyển sang nằm ngang */
+    justify-content: center; /* Căn ngang giữa */
+    align-items: center;      /* Căn dọc giữa (nếu có chiều cao đủ) */
+    text-align: center;       /* Căn chữ giữa nếu xuống dòng */
   }
-
-  .poster {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Dưới poster: danh sách phim */
   .movies-grid {
     display: flex;
     flex-direction: column;
@@ -454,61 +424,58 @@ body.dark-mode {
     margin-top: 10px;
   }
 
-  .movie-tabs .active{
-    font-size: 1rem;
-    font-weight: bold;
-  }
-
-  /* Card phim */
   .movie-item {
     display: flex;
+    flex-direction: column;
     background: #fff;
     border-radius: 8px;
-    padding: 8px;
-    align-items: center;
+    padding: 10px;
+    align-items: flex-start;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: -300px;
+    margin-bottom: 20px;
+    width: 100%;
+    min-width: 0;
   }
 
-  /* Ảnh phim */
   .movie-image-container {
-    flex-shrink: 0;
-    width: 170px;
-    height: 100px;
+    width: 100%;
     overflow: hidden;
     border-radius: 5px;
-    margin-left: -135px;
-    margin-right: 20px;
+    margin: 0 0 10px 0;
   }
 
   .movie-image-container img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 
-  /* Nội dung phim */
   .movie-title {
-    flex-grow: 1;
-    padding-left: 10px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    height: 100px;
-    margin-top: -270px;
-    margin-right: -180px;
+    min-width: 0;
   }
 
   .movie-title h3 {
-    font-size: 14px;
+    font-size: 16px;
     color: hsl(204, 88%, 42%);
-    margin: 0;
+    margin: 0 0 4px 0;
     line-height: 1.2;
+    white-space: normal;       /* Cho phép xuống dòng */
+    overflow: visible;         /* Không ẩn chữ */
+    text-overflow: unset;
+    word-break: break-word;    /* Nếu quá dài sẽ xuống dòng */
   }
 
   .movie-title p {
-    font-size: 12px;
+    font-size: 13px;
     color: #555;
     margin: 2px 0;
+    white-space: normal;       /* Cho phép xuống dòng */
+    overflow: visible;
+    word-break: break-word;
   }
 
   .movie-title p span {
@@ -516,19 +483,9 @@ body.dark-mode {
     color: #000;
   }
 
-  /* Button Mua Vé */
   .card-button {
     align-self: flex-start;
-    background-color: hsl(204, 88%, 42%);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 500px;
-    margin-left: 170px;
-    padding: 10px 35px;
-
+    padding: 10px 130px;
   }
 
   .card-button:hover {

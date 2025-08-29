@@ -6,6 +6,8 @@ import QRCode from "qrcode";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import "../styles/BookingDetail.css";
+import ChatButton from "../components/ChatButton";
+import Chatbot from "../components/Chatbot";
 import API_URL from "../api/config"; // Import API_URL từ config
 
 const BookingDetail = () => {
@@ -21,6 +23,19 @@ const BookingDetail = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+  }, []);
+  
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    setUser(null);
+    navigate("/");
+  };
   // Fetch booking data
   useEffect(() => {
     const fetchBookingAndMovie = async () => {
@@ -214,15 +229,17 @@ const BookingDetail = () => {
     );
   }
 
+  // dark-mode
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+    document.body.classList.toggle("dark-mode");
+  };
+
   return (
     <>
       <Header
         user={user}
-        handleLogout={() => {
-          localStorage.removeItem("userInfo");
-          setUser(null);
-          navigate("/");
-        }}
+        handleLogout={handleLogout}
         searchTerm={searchTerm}
         handleSearchChange={(e) => setSearchTerm(e.target.value)}
         favorites={favorites}
@@ -336,10 +353,9 @@ const BookingDetail = () => {
           </button>
         </div>
       </div>
-      <Footer
-        toggleDarkMode={() => setDarkMode(!darkMode)}
-        darkMode={darkMode}
-      />
+      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      <ChatButton />
+      <Chatbot />
     </>
   );
 };

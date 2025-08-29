@@ -1,6 +1,7 @@
 .revenue-container {
   padding: 25px;
   margin-left: 255px;
+  margin-top: 40px;
   transition: margin-left 0.3s ease; /* Hiệu ứng mượt khi sidebar collapse */
   overflow-x: auto; /* Hiển thị thanh cuộn ngang nếu dữ liệu tràn */
 }

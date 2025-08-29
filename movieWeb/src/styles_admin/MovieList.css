@@ -3,21 +3,24 @@
   margin: 0 auto;
   padding: 20px;
 }
+.card-items {
+  margin-top: 70px;
+}
 
 .movies-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; 
-  margin-left: 270px;
+  gap: 10px; 
+  margin-left: 250px;
+  margin-top: -30px;
 }
 
 .admin-dashboard.collapsed .movies-list {
-  margin-left: 100px; /* Adjust this value based on your sidebar width */
+  margin-left: 110px; /* Adjust this value based on your sidebar width */
 }
 
 .card-items h2 {
   margin-left: 250px;
-
 }
 
 .movie-item {

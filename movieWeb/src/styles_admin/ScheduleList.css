@@ -1,11 +1,12 @@
 .schedule-list {
   padding: 1px;
   flex: 11;
-  margin-left: 30px;
+  margin-left: 5px;
+  margin-top: 60px;
 }
 
 .admin-dashboard.collapsed .schedule-list{
-  margin-left: -100px;
+  margin-left: -130px;
 }
 
 

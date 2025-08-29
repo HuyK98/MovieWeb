@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 const { OAuth2Client } = require('google-auth-library'); // Import OAuth2Client
 require('dotenv').config(); // Import dotenv để sử dụng biến môi trường
 const multer = require('multer');
@@ -94,7 +94,7 @@ router.get('/profile', protect, async (req, res) => {
 });
 
 // Lấy danh sách người dùng
-router.get('/users', protect, async (req, res) => {
+router.get('/users', protect, admin, async (req, res) => {
   try {
     const users = await User.find({});
     res.json(users);
@@ -104,7 +104,7 @@ router.get('/users', protect, async (req, res) => {
 });
 
 // Chỉnh sửa người dùng
-router.put('/users/:id', protect, async (req, res) => {
+router.put('/users/:id', protect, admin, async (req, res) => {
   const { name, email, phone, role } = req.body;
 
   try {
@@ -127,7 +127,7 @@ router.put('/users/:id', protect, async (req, res) => {
 });
 
 // Xóa người dùng
-router.delete('/users/:id', protect, async (req, res) => {
+router.delete('/users/:id', protect, admin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 

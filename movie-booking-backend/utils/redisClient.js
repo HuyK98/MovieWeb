@@ -1,32 +1,32 @@
-require('dotenv').config(); // 👈 Load biến môi trường
+// require('dotenv').config(); // 👈 Load biến môi trường
 
-const redis = require('redis');
+// const redis = require('redis');
 
-const client = redis.createClient({
-  url: process.env.REDIS_URL,
-});
+// const client = redis.createClient({
+//   url: process.env.REDIS_URL,
+// });
 
-client.on('connect', () => {
-  console.log('✅ Redis client successfully connected to Redis Cloud');
-});
+// client.on('connect', () => {
+//   console.log('✅ Redis client successfully connected to Redis Cloud');
+// });
 
-client.on('error', (err) => {
-  console.error('❌ Redis Client Error:', err);
-});
+// client.on('error', (err) => {
+//   console.error('❌ Redis Client Error:', err);
+// });
 
-// Kết nối Redis chỉ một lần
-if (!client.isOpen) {
-  (async () => {
-    try {
-      await client.connect();
-      console.log('✅ Redis client connected');
-    } catch (error) {
-      console.error('❌ Redis connection error:', error);
-    }
-  })();
-}
+// // Kết nối Redis chỉ một lần
+// if (!client.isOpen) {
+//   (async () => {
+//     try {
+//       await client.connect();
+//       console.log('✅ Redis client connected');
+//     } catch (error) {
+//       console.error('❌ Redis connection error:', error);
+//     }
+//   })();
+// }
 
-module.exports = client;
+// module.exports = client;
 
 
 

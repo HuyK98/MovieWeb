@@ -4,7 +4,8 @@
 }
 .add-container {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 240px;
+  margin-top: 40px;
   padding: 25px;
   background: #f9f9f9;
   border-radius: 8px;

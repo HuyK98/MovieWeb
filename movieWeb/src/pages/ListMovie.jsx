@@ -19,8 +19,6 @@ import API_URL from "../api/config";
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
-  const [user, setUser] = useState(null);
-  const { language, toggleLanguage } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -100,6 +98,7 @@ const ListMovie = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const { language, toggleLanguage } = useLanguage();
+  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -293,15 +292,12 @@ const ListMovie = () => {
         // console.log("fetchBookedSeats - movieTitle:", selectedMovie.title);
         // console.log("fetchBookedSeats - formattedDate:", formattedDate);
 
-        const response = await axios.get(
-          `${API_URL}/api/payment/seats/page`,
-          {
-            params: {
-              movieTitle: selectedMovie.title,
-              date: formattedDate,
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
+          params: {
+            movieTitle: selectedMovie.title,
+            date: formattedDate,
+          },
+        });
 
         const bookedSeatsByTime = response.data;
         // console.log("Booked seats by time:", bookedSeatsByTime);
@@ -374,27 +370,43 @@ const ListMovie = () => {
           <div className="card-items">
             <h2>{translations[language].movieList}</h2>
             <div className="genre-filter">
-              {Array.from(new Set(movies.map((movie) => movie.genre))).map(
-                (genre) => (
-                  <button
-                    key={genre}
-                    className={`genre-button ${
-                      selectedGenre === genre ? "active" : ""
-                    }`}
-                    onClick={() => setSelectedGenre(genre)}
-                  >
-                    {genre}
-                  </button>
-                )
-              )}
               <button
-                className={`genre-button ${
-                  selectedGenre === "Tất cả" ? "active" : ""
-                }`}
-                onClick={() => setSelectedGenre("Tất cả")}
+                className="genre-dropdown-btn"
+                onClick={() => setShowGenreDropdown((prev) => !prev)}
               >
-                Tất cả
+                Thể loại <span style={{ marginLeft: 6 }}>▼</span>
               </button>
+              {showGenreDropdown && (
+                <div className="genre-dropdown-list">
+                  <button
+                    className={`genre-button ${
+                      selectedGenre === "Tất cả" ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedGenre("Tất cả");
+                      setShowGenreDropdown(false);
+                    }}
+                  >
+                    Tất cả
+                  </button>
+                  {Array.from(new Set(movies.map((movie) => movie.genre))).map(
+                    (genre) => (
+                      <button
+                        key={genre}
+                        className={`genre-button ${
+                          selectedGenre === genre ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedGenre(genre);
+                          setShowGenreDropdown(false);
+                        }}
+                      >
+                        {genre}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
             </div>
             {error ? (
               <p className="error">{error}</p>
@@ -402,64 +414,74 @@ const ListMovie = () => {
               <div className="movies-grid">
                 {filteredMovies.length > 0 ? (
                   <>
-                    {filteredMovies.map((movie, index) => (
-                      <AnimatedSection
-                        key={movie._id}
-                        animation="fade-up"
-                        delay={index * 100}
-                      >
-                        <div className="movie-item">
-                          <div className="movie-image-container">
-                            <img src={movie.imageUrl} alt={movie.title} />
+                    {filteredMovies
+                      .filter(
+                        (movie) =>
+                          selectedGenre === "Tất cả" ||
+                          movie.genre === selectedGenre
+                      )
+                      .map((movie, index) => (
+                        <AnimatedSection
+                          key={movie._id}
+                          animation="fade-up"
+                          delay={index * 100}
+                        >
+                          <div className="movie-item">
+                            <div className="movie-image-container">
+                              <img src={movie.imageUrl} alt={movie.title} />
+                              <button
+                                className={`favorite-button ${
+                                  favorites.some((fav) => fav._id === movie._id)
+                                    ? "active"
+                                    : ""
+                                }`}
+                                onClick={() => handleFavoriteClick(movie)}
+                              >
+                                <FontAwesomeIcon icon={faHeart} />
+                              </button>
+                              <button
+                                className="trailer-button"
+                                onClick={() =>
+                                  handleTrailerClick(movie.videoUrl)
+                                }
+                              >
+                                <FontAwesomeIcon
+                                  icon={faPlay}
+                                  style={{ marginRight: "8px" }}
+                                />
+                                {translations[language].trailer}
+                              </button>
+                            </div>
+                            <div className="movie-title">
+                              <h3
+                                className="movie-title-link"
+                                onClick={() => navigate(`/movie/${movie._id}`)}
+                              >
+                                {movie.title}
+                              </h3>
+                              <p>
+                                {translations[language].genre}: {movie.genre}
+                              </p>
+                              <p>
+                                {translations[language].duration}:{" "}
+                                {movie.description}
+                              </p>
+                              <p>
+                                {translations[language].releaseDate}:{" "}
+                                {new Date(
+                                  movie.releaseDate
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
                             <button
-                              className={`favorite-button ${
-                                favorites.some((fav) => fav._id === movie._id)
-                                  ? "active"
-                                  : ""
-                              }`}
-                              onClick={() => handleFavoriteClick(movie)}
+                              className="card-button"
+                              onClick={() => handleBuyTicketClick(movie)}
                             >
-                              <FontAwesomeIcon icon={faHeart} />
-                            </button>
-                            <button
-                              className="trailer-button"
-                              onClick={() => handleTrailerClick(movie.videoUrl)}
-                            >
-                              <FontAwesomeIcon
-                                icon={faPlay}
-                                style={{ marginRight: "8px" }}
-                              />
-                              {translations[language].trailer}
+                              {translations[language].buyTicket}
                             </button>
                           </div>
-                          <div className="movie-title">
-                            <h3
-                              className="movie-title-link"
-                              onClick={() => navigate(`/movie/${movie._id}`)}
-                            >
-                              {movie.title}
-                            </h3>
-                            <p>
-                              {translations[language].genre}: {movie.genre}
-                            </p>
-                            <p>
-                              {translations[language].duration}:{" "}
-                              {movie.description}
-                            </p>
-                            <p>
-                              {translations[language].releaseDate}:{" "}
-                              {new Date(movie.releaseDate).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <button
-                            className="card-button"
-                            onClick={() => handleBuyTicketClick(movie)}
-                          >
-                            {translations[language].buyTicket}
-                          </button>
-                        </div>
-                      </AnimatedSection>
-                    ))}
+                        </AnimatedSection>
+                      ))}
                   </>
                 ) : (
                   <p>{translations[language].noMovies}</p>

@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { faHeart, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
+import moment from "moment";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { getMovies } from "../api";
+import API_URL from "../api/config";
 import poster1 from "../assets/poster/post1.jpg";
 import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
-import Header from "../layout/Header";
-import Footer from "../layout/Footer";
-import NowShowingMovies from "../components/NowShowingMovies";
-import UpcomingMovies from "../components/UpcomingMovies";
-import FavoritesAndBookings from "../components/FavoritesAndBookings";
-import ShowtimesPopup from "../components/ShowtimesPopup";
-import { getMovies } from "../api";
-import "../styles/Home.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faHeart } from "@fortawesome/free-solid-svg-icons";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
-import TrailerModal from "../components/TrailerModal";
-import moment from "moment";
+import FavoritesAndBookings from "../components/FavoritesAndBookings";
+import NowShowingMovies from "../components/NowShowingMovies";
 import PosterSection from "../components/PosterSection";
-import "../styles/ManageGenres.css";
-import API_URL from "../api/config";
+import ShowtimesPopup from "../components/ShowtimesPopup";
+import TrailerModal from "../components/TrailerModal";
+import UpcomingMovies from "../components/UpcomingMovies";
+import Footer from "../layout/Footer";
+import Header from "../layout/Header";
+import "../styles/Home.css";
+import "../styles_admin/ManageGenres.css";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -110,9 +110,7 @@ const Home = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
-  const [availableSeats, setAvailableSeats] = useState(70);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showOrders, setShowOrders] = useState(false);
   const [activeSeat, setActiveSeat] = useState(null);
   const [totalNotifications, setTotalNotifications] = useState(0);
 
@@ -121,13 +119,13 @@ const Home = () => {
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingIndex, setUpcomingIndex] = useState(0);
-  const [userBookings, setUserBookings] = useState([]);
 
   const [bookings, setBookings] = useState([]);
 
   const [selectedGenre, setSelectedGenre] = useState("Tất cả");
   const [favorites, setFavorites] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -468,15 +466,12 @@ const Home = () => {
         // console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
         // console.log('fetchBookedSeats - formattedDate:', formattedDate);
 
-        const response = await axios.get(
-          `${API_URL}/api/payment/seats/page`,
-          {
-            params: {
-              movieTitle: selectedMovie.title,
-              date: formattedDate,
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
+          params: {
+            movieTitle: selectedMovie.title,
+            date: formattedDate,
+          },
+        });
 
         const bookedSeatsByTime = response.data;
         // console.log('Booked seats by time:', bookedSeatsByTime);
@@ -593,27 +588,43 @@ const Home = () => {
           <div className="card-items">
             <h2>Danh sách phim</h2>
             <div className="genre-filter">
-              {Array.from(new Set(movies.map((movie) => movie.genre))).map(
-                (genre) => (
-                  <button
-                    key={genre}
-                    className={`genre-button ${
-                      selectedGenre === genre ? "active" : ""
-                    }`}
-                    onClick={() => setSelectedGenre(genre)}
-                  >
-                    {genre}
-                  </button>
-                )
-              )}
               <button
-                className={`genre-button ${
-                  selectedGenre === "Tất cả" ? "active" : ""
-                }`}
-                onClick={() => setSelectedGenre("Tất cả")}
+                className="genre-dropdown-btn"
+                onClick={() => setShowGenreDropdown((prev) => !prev)}
               >
-                Tất cả
+                THỂ LOẠI <span style={{ marginLeft: 6 }}>▼</span>
               </button>
+              {showGenreDropdown && (
+                <div className="genre-dropdown-list">
+                  <button
+                    className={`genre-button ${
+                      selectedGenre === "Tất cả" ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedGenre("Tất cả");
+                      setShowGenreDropdown(false);
+                    }}
+                  >
+                    Tất cả
+                  </button>
+                  {Array.from(new Set(movies.map((movie) => movie.genre))).map(
+                    (genre) => (
+                      <button
+                        key={genre}
+                        className={`genre-button ${
+                          selectedGenre === genre ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedGenre(genre);
+                          setShowGenreDropdown(false);
+                        }}
+                      >
+                        {genre}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
             </div>
             {error ? (
               <p className="error">{error}</p>
@@ -672,12 +683,16 @@ const Home = () => {
                               </p>
                               <p>
                                 <span>Thời Lượng: </span>
-                                <span className="value">{movie.description}</span>
+                                <span className="value">
+                                  {movie.description}
+                                </span>
                               </p>
                               <p>
                                 <span>Ngày phát hành: </span>
                                 <span className="value">
-                                  {new Date(movie.releaseDate).toLocaleDateString()}
+                                  {new Date(
+                                    movie.releaseDate
+                                  ).toLocaleDateString()}
                                 </span>
                               </p>
                             </div>

@@ -1,6 +1,7 @@
 .admin-bills-container {
   padding: 20px;
   margin-left: 240px;
+  margin-top: 50px;
   background-color: #f9f9f9;
   border-radius: 8px;
   transition: margin-left 0.3s ease; /* Hiệu ứng mượt khi sidebar collapse */

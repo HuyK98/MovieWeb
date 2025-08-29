@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../services/AdminContext";
 import API_URL from "../../api/config";
 import axios from "axios";
-import "../../styles/ProfileAdmin.css"; // Import CSS styles for the profile component
+import "../../styles_admin/ProfileAdmin.css"; // Import CSS styles for the profile component
 
 const ProfileDropdown = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

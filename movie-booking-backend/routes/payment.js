@@ -138,57 +138,57 @@ router.get('/seats', async (req, res) => {
 });
 
 // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
-router.get('/seats', async (req, res) => {
-  const { movieTitle, date, time } = req.query;
-  // console.log('Received query parameters:', { movieTitle, date, time });
+// router.get('/seats', async (req, res) => {
+//   const { movieTitle, date, time } = req.query;
+//   // console.log('Received query parameters:', { movieTitle, date, time });
 
-  try {
-    if (!date || isNaN(new Date(date).getTime())) {
-      throw new Error(`Invalid date format: ${date}`);
-    }
+//   try {
+//     if (!date || isNaN(new Date(date).getTime())) {
+//       throw new Error(`Invalid date format: ${date}`);
+//     }
 
-    const filter = { date: new Date(date) };
-    if (movieTitle) {
-      filter.movieTitle = movieTitle;
-    }
-    if (time) {
-      filter.time = time;
-    }
+//     const filter = { date: new Date(date) };
+//     if (movieTitle) {
+//       filter.movieTitle = movieTitle;
+//     }
+//     if (time) {
+//       filter.time = time;
+//     }
 
-    const bookings = await Booking.find(filter);
-    const bookedSeats = bookings.reduce((acc, booking) => {
-      return acc.concat(booking.seats);
-    }, []);
+//     const bookings = await Booking.find(filter);
+//     const bookedSeats = bookings.reduce((acc, booking) => {
+//       return acc.concat(booking.seats);
+//     }, []);
 
-    console.log('Booked seats:', bookedSeats);
+//     console.log('Booked seats:', bookedSeats);
 
-    res.json(bookedSeats);
-  } catch (error) {
-    console.error('Error fetching booked seats:', error);
-    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
-  }
-});
+//     res.json(bookedSeats);
+//   } catch (error) {
+//     console.error('Error fetching booked seats:', error);
+//     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+//   }
+// });
 
-// Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
-router.get('/seats', async (req, res) => {
-  const { movieTitle, date, time } = req.query;
-  console.log('Received query parameters:', { movieTitle, date, time });
+// // Endpoint để lấy thông tin trạng thái ghế từ cơ sở dữ liệu Booking trang moviedetail
+// router.get('/seats', async (req, res) => {
+//   const { movieTitle, date, time } = req.query;
+//   console.log('Received query parameters:', { movieTitle, date, time });
 
-  try {
-    if (!date || isNaN(new Date(date).getTime())) {
-      throw new Error(`Invalid date format: ${date}`);
-    }
+//   try {
+//     if (!date || isNaN(new Date(date).getTime())) {
+//       throw new Error(`Invalid date format: ${date}`);
+//     }
 
-    const bookings = await Booking.find({ movieTitle, date, time });
-    const bookedSeats = bookings.reduce((acc, booking) => {
-      return acc.concat(booking.seats);
-    }, []);
-    res.json(bookedSeats);
-  } catch (error) {
-    console.error('Error fetching booked seats:', error);
-    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
-  }
-});
+//     const bookings = await Booking.find({ movieTitle, date, time });
+//     const bookedSeats = bookings.reduce((acc, booking) => {
+//       return acc.concat(booking.seats);
+//     }, []);
+//     res.json(bookedSeats);
+//   } catch (error) {
+//     console.error('Error fetching booked seats:', error);
+//     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+//   }
+// });
 
 // Endpoint để xử lý thanh toán qua MoMo
 //account test thanh toán qua momo bằng thẻ ATM

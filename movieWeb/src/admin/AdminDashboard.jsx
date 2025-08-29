@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/AdminDashboard.css";
+import "../styles_admin/AdminDashboard.css";
 import Chat from "./Chat";
 import { FaBars } from "react-icons/fa";
 import HeaderAdmin from "./admin_layout/HeaderAdmin";

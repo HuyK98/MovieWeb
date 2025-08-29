@@ -82,7 +82,7 @@
 
 /* Nút collapse */
 .collapse-button {
-  position: absolute;
+  position: fixed;
   left: 230px; /* Đặt nút ngay bên cạnh sidebar */
   height: 60px;
   background-color: hsl(0, 79%, 53%);
@@ -93,6 +93,7 @@
   padding: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  z-index: 1000; /* Đảm bảo nút luôn hiển thị trên cùng */
 }
 
 .admin-dashboard.collapsed .collapse-button {
