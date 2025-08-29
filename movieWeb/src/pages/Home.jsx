@@ -134,6 +134,7 @@ const Home = () => {
       const response = await axios.get(
         `${API_URL}/api/showtimes?movieId=${movie._id}`
       );
+      
 
       // Chuyển đổi date từ chuỗi ISO thành kiểu Date
       const showtimesWithDate = response.data.map((showtime) => ({
