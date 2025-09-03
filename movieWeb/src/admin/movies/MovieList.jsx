@@ -197,6 +197,7 @@ const MovieList = () => {
 
   if (loading) return <div>Đang tải danh sách phim...</div>;
   if (error) return <div>{error}</div>;
+    
 
   return (
     <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>

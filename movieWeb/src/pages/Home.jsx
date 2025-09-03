@@ -134,7 +134,6 @@ const Home = () => {
       const response = await axios.get(
         `${API_URL}/api/showtimes?movieId=${movie._id}`
       );
-      
 
       // Chuyển đổi date từ chuỗi ISO thành kiểu Date
       const showtimesWithDate = response.data.map((showtime) => ({
@@ -231,39 +230,39 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [posters.length]);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const data = await getMovies();
-        if (Array.isArray(data)) {
-          setMovies(data);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
-      }
-    };
-    fetchMovies();
+  // useEffect(() => {
+  //   const fetchMovies = async () => {
+  //     try {
+  //       const data = await getMovies();
+  //       if (Array.isArray(data)) {
+  //         setMovies(data);
+  //       } else {
+  //         throw new Error("Invalid data format");
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching movies:", err);
+  //       setError("Không thể tải danh sách phim.");
+  //     }
+  //   };
+  //   fetchMovies();
 
-    const style = document.createElement("style");
-    style.textContent = `
-      .animated-section {
-        transition: opacity 0.8s ease, transform 0.8s ease;
-        will-change: opacity, transform;
-      }
-      .animated-section.visible {
-        opacity: 1 !important;
-        transform: translate(0, 0) !important;
-      }
-    `;
-    document.head.appendChild(style);
+  //   const style = document.createElement("style");
+  //   style.textContent = `
+  //     .animated-section {
+  //       transition: opacity 0.8s ease, transform 0.8s ease;
+  //       will-change: opacity, transform;
+  //     }
+  //     .animated-section.visible {
+  //       opacity: 1 !important;
+  //       transform: translate(0, 0) !important;
+  //     }
+  //   `;
+  //   document.head.appendChild(style);
 
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
+  //   return () => {
+  //     document.head.removeChild(style);
+  //   };
+  // }, []);
 
   const handlePrev = () => {
     setCurrentPoster((prev) => (prev === 0 ? posters.length - 1 : prev - 1));
@@ -394,13 +393,14 @@ const Home = () => {
       try {
         const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
-        // console.log("Data from API:", data); // Log dữ liệu trả về từ API
-
         if (Array.isArray(data)) {
-          const nowShowing = data.filter(
-            (movie) => new Date(movie.releaseDate) <= new Date()
+          setMovies(data);
+          setNowShowingMovies(
+            data.filter((movie) => new Date(movie.releaseDate) <= new Date())
           );
-          setNowShowingMovies(nowShowing);
+          setUpcomingMovies(
+            data.filter((movie) => new Date(movie.releaseDate) > new Date())
+          );
         } else {
           throw new Error("Invalid data format");
         }
@@ -409,30 +409,6 @@ const Home = () => {
         setError("Không thể tải danh sách phim.");
       }
     };
-
-    fetchMovies();
-  }, []);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/movies`);
-        const data = response.data;
-
-        if (Array.isArray(data)) {
-          const upcoming = data.filter(
-            (movie) => new Date(movie.releaseDate) > new Date()
-          );
-          setUpcomingMovies(upcoming);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
-      }
-    };
-
     fetchMovies();
   }, []);
 
@@ -521,6 +497,7 @@ const Home = () => {
     const storedBookings = JSON.parse(localStorage.getItem("bookings")) || [];
     setBookings(storedBookings);
   }, []);
+
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
