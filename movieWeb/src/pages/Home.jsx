@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { faHeart, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
+import moment from "moment";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { getMovies } from "../api";
+import API_URL from "../api/config";
 import poster1 from "../assets/poster/post1.jpg";
 import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
-import Header from "../layout/Header";
-import Footer from "../layout/Footer";
-import NowShowingMovies from "../components/NowShowingMovies";
-import UpcomingMovies from "../components/UpcomingMovies";
-import FavoritesAndBookings from "../components/FavoritesAndBookings";
-import ShowtimesPopup from "../components/ShowtimesPopup";
-import { getMovies } from "../api";
-import "../styles/Home.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faHeart } from "@fortawesome/free-solid-svg-icons";
 import ChatButton from "../components/ChatButton";
 import Chatbot from "../components/Chatbot";
-import TrailerModal from "../components/TrailerModal";
-import moment from "moment";
+import FavoritesAndBookings from "../components/FavoritesAndBookings";
+import NowShowingMovies from "../components/NowShowingMovies";
 import PosterSection from "../components/PosterSection";
+import ShowtimesPopup from "../components/ShowtimesPopup";
+import TrailerModal from "../components/TrailerModal";
+import UpcomingMovies from "../components/UpcomingMovies";
+import Footer from "../layout/Footer";
+import Header from "../layout/Header";
+import "../styles/Home.css";
 import "../styles/ManageGenres.css";
-import API_URL from "../api/config";
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -39,10 +39,19 @@ const useIntersectionObserver = (options = {}) => {
       observer.observe(ref.current);
     }
 
+    const handleResize = () => {
+      if (ref.current) {
+        observer.observe(ref.current); // Quan sát lại khi thay đổi kích thước
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
       if (ref.current) {
         observer.unobserve(ref.current);
       }
+      window.removeEventListener("resize", handleResize);
     };
   }, [options]);
 
@@ -67,15 +76,16 @@ const AnimatedSection = ({
       className={`animated-section ${animation} ${isVisible ? "visible" : ""}`}
       style={{
         transitionDelay: `${delay}ms`,
-        opacity: 0,
-        transform:
-          animation === "fade-up"
-            ? "translateY(50px)"
-            : animation === "fade-left"
-            ? "translateX(-50px)"
-            : animation === "fade-right"
-            ? "translateX(50px)"
-            : "translateY(50px)",
+        opacity: isVisible ? 1 : 0, // Hiển thị nếu visible
+        transform: isVisible
+          ? "translate(0, 0)"
+          : animation === "fade-up"
+          ? "translateY(50px)"
+          : animation === "fade-left"
+          ? "translateX(-50px)"
+          : animation === "fade-right"
+          ? "translateX(50px)"
+          : "translateY(50px)",
       }}
     >
       {children}
@@ -100,9 +110,7 @@ const Home = () => {
   const [bookingInfo, setBookingInfo] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [user, setUser] = useState(null);
-  const [availableSeats, setAvailableSeats] = useState(70);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showOrders, setShowOrders] = useState(false);
   const [activeSeat, setActiveSeat] = useState(null);
   const [totalNotifications, setTotalNotifications] = useState(0);
 
@@ -111,13 +119,13 @@ const Home = () => {
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingIndex, setUpcomingIndex] = useState(0);
-  const [userBookings, setUserBookings] = useState([]);
 
   const [bookings, setBookings] = useState([]);
 
   const [selectedGenre, setSelectedGenre] = useState("Tất cả");
   const [favorites, setFavorites] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
 
   // Xem lịch chiếu và giờ chiếu
   const handleBuyTicketClick = async (movie) => {
@@ -222,39 +230,39 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [posters.length]);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const data = await getMovies();
-        if (Array.isArray(data)) {
-          setMovies(data);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
-      }
-    };
-    fetchMovies();
+  // useEffect(() => {
+  //   const fetchMovies = async () => {
+  //     try {
+  //       const data = await getMovies();
+  //       if (Array.isArray(data)) {
+  //         setMovies(data);
+  //       } else {
+  //         throw new Error("Invalid data format");
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching movies:", err);
+  //       setError("Không thể tải danh sách phim.");
+  //     }
+  //   };
+  //   fetchMovies();
 
-    const style = document.createElement("style");
-    style.textContent = `
-      .animated-section {
-        transition: opacity 0.8s ease, transform 0.8s ease;
-        will-change: opacity, transform;
-      }
-      .animated-section.visible {
-        opacity: 1 !important;
-        transform: translate(0, 0) !important;
-      }
-    `;
-    document.head.appendChild(style);
+  //   const style = document.createElement("style");
+  //   style.textContent = `
+  //     .animated-section {
+  //       transition: opacity 0.8s ease, transform 0.8s ease;
+  //       will-change: opacity, transform;
+  //     }
+  //     .animated-section.visible {
+  //       opacity: 1 !important;
+  //       transform: translate(0, 0) !important;
+  //     }
+  //   `;
+  //   document.head.appendChild(style);
 
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
+  //   return () => {
+  //     document.head.removeChild(style);
+  //   };
+  // }, []);
 
   const handlePrev = () => {
     setCurrentPoster((prev) => (prev === 0 ? posters.length - 1 : prev - 1));
@@ -385,13 +393,14 @@ const Home = () => {
       try {
         const response = await axios.get(`${API_URL}/api/movies`);
         const data = response.data;
-        console.log("Data from API:", data); // Log dữ liệu trả về từ API
-
         if (Array.isArray(data)) {
-          const nowShowing = data.filter(
-            (movie) => new Date(movie.releaseDate) <= new Date()
+          setMovies(data);
+          setNowShowingMovies(
+            data.filter((movie) => new Date(movie.releaseDate) <= new Date())
           );
-          setNowShowingMovies(nowShowing);
+          setUpcomingMovies(
+            data.filter((movie) => new Date(movie.releaseDate) > new Date())
+          );
         } else {
           throw new Error("Invalid data format");
         }
@@ -400,30 +409,6 @@ const Home = () => {
         setError("Không thể tải danh sách phim.");
       }
     };
-
-    fetchMovies();
-  }, []);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/movies`);
-        const data = response.data;
-
-        if (Array.isArray(data)) {
-          const upcoming = data.filter(
-            (movie) => new Date(movie.releaseDate) > new Date()
-          );
-          setUpcomingMovies(upcoming);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Không thể tải danh sách phim.");
-      }
-    };
-
     fetchMovies();
   }, []);
 
@@ -458,15 +443,12 @@ const Home = () => {
         // console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
         // console.log('fetchBookedSeats - formattedDate:', formattedDate);
 
-        const response = await axios.get(
-          `${API_URL}/api/payment/seats/page`,
-          {
-            params: {
-              movieTitle: selectedMovie.title,
-              date: formattedDate,
-            },
-          }
-        );
+        const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
+          params: {
+            movieTitle: selectedMovie.title,
+            date: formattedDate,
+          },
+        });
 
         const bookedSeatsByTime = response.data;
         // console.log('Booked seats by time:', bookedSeatsByTime);
@@ -515,6 +497,7 @@ const Home = () => {
     const storedBookings = JSON.parse(localStorage.getItem("bookings")) || [];
     setBookings(storedBookings);
   }, []);
+
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
@@ -583,27 +566,43 @@ const Home = () => {
           <div className="card-items">
             <h2>Danh sách phim</h2>
             <div className="genre-filter">
-              {Array.from(new Set(movies.map((movie) => movie.genre))).map(
-                (genre) => (
-                  <button
-                    key={genre}
-                    className={`genre-button ${
-                      selectedGenre === genre ? "active" : ""
-                    }`}
-                    onClick={() => setSelectedGenre(genre)}
-                  >
-                    {genre}
-                  </button>
-                )
-              )}
               <button
-                className={`genre-button ${
-                  selectedGenre === "Tất cả" ? "active" : ""
-                }`}
-                onClick={() => setSelectedGenre("Tất cả")}
+                className="genre-dropdown-btn"
+                onClick={() => setShowGenreDropdown((prev) => !prev)}
               >
-                Tất cả
+                THỂ LOẠI <span style={{ marginLeft: 6 }}>▼</span>
               </button>
+              {showGenreDropdown && (
+                <div className="genre-dropdown-list">
+                  <button
+                    className={`genre-button ${
+                      selectedGenre === "Tất cả" ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedGenre("Tất cả");
+                      setShowGenreDropdown(false);
+                    }}
+                  >
+                    Tất cả
+                  </button>
+                  {Array.from(new Set(movies.map((movie) => movie.genre))).map(
+                    (genre) => (
+                      <button
+                        key={genre}
+                        className={`genre-button ${
+                          selectedGenre === genre ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedGenre(genre);
+                          setShowGenreDropdown(false);
+                        }}
+                      >
+                        {genre}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
             </div>
             {error ? (
               <p className="error">{error}</p>
@@ -656,13 +655,23 @@ const Home = () => {
                               >
                                 {movie.title}
                               </h3>
-                              <p>Thể Loại: {movie.genre}</p>
-                              <p>Thời Lượng: {movie.description}</p>
                               <p>
-                                Ngày phát hành:{" "}
-                                {new Date(
-                                  movie.releaseDate
-                                ).toLocaleDateString()}
+                                <span>Thể Loại: </span>
+                                <span className="value">{movie.genre}</span>
+                              </p>
+                              <p>
+                                <span>Thời Lượng: </span>
+                                <span className="value">
+                                  {movie.description}
+                                </span>
+                              </p>
+                              <p>
+                                <span>Ngày phát hành: </span>
+                                <span className="value">
+                                  {new Date(
+                                    movie.releaseDate
+                                  ).toLocaleDateString()}
+                                </span>
                               </p>
                             </div>
                             <button
