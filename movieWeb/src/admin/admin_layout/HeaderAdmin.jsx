@@ -192,7 +192,7 @@ const HeaderAdmin = () => {
         {/* Hộp thư */}
         <div
           className="icon-container"
-          onClick={() => navigate("/admin/messages")}
+          onClick={() => navigate("/admin/chat")}
         >
           <FaEnvelope className="icon" />
           <span className="badge">5</span>

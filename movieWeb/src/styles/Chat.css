@@ -201,16 +201,18 @@
   margin: 5px 0;
 }
 
-/* trạng thái đọc tin nhắn */
-.chat-user-modern.unread {
-  background-color: #f0f8ff; /* Làm sáng phần tin nhắn chưa đọc */
+.last-message {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
-.unread-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #007bff; /* Chấm xanh */
-  border-radius: 50%;
-  display: inline-block;
-  margin-left: 10px;
+.message-time {
+  font-size: 0.7rem;
+  color: #999;
+  margin-left: 8px;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { FaPaperPlane, FaSmile, FaPaperclip, FaArrowLeft } from 'react-icons/fa';
 import { format } from 'date-fns';
@@ -15,6 +15,8 @@ function Chat() {
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const formatTimestamp = (timestamp) => {
@@ -30,17 +32,22 @@ function Chat() {
     navigate('/admin');
   };
 
+  // lay ds tat ca nguoi dung
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Gọi API mới để lấy danh sách người dùng
-        const { data } = await axios.get(`${API_URL}/api/auth/users/all`);
-        setUsers(data); // Cập nhật danh sách người dùng vào state
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách người dùng:', error.response?.data || error.message);
+        setIsLoading(true);
+        const response = await axios.get(`${API_URL}/api/auth/users/all`);
+        console.log('Danh sách người dùng:', response.data);
+        setUsers(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách người dùng:', err);
+        setError('Lỗi khi tải danh sách người dùng');
+      } finally {
+        setIsLoading(false);
       }
     };
-  
     fetchUsers();
   }, []);
 
@@ -141,6 +148,10 @@ function Chat() {
           </button>
           <h3>Danh sách người dùng</h3>
         </div>
+
+        {isLoading && <div className='loading'>Đang tải danh sách người dùng...</div>}
+        {error && <div className='error'>{error}</div>}
+
         <ul>
           {users.map((user) => {
             const lastMessage =
@@ -161,11 +172,13 @@ function Chat() {
                 />
                 <div className="user-info-modern">
                   <h4>{user.name}</h4>
-                  <p>{lastMessage ? lastMessage.text : 'No messages yet'}</p> {/* Hiển thị tin nhắn mới nhất */}
                   {lastMessage && (
-                    <span className="timestamp-modern">
-                      {formatTimestamp(lastMessage.timestamp)} {/* Hiển thị thời gian tin nhắn cuối */}
-                    </span>
+                    <p className="last-message">
+                      {lastMessage.imageUrl ? '[Hình ảnh]' : lastMessage.text}
+                      <span className="message-time">
+                        {format(new Date(lastMessage.timestamp), 'HH:mm')}
+                      </span>
+                    </p>
                   )}
                 </div>
               </li>

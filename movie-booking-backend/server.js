@@ -64,9 +64,6 @@ app.use('/api/chat', chatRoutes);
 // Static folder để phục vụ file ảnh
 app.use('/uploads', express.static('uploads'));
 
-// Routes
-app.use('/api/chat', chatRoutes);
-
 // Phục vụ file tĩnh từ thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

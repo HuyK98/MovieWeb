@@ -79,15 +79,26 @@ function ChatButton() {
   useEffect(() => {
     if (socket) {
       socket.on('receiveMessage', (data) => {
-        console.log('📩 Tin nhắn nhận được từ admin:', data);
+        console.log('📩 Tin nhắn nhận được:', data);
 
         setMessages((prev) => {
-          const updatedMessages = {
+          // Check if message already exists to prevent duplicates
+          const existingMessages = prev[data.userId] || [];
+          const isDuplicate = existingMessages.some(
+            msg =>
+              msg.timestamp === data.timestamp &&
+              msg.text === data.text &&
+              msg.sender === data.sender
+          );
+
+          if (isDuplicate) {
+            return prev;
+          }
+
+          return {
             ...prev,
-            [data.userId]: [...(prev[data.userId] || []), data],
+            [data.userId]: [...existingMessages, data],
           };
-          console.log('📥 Danh sách tin nhắn sau khi nhận:', updatedMessages); // Log danh sách tin nhắn
-          return updatedMessages;
         });
       });
 
@@ -128,21 +139,11 @@ function ChatButton() {
         isAdmin: false,
       };
 
-      console.log('✉️ Tin nhắn gửi đi từ user:', newMessage);
+      console.log('Tin nhắn gửi đi từ user:', newMessage);
 
       try {
         await axios.post('http://localhost:5000/api/chat/messages', newMessage);
         socket.emit('sendMessage', newMessage);
-
-        setMessages((prev) => {
-          const updatedMessages = {
-            ...prev,
-            [userId]: [...(prev[userId] || []), newMessage],
-          };
-          console.log('📤 Danh sách tin nhắn sau khi gửi:', updatedMessages); // Log danh sách tin nhắn
-          return updatedMessages;
-        });
-
         setInput('');
       } catch (error) {
         console.error('Lỗi khi gửi tin nhắn:', error.response?.data || error.message);

@@ -103,6 +103,21 @@ router.get('/users', protect, admin, async (req, res) => {
   }
 });
 
+// lay ds tat ca nguoi dung
+router.get('/users/all', async(req, res) => {
+  try {
+    const users = await User.find({ role: { $ne : 'admin' }}).select('name').lean();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+});
+
+// Add this temporary test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'Test route works!' });
+});
+
 // Chỉnh sửa người dùng
 router.put('/users/:id', protect, admin, async (req, res) => {
   const { name, email, phone, role } = req.body;
