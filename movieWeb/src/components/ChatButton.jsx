@@ -10,198 +10,165 @@ function ChatButton() {
   const [input, setInput] = useState('');
   const [userId, setUserId] = useState('');
   const [userName, setUserName] = useState('');
+  const [previewImage, setPreviewImage] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);      // <-- NEW: admin typing?
 
   const messagesEndRef = useRef(null);
+  const typingTimeout = useRef(null);                    // <-- debounce stopTyping
 
   const formatTimestamp = (timestamp) => {
     try {
-      return format(new Date(timestamp), 'HH:mm:ss dd/MM/yyyy'); // Định dạng giờ:phút:giây ngày/tháng/năm
-    } catch (error) {
-      console.error('Lỗi định dạng thời gian:', error);
+      return format(new Date(timestamp), 'HH:mm:ss dd/MM/yyyy');
+    } catch {
       return 'Invalid date';
     }
   };
 
-  // Cuộn đến tin nhắn mới nhất
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Gọi scrollToBottom mỗi khi danh sách tin nhắn thay đổi
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(scrollToBottom, [messages]);
+  useEffect(() => { if (isOpen) scrollToBottom(); }, [isOpen]);
 
-  // Cuộn đến tin nhắn mới nhất khi mở phần chat
-  useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [isOpen]);
-
-  // Lấy thông tin người dùng từ localStorage
+  // Lấy thông tin user
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
       setUserId(userInfo._id);
       setUserName(userInfo.name);
     } else {
-      console.error('❌ Không tìm thấy thông tin người dùng trong localStorage');
+      console.error('❌ Không tìm thấy userInfo trong localStorage');
     }
   }, []);
 
-  // Kết nối Socket.IO
+  // Kết nối socket
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
-    setSocket(newSocket);
+    const s = io('http://localhost:5000', { transports: ['websocket'] });
+    setSocket(s);
 
-    newSocket.on('connect', () => {
-      console.log('✅ Socket.IO connection established:', newSocket.id);
+    s.on('connect', () => console.log('Socket connected:', s.id));
+    s.on('disconnect', () => console.log('Socket disconnected'));
+    s.on('connect_error', (e) => console.error('Socket error:', e));
+
+    // Nhận tin nhắn realtime
+    s.on('receiveMessage', (data) => {
+      setMessages((prev) => {
+        const list = prev[data.userId] || [];
+        const dup = list.some(
+          m => m.timestamp === data.timestamp && m.text === data.text && m.sender === data.sender
+        );
+        if (dup) return prev;
+        return { ...prev, [data.userId]: [...list, data] };
+      });
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('❌ Socket.IO disconnected');
+    // Nhận typing từ admin
+    s.on('typing', (data) => {
+      if (data.from === 'admin') setIsTyping(true);
     });
-
-    newSocket.on('connect_error', (error) => {
-      console.error('❌ Socket.IO connection error:', error);
+    s.on('stopTyping', (data) => {
+      if (data.from === 'admin') setIsTyping(false);
     });
 
     return () => {
-      newSocket.disconnect();
+      s.off('receiveMessage');
+      s.off('typing');
+      s.off('stopTyping');
+      s.disconnect();
     };
   }, []);
 
-  // Lắng nghe sự kiện nhận tin nhắn từ admin
-  useEffect(() => {
-    if (socket) {
-      socket.on('receiveMessage', (data) => {
-        console.log('📩 Tin nhắn nhận được:', data);
-
-        setMessages((prev) => {
-          // Check if message already exists to prevent duplicates
-          const existingMessages = prev[data.userId] || [];
-          const isDuplicate = existingMessages.some(
-            msg =>
-              msg.timestamp === data.timestamp &&
-              msg.text === data.text &&
-              msg.sender === data.sender
-          );
-
-          if (isDuplicate) {
-            return prev;
-          }
-
-          return {
-            ...prev,
-            [data.userId]: [...existingMessages, data],
-          };
-        });
-      });
-
-      return () => {
-        socket.off('receiveMessage');
-      };
-    }
-  }, [socket]);
-
-  // Lấy tin nhắn từ server khi tải trang
+  // Lấy lịch sử khi đã có userId
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${userId}`);
-        setMessages((prev) => ({
-          ...prev,
-          [userId]: data,
-        }));
-      } catch (error) {
-        console.error('Lỗi khi lấy tin nhắn:', error.response?.data || error.message);
+        setMessages((prev) => ({ ...prev, [userId]: data }));
+      } catch (err) {
+        console.error('Lỗi khi lấy tin nhắn:', err.response?.data || err.message);
       }
     };
-
-    if (userId) {
-      fetchMessages();
-    }
+    if (userId) fetchMessages();
   }, [userId]);
 
-  // Gửi tin nhắn từ user
+  // emit typing khi user gõ
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInput(val);
+
+    if (!socket || !userId) return;
+
+    if (val.trim().length > 0) {
+      socket.emit('typing', { userId, from: 'user', userName });
+    } else {
+      socket.emit('stopTyping', { userId, from: 'user', userName });
+    }
+  };
+
   const sendMessage = async () => {
-    if (socket && socket.connected && input.trim() && userId) {
+    if (!socket?.connected || !input.trim() || !userId) return;
+
+    const newMessage = {
+      text: input,
+      timestamp: new Date().toISOString(),
+      sender: 'user',
+      userId,
+      userName,
+      isAdmin: false,
+    };
+
+    try {
+      await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+      socket.emit('sendMessage', newMessage);
+      setInput('');
+
+      // khi gửi xong coi như dừng gõ
+      socket.emit('stopTyping', { userId, from: 'user', userName });
+    } catch (err) {
+      console.error('Lỗi khi gửi tin nhắn:', err.response?.data || err.message);
+    }
+  };
+
+  const handleKeyPress = (e) => { if (e.key === 'Enter') sendMessage(); };
+
+  const sendImage = async (file) => {
+    if (!file || !userId) return;
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const uploadResponse = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const imageUrl = uploadResponse.data.imageUrl;
       const newMessage = {
-        text: input,
+        text: '[Hình ảnh]',
+        imageUrl,
         timestamp: new Date().toISOString(),
         sender: 'user',
-        userId: userId,
-        userName: userName,
+        userId,
+        userName,
         isAdmin: false,
       };
 
-      console.log('Tin nhắn gửi đi từ user:', newMessage);
+      await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+      socket.emit('sendMessage', newMessage);
 
-      try {
-        await axios.post('http://localhost:5000/api/chat/messages', newMessage);
-        socket.emit('sendMessage', newMessage);
-        setInput('');
-      } catch (error) {
-        console.error('Lỗi khi gửi tin nhắn:', error.response?.data || error.message);
-      }
-    }
-  };
-
-  // Gửi hình ảnh
-  const sendImage = async (file) => {
-    if (file && userId) {
-      const formData = new FormData();
-      formData.append('image', file);
-      formData.append('userId', userId);
-
-      try {
-        const { data } = await axios.post('http://localhost:5000/api/chat/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        const newMessage = {
-          text: '[Hình ảnh]',
-          imageUrl: data.imageUrl, // URL của ảnh từ server
-          timestamp: new Date().toISOString(),
-          sender: 'user',
-          userId: userId,
-          userName: userName,
-          isAdmin: false,
-        };
-
-        // Gửi tin nhắn qua Socket.IO
-        socket.emit('sendMessage', newMessage);
-
-        // Thêm tin nhắn vào state local
-        setMessages((prev) => ({
-          ...prev,
-          [userId]: [...(prev[userId] || []), newMessage],
-        }));
-      } catch (error) {
-        console.error('Lỗi khi upload hình ảnh:', error.response?.data || error.message);
-      }
-    }
-  };
-
-  // Xử lý khi nhấn Enter để gửi tin nhắn
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
+      setMessages(prev => ({
+        ...prev,
+        [userId]: [...(prev[userId] || []), newMessage],
+      }));
+    } catch (err) {
+      console.error('Error sending image:', err);
     }
   };
 
   return (
     <div className="chat-container">
-      <button
-        className="chat-toggle-btn"
-        onClick={() => setIsOpen(!isOpen)}
-      >
+      <button className="chat-toggle-btn" onClick={() => setIsOpen(!isOpen)}>
         <span role="img" aria-label="chat">💬</span>
       </button>
 
@@ -209,28 +176,21 @@ function ChatButton() {
         <div className="chat-popup">
           <div className="chat-header">
             <h3>Chat với Admin</h3>
-            <button
-              className="close-btn"
-              onClick={() => setIsOpen(false)}
-            >
-              ×
-            </button>
+            <button className="close-btn" onClick={() => setIsOpen(false)}>×</button>
           </div>
+
           <div className="chat-messages">
-            {(messages[userId] || []).map((msg, index) => {
-              // Log ra để kiểm tra
-              console.log(`Message ${index}:`, msg, 'isAdmin:', msg.isAdmin, 'sender:', msg.sender);
-
-              // Phân biệt dựa trên cả isAdmin và sender
+            {(messages[userId] || []).map((msg, i) => {
               const isFromAdmin = (msg.isAdmin === true) || (msg.sender === 'admin');
-
               return (
-                <div
-                  key={index}
-                  className={isFromAdmin ? 'admin-msg' : 'user-msg'}
-                >
+                <div key={i} className={isFromAdmin ? 'admin-msg' : 'user-msg'}>
                   {msg.imageUrl ? (
-                    <img src={msg.imageUrl} alt="Uploaded" className="chat-image" />
+                    <img
+                      src={msg.imageUrl}
+                      alt="Uploaded"
+                      className="chat-image"
+                      onClick={() => setPreviewImage(msg.imageUrl)}
+                    />
                   ) : (
                     <p>{msg.text}</p>
                   )}
@@ -238,20 +198,34 @@ function ChatButton() {
                 </div>
               );
             })}
+
+            {/* Typing tu admin */}
+            {isTyping && (
+              <div className="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
+
+          {previewImage && (
+            <div className="image-overlay" onClick={() => setPreviewImage(null)}>
+              <img src={previewImage} alt="Preview" />
+            </div>
+          )}
+
           <div className="chat-input">
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyPress}
               placeholder="Nhập tin nhắn..."
             />
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => sendImage(e.target.files[0])} // Gọi hàm xử lý upload ảnh
+              onChange={(e) => sendImage(e.target.files[0])}
               style={{ display: 'none' }}
               id="upload-image"
             />

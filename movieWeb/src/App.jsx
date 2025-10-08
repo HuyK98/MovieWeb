@@ -27,7 +27,7 @@ import Points from "./pages/Points"
 import Vouchers from "./pages/Vouchers";
 import MemberCard from "./pages/MemberCard"; // Import trang thẻ thành viên
 import MovieJourney from "./pages/MovieJourney";
-import Chat from "./admin/Chat";
+import ChatPage from "./admin/chat/ChatPage";
 
 const App = () => {
   return (
@@ -49,14 +49,13 @@ const App = () => {
         <Route path="/about" element={<PriceList />} />
         <Route path="/news" element={<NewsAndOffers />} />
         <Route path="/showtimes" element={<Showtimes />} />
-        <Route path="/admin/chat" element={<Chat />} />
+        <Route path="/admin/chat" element={<ChatPage />} />
         <Route path="/chat" element={<ChatButton />} />
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/admin/genres" element={<ManageGenres />} />
         <Route path="/movie/:movieId" element={<FilmDetail />} />
         <Route path="/booking/:bookingId" element={<BookingDetail />} />
         <Route path="/admin/bills" element={<BillsManage />} />
-        <Route path="/admin/chat" element={<Chat />} />
 
         <Route path="/account" element={<Account />} />
         <Route path="/points" element={<Points />} />
