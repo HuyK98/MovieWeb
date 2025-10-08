@@ -1,6 +1,6 @@
 import { faHeart, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "@splidejs/splide/dist/css/splide.min.css";
+import '@splidejs/react-splide/css';
 import axios from "axios"; // Thêm import axios
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";

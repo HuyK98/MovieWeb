@@ -2,13 +2,16 @@ const express = require('express');
 const multer = require('multer');
 const { database } = require('../config/firebaseConfig'); // Import Firebase config
 const { ref, push, get, child } = require('firebase/database');
+const app = express();
 
 const router = express.Router();
+
+app.use('/uploads', express.static('uploads'));
 
 // Cấu hình multer để lưu trữ file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Thư mục lưu ảnh
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -24,7 +27,7 @@ router.post('/upload', upload.single('image'), (req, res) => {
   }
 
   const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
-  console.log('Ảnh được upload:', imageUrl); // Log kiểm tra
+  console.log('Ảnh được upload:', imageUrl); 
   res.json({ imageUrl });
 });
 
