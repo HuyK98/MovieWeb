@@ -17,24 +17,25 @@ const path = require("path");
 
 const app = express();
 
-const allowlist = (process.env.ALLOWED_ORIGINS || "")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
 
 // Express middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true); 
-      return cb(null, allowlist.includes(origin));
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 if (!process.env.MONGO_URI) {
   console.error("MONGO_URI không được thiết lập trong .env");
@@ -68,7 +69,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: allowlist,
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
