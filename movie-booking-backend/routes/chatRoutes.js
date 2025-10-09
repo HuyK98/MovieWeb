@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { database } = require('../config/firebaseConfig'); // Import Firebase config
+const { database } = require('../config/firebaseConfig');
 const { ref, push, get, child } = require('firebase/database');
 const app = express();
 
@@ -26,7 +26,10 @@ router.post('/upload', upload.single('image'), (req, res) => {
     return res.status(400).json({ message: 'Không có file nào được upload' });
   }
 
-  const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+  // Sử dụng BASE_URL từ environment hoặc tự động detect
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+  
   console.log('Ảnh được upload:', imageUrl); 
   res.json({ imageUrl });
 });
@@ -38,9 +41,9 @@ router.post('/messages', async (req, res) => {
 
     // Đảm bảo các trường không bị undefined
     const newMessage = {
-      sender: sender || 'unknown', // Gán giá trị mặc định nếu thiếu
+      sender: sender || 'unknown',
       text: text || '',
-      imageUrl: imageUrl || null, // Gán null nếu không có ảnh
+      imageUrl: imageUrl || null,
       timestamp: timestamp || new Date().toISOString(),
     };
 
@@ -65,9 +68,9 @@ router.get('/messages/:userId', async (req, res) => {
     const snapshot = await get(messagesRef);
 
     if (snapshot.exists()) {
-      res.status(200).json(Object.values(snapshot.val())); // Chuyển đổi dữ liệu từ Firebase thành mảng
+      res.status(200).json(Object.values(snapshot.val()));
     } else {
-      res.status(200).json([]); // Không có tin nhắn
+      res.status(200).json([]);
     }
   } catch (error) {
     console.error('Lỗi khi lấy tin nhắn:', error);

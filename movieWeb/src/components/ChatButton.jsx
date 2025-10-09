@@ -4,6 +4,9 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import '../styles/ChatButton.css';
 
+// Cấu hình API URL từ environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState({});
@@ -12,10 +15,10 @@ function ChatButton() {
   const [userName, setUserName] = useState('');
   const [previewImage, setPreviewImage] = useState(null);
   const [socket, setSocket] = useState(null);
-  const [isTyping, setIsTyping] = useState(false);      // <-- NEW: admin typing?
+  const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef(null);
-  const typingTimeout = useRef(null);                    // <-- debounce stopTyping
+  const typingTimeout = useRef(null);
 
   const formatTimestamp = (timestamp) => {
     try {
@@ -45,7 +48,7 @@ function ChatButton() {
 
   // Kết nối socket
   useEffect(() => {
-    const s = io('http://localhost:5000', { transports: ['websocket'] });
+    const s = io(API_BASE_URL, { transports: ['websocket'] });
     setSocket(s);
 
     s.on('connect', () => console.log('Socket connected:', s.id));
@@ -84,7 +87,7 @@ function ChatButton() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${userId}`);
+        const { data } = await axios.get(`${API_BASE_URL}/api/chat/messages/${userId}`);
         setMessages((prev) => ({ ...prev, [userId]: data }));
       } catch (err) {
         console.error('Lỗi khi lấy tin nhắn:', err.response?.data || err.message);
@@ -120,7 +123,7 @@ function ChatButton() {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+      await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
       socket.emit('sendMessage', newMessage);
       setInput('');
 
@@ -139,7 +142,7 @@ function ChatButton() {
     formData.append('image', file);
 
     try {
-      const uploadResponse = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+      const uploadResponse = await axios.post(`${API_BASE_URL}/api/chat/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -154,7 +157,7 @@ function ChatButton() {
         isAdmin: false,
       };
 
-      await axios.post('http://localhost:5000/api/chat/messages', newMessage);
+      await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
       socket.emit('sendMessage', newMessage);
 
       setMessages(prev => ({
