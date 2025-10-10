@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -42,7 +42,7 @@ function ChatButton() {
       setUserId(userInfo._id);
       setUserName(userInfo.name);
     } else {
-      console.error('❌ Không tìm thấy userInfo trong localStorage');
+      console.error('Không tìm thấy userInfo trong localStorage');
     }
   }, []);
 

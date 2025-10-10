@@ -1,7 +1,9 @@
 const express = require('express');
 const multer = require('multer');
+const { storage: firebaseStorage } = require('../config/firebaseConfig');
+const { ref: storageRef, uploadBytes, getDownloadURL } = require('firebase/storage');
 const { database } = require('../config/firebaseConfig');
-const { ref, push, get, child } = require('firebase/database');
+const { ref, push, get } = require('firebase/database');
 const app = express();
 
 const router = express.Router();
@@ -9,29 +11,43 @@ const router = express.Router();
 app.use('/uploads', express.static('uploads'));
 
 // Cấu hình multer để lưu trữ file
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh!'), false);
+    }
+  }
 });
 
-const upload = multer({ storage });
+// upload image firebase
+router.post('/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Không có file nào được upload' });
+    }
 
-// Endpoint xử lý upload ảnh
-router.post('/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'Không có file nào được upload' });
+    // Tạo tên file unique
+    const fileName = `chat-images/${Date.now()}-${req.file.originalname}`;
+    const imageRef = storageRef(firebaseStorage, fileName);
+
+    // Upload file lên Firebase Storage
+    await uploadBytes(imageRef, req.file.buffer, {
+      contentType: req.file.mimetype
+    });
+
+    // Lấy URL public
+    const imageUrl = await getDownloadURL(imageRef);
+
+    console.log('Ảnh được upload:', imageUrl);
+    res.json({ imageUrl });
+  } catch (error) {
+    console.error('Lỗi upload ảnh:', error);
+    res.status(500).json({ error: 'Lỗi khi upload ảnh' });
   }
-
-  // Sử dụng BASE_URL từ environment hoặc tự động detect
-  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-  
-  console.log('Ảnh được upload:', imageUrl); 
-  res.json({ imageUrl });
 });
 
 // Endpoint lưu tin nhắn vào Firebase

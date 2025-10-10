@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { initializeApp } = require("firebase/app");
-const { getDatabase } = require("firebase/database");
+const { getDatabase, get } = require("firebase/database");
 
 // Cấu hình Firebase từ biến môi trường
 const firebaseConfig = {
@@ -16,6 +16,7 @@ const firebaseConfig = {
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app); // Sử dụng Realtime Database
+const database = getDatabase(app);
+const storage = getDatabase(app);
 
-module.exports = { database };
+module.exports = { database, storage };
