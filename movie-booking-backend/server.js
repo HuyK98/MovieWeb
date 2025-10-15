@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -72,7 +72,13 @@ const io = new Server(server, {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
   },
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  connectTimeout: 45000,
+  allowEIO3: true
 });
 
 io.on("connection", (socket) => {

@@ -23,7 +23,6 @@ export default function ChatSidebar({
 
       <ul>
         {users.map((user) => {
-          // ✅ Lấy lastMessage trực tiếp từ user object
           const lastMessage = user.lastMessage;
           
           return (
