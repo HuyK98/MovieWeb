@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ChatPage.css';
-import { getUsers, getMessages, sendMessageAPI, uploadImageAPI } from './services/chat.api';
+import { getUsersWithLastMessage, getMessages, sendMessageAPI, uploadImageAPI } from './services/chat.api';
 import useChatSocket from './hooks/useChatSocket';
 import ChatSidebar from './components/ChatSidebar';
 import ChatHeader from './components/ChatHeader';
@@ -27,6 +27,15 @@ export default function ChatPage() {
             ...prev,
             [data.userId]: [...(prev[data.userId] || []), data],
         }));
+
+        //cap nhat lastmessage trong users khi co tn moi
+        setUsers(prevUsers =>
+            prevUsers.map(user =>
+                user._id === data.userId
+                    ? { ...user, lastMessage: data }
+                    : user
+            )
+        );
     },
         {
             //onTyping
@@ -40,13 +49,22 @@ export default function ChatPage() {
         }
     );
 
-    // load users
+    // load users voi last message
     useEffect(() => {
         (async () => {
             try {
                 setIsLoading(true);
-                const res = await getUsers();
+                const res = await getUsersWithLastMessage();
                 setUsers(res.data);
+
+                const messagesMap = {};
+                res.data.forEach(user => {
+                    if (user.lastMessage) {
+                        messagesMap[user._id] = [user.lastMessage];
+                    }
+                });
+                setMessagesByUser(messagesMap);
+
                 setError(null);
             } catch (e) {
                 setError('Lỗi khi tải danh sách người dùng');
@@ -85,6 +103,13 @@ export default function ChatPage() {
                 ...prev,
                 [selectedUser._id]: [...(prev[selectedUser._id] || []), msg],
             }));
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
+                    user._id === selectedUser._id
+                        ? { ...user, lastMessage: msg }
+                        : user
+                )
+            );
             setDraft('');
             emitStopTyping({ userId: selectedUser._id, from: 'admin' }); //ngung go sau khi da gui
         } catch (e) {
@@ -112,6 +137,13 @@ export default function ChatPage() {
                 ...prev,
                 [selectedUser._id]: [...(prev[selectedUser._id] || []), msg],
             }));
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
+                    user._id === selectedUser._id
+                        ? { ...user, lastMessage: msg }
+                        : user
+                )
+            );
         } catch (e) {
             console.error('Error sending image:', e);
         }

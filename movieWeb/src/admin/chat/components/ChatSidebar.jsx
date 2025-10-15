@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 
 export default function ChatSidebar({
   users,
-  messagesByUser,
   selectedUser,
   onSelectUser,
   isLoading,
@@ -24,8 +23,9 @@ export default function ChatSidebar({
 
       <ul>
         {users.map((user) => {
-          const thread = messagesByUser[user._id] || [];
-          const last = thread.length ? thread[thread.length - 1] : null;
+          // ✅ Lấy lastMessage trực tiếp từ user object
+          const lastMessage = user.lastMessage;
+          
           return (
             <li
               key={user._id}
@@ -39,13 +39,26 @@ export default function ChatSidebar({
               />
               <div className="user-info-modern">
                 <h4>{user.name}</h4>
-                {last && (
+                
+                {lastMessage ? (
                   <p className="last-message">
-                    {last.imageUrl ? '[Hình ảnh]' : last.text}
-                    <span className="message-time">
-                      {format(new Date(last.timestamp), 'HH:mm')}
-                    </span>
+                    {lastMessage.imageUrl ? (
+                      <span className="message-text">📷 [Hình ảnh]</span>
+                    ) : (
+                      <span className="message-text">
+                        {lastMessage.text && lastMessage.text.length > 30 
+                          ? lastMessage.text.substring(0, 30) + '...' 
+                          : (lastMessage.text || 'Không có nội dung')}
+                      </span>
+                    )}
+                    {lastMessage.timestamp && (
+                      <span className="message-time">
+                        {format(new Date(lastMessage.timestamp), 'HH:mm')}
+                      </span>
+                    )}
                   </p>
+                ) : (
+                  <p className="no-message">Chưa có tin nhắn</p>
                 )}
               </div>
             </li>

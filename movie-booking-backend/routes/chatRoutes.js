@@ -4,6 +4,7 @@ const { storage: firebaseStorage } = require('../config/firebaseConfig');
 const { ref: storageRef, uploadBytes, getDownloadURL } = require('firebase/storage');
 const { database } = require('../config/firebaseConfig');
 const { ref, push, get } = require('firebase/database');
+const User = require('../models/User');
 const app = express();
 
 const router = express.Router();
@@ -91,6 +92,66 @@ router.get('/messages/:userId', async (req, res) => {
   } catch (error) {
     console.error('Lỗi khi lấy tin nhắn:', error);
     res.status(500).json({ error: 'Lỗi khi lấy tin nhắn' });
+  }
+});
+
+// last message
+router.get('/users/last-message', async (req, res) => {
+  try {
+    console.log('Bắt đầu lấy danh sách user với tin nhắn cuối');
+    //lay tat ca user trong db
+    const users = await User.find({ role: 'user' }).select('id name email');
+    if (!users) {
+      console.log('Không tìm thấy user nào');
+      return res.json([]);
+    }
+
+    // lay last message cua tung user
+    const usersWithLastMessage = await Promise.all(  //chay dong thoi cac request
+      users.map(async (user) => { //lap qua tung user
+        try {
+          const messagesRef = ref(database, `messages/${user._id}`);
+          const snapshot = await get(messagesRef);
+
+          let lastMessage = null;
+
+          if (snapshot.exists()) {
+            const messages = Object.values(snapshot.val()); // lay du lieu tho tu firebase => chuyen thanh array
+            const sortedMessages = messages.sort(
+              (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            lastMessage = sortedMessages[0];  //lay phantu dau tien
+          }
+
+          return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            lastMessage: lastMessage
+          };
+        } catch (error) {
+          console.error(`Lỗi khi lấy tin nhắn cho user ${user._id}:`, error);
+          return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            lastMessage: null
+          };
+        }
+      })
+    );
+
+    // sap xep users theo tin nhan moi nhat
+    usersWithLastMessage.sort((a, b) => {
+      if (!a.lastMessage) return 1;
+      if (!b.lastMessage) return -1;
+      return new Date(b.lastMessage.timestamp) - new Date(a.lastMessage.timestamp);
+    });
+
+    res.json(usersWithLastMessage);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách user với tin nhắn cuối:', error);
+    res.status(500).json({ error: 'Lỗi khi lấy danh sách user với tin nhắn cuối' });
   }
 });
 
