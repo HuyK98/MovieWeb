@@ -170,3 +170,22 @@
   40% { opacity: 1; transform: translateY(-3px); }
 }
 
+/* loading upload image */
+.uploading-indicator {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-style: italic;
+}
+
+.upload-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-input input:disabled,
+.chat-input button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

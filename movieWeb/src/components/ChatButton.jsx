@@ -4,7 +4,6 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import '../styles/ChatButton.css';
 
-// Cấu hình API URL từ environment variables
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function ChatButton() {
@@ -16,9 +15,9 @@ function ChatButton() {
   const [previewImage, setPreviewImage] = useState(null);
   const [socket, setSocket] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const messagesEndRef = useRef(null);
-  const typingTimeout = useRef(null);
 
   const formatTimestamp = (timestamp) => {
     try {
@@ -55,7 +54,6 @@ function ChatButton() {
     s.on('disconnect', () => console.log('Socket disconnected'));
     s.on('connect_error', (e) => console.error('Socket error:', e));
 
-    // Nhận tin nhắn realtime
     s.on('receiveMessage', (data) => {
       setMessages((prev) => {
         const list = prev[data.userId] || [];
@@ -67,7 +65,6 @@ function ChatButton() {
       });
     });
 
-    // Nhận typing từ admin
     s.on('typing', (data) => {
       if (data.from === 'admin') setIsTyping(true);
     });
@@ -83,7 +80,7 @@ function ChatButton() {
     };
   }, []);
 
-  // Lấy lịch sử khi đã có userId
+  // Lấy lịch sử tin nhắn
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -96,7 +93,6 @@ function ChatButton() {
     if (userId) fetchMessages();
   }, [userId]);
 
-  // emit typing khi user gõ
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInput(val);
@@ -110,6 +106,7 @@ function ChatButton() {
     }
   };
 
+  // gui tin nhan text
   const sendMessage = async () => {
     if (!socket?.connected || !input.trim() || !userId) return;
 
@@ -126,30 +123,47 @@ function ChatButton() {
       await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
       socket.emit('sendMessage', newMessage);
       setInput('');
-
-      // khi gửi xong coi như dừng gõ
       socket.emit('stopTyping', { userId, from: 'user', userName });
     } catch (err) {
       console.error('Lỗi khi gửi tin nhắn:', err.response?.data || err.message);
     }
   };
 
-  const handleKeyPress = (e) => { if (e.key === 'Enter') sendMessage(); };
+  const handleKeyPress = (e) => { 
+    if (e.key === 'Enter') sendMessage(); 
+  };
 
+  // gui tin nhan hinh anh
   const sendImage = async (file) => {
     if (!file || !userId) return;
+
+    setIsUploading(true); //loading trong khi upload
+
     const formData = new FormData();
     formData.append('image', file);
 
     try {
-      const uploadResponse = await axios.post(`${API_BASE_URL}/api/chat/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // upload cloudinary
+      console.log('Đang upload ảnh lên cloudinary');
+      const uploadResponse = await axios.post(
+        `${API_BASE_URL}/api/chat/upload`, 
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        }
+      );
 
-      const imageUrl = uploadResponse.data.imageUrl;
+      const { imageUrl, cloudinaryId, imageSize, imageName } = uploadResponse.data;
+      console.log('Upload thành công:', imageUrl);
+
+      // tao object
       const newMessage = {
         text: '[Hình ảnh]',
         imageUrl,
+        cloudinaryId,
+        imageSize,
+        imageName,
         timestamp: new Date().toISOString(),
         sender: 'user',
         userId,
@@ -157,15 +171,25 @@ function ChatButton() {
         isAdmin: false,
       };
 
+      // luu vao firebase
       await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
+      console.log('Đã lưu vào Firebase');
+
+      // gui qua socket
       socket.emit('sendMessage', newMessage);
 
+      // Bước 5: cap nhat UI
       setMessages(prev => ({
         ...prev,
         [userId]: [...(prev[userId] || []), newMessage],
       }));
+
+      console.log('Hoàn tất gửi ảnh');
     } catch (err) {
-      console.error('Error sending image:', err);
+      console.error('Lỗi khi gửi ảnh:', err);
+      alert('Lỗi khi upload ảnh. Vui lòng thử lại!');
+    } finally {
+      setIsUploading(false); // tat loading
     }
   };
 
@@ -202,12 +226,20 @@ function ChatButton() {
               );
             })}
 
-            {/* Typing tu admin */}
+            {/* Typing indicator từ admin */}
             {isTyping && (
               <div className="typing-indicator">
                 <span></span><span></span><span></span>
               </div>
             )}
+
+            {/* Loading khi đang upload */}
+            {isUploading && (
+              <div className="uploading-indicator">
+                <p>Đang upload ảnh...</p>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -224,6 +256,7 @@ function ChatButton() {
               onChange={handleInputChange}
               onKeyDown={handleKeyPress}
               placeholder="Nhập tin nhắn..."
+              disabled={isUploading}
             />
             <input
               type="file"
@@ -231,9 +264,15 @@ function ChatButton() {
               onChange={(e) => sendImage(e.target.files[0])}
               style={{ display: 'none' }}
               id="upload-image"
+              disabled={isUploading}
             />
-            <label htmlFor="upload-image" className="upload-btn">📷</label>
-            <button onClick={sendMessage}>Gửi</button>
+            <label 
+              htmlFor="upload-image" 
+              className={`upload-btn ${isUploading ? 'disabled' : ''}`}
+            >
+              📷
+            </label>
+            <button onClick={sendMessage} disabled={isUploading}>Gửi</button>
           </div>
         </div>
       )}

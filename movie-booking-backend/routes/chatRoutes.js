@@ -1,8 +1,7 @@
 const express = require('express');
 const multer = require('multer');
-const { storage: firebaseStorage } = require('../config/firebaseConfig');
-const { ref: storageRef, uploadBytes, getDownloadURL } = require('firebase/storage');
 const { database } = require('../config/firebaseConfig');
+const { cloudinary, upload } = require('../config/cloudinaryConfig');
 const { ref, push, get } = require('firebase/database');
 const User = require('../models/User');
 const app = express();
@@ -11,19 +10,6 @@ const router = express.Router();
 
 app.use('/uploads', express.static('uploads'));
 
-// Cấu hình multer để lưu trữ file
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Chỉ chấp nhận file ảnh!'), false);
-    }
-  }
-});
-
 // upload image firebase
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
@@ -31,36 +17,49 @@ router.post('/upload', upload.single('image'), async (req, res) => {
       return res.status(400).json({ message: 'Không có file nào được upload' });
     }
 
-    // Tạo tên file unique
-    const fileName = `chat-images/${Date.now()}-${req.file.originalname}`;
-    const imageRef = storageRef(firebaseStorage, fileName);
+    //cloudinary tu dong update,multer tra ve thong tin
+    const imageData = {
+      imageUrl: req.file.path,
+      cloudinaryId: req.file.filename,
+      imageSize: req.file.size,
+      imageName: req.file.originalname,
+    };
 
-    // Upload file lên Firebase Storage
-    await uploadBytes(imageRef, req.file.buffer, {
-      contentType: req.file.mimetype
-    });
-
-    // Lấy URL public
-    const imageUrl = await getDownloadURL(imageRef);
-
-    console.log('Ảnh được upload:', imageUrl);
-    res.json({ imageUrl });
+    console.log('Ảnh được upload len Cloudinary:', imageData.imageUrl);
+    res.json(imageData);
   } catch (error) {
     console.error('Lỗi upload ảnh:', error);
     res.status(500).json({ error: 'Lỗi khi upload ảnh' });
   }
 });
 
+// Xoa anh tren cloudinary
+router.delete('/upload/:cloudinaryId', async (req, res) => {
+  try {
+    const { cloudinaryId } = req.params; //lay id tu params 
+    await cloudinary.uploader.destroy(cloudinaryId);  //xoa tren cloudinary
+    console.log('Ảnh đã được xóa khỏi Cloudinary:', cloudinaryId);
+    res.json({ message: 'Ảnh đã được xóa khỏi Cloudinary' });
+  } catch (error) {
+    console.error('Lỗi khi xóa ảnh:', error);
+    res.status(500).json({ error: 'Lỗi khi xóa ảnh' });
+  }
+});
+
+
 // Endpoint lưu tin nhắn vào Firebase
 router.post('/messages', async (req, res) => {
   try {
-    const { userId, sender, text, imageUrl, timestamp } = req.body;
+    const { userId, sender, text, imageUrl, cloudinaryId, imageSize, imageName, timestamp } = req.body;
 
-    // Đảm bảo các trường không bị undefined
+    // tao message object 
     const newMessage = {
       sender: sender || 'unknown',
       text: text || '',
       imageUrl: imageUrl || null,
+      cloudinaryId: cloudinaryId || null,
+      imageSize: imageSize || null,
+      imageName: imageName || null,
       timestamp: timestamp || new Date().toISOString(),
     };
 
@@ -85,7 +84,8 @@ router.get('/messages/:userId', async (req, res) => {
     const snapshot = await get(messagesRef);
 
     if (snapshot.exists()) {
-      res.status(200).json(Object.values(snapshot.val()));
+      const messages = Object.values(snapshot.val());
+      res.status(200).json(messages);
     } else {
       res.status(200).json([]);
     }
