@@ -11,10 +11,10 @@
   background-color: white;
   display: flex;
   align-items: center; /* Giữ căn giữa theo chiều ngang */
-  justify-content: flex-start; /* Thay đổi từ center thành flex-start để căn trên */
+  justify-content: center; /* Thay đổi từ center thành flex-start để căn trên */
   flex-direction: column;
   height: 100vh;
-  padding-top: 20px; /* Thêm khoảng cách phía trên */
+  padding-top: 0; /* Thêm khoảng cách phía trên */
 }
 
 .login-page header {

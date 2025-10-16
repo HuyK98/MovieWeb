@@ -81,16 +81,16 @@ const FavoritesAndBookings = ({
 
   // Lấy thông tin người dùng từ localStorage khi component được mount
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    // console.log("Thông tin người dùng hiện tại từ localStorage:", userInfo);
-
-    if (!userInfo) {
-      navigate("/login");
-    } else {
-      setCurrentUser(userInfo);
-      sessionStorage.setItem("sessionActive", "true");
+    if (showFavorites) {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      if (!userInfo) {
+        navigate("/login");
+      } else {
+        setCurrentUser(userInfo);
+        sessionStorage.setItem("sessionActive", "true");
+      }
     }
-  }, [navigate]);
+  }, [showFavorites, navigate]);
 
   // Xóa thông tin người dùng khi đóng trình duyệt
   useEffect(() => {
@@ -125,15 +125,12 @@ const FavoritesAndBookings = ({
             JSON.parse(localStorage.getItem("deletedItems")) || [];
 
           // Fetch bookings with "cash" payment method
-          const cashResponse = await axios.get(
-            `${API_URL}/api/bookings`,
-            {
-              params: {
-                userId: currentUser._id,
-                paymentMethod: "cash",
-              },
-            }
-          );
+          const cashResponse = await axios.get(`${API_URL}/api/bookings`, {
+            params: {
+              userId: currentUser._id,
+              paymentMethod: "cash",
+            },
+          });
 
           // Loại bỏ các mục đã bị xóa
           const filteredCashBookings = cashResponse.data.filter(
@@ -141,15 +138,12 @@ const FavoritesAndBookings = ({
           );
 
           // Fetch bookings with "momo" payment method
-          const momoResponse = await axios.get(
-            `${API_URL}/api/bookings`,
-            {
-              params: {
-                userId: currentUser._id,
-                paymentMethod: "momo",
-              },
-            }
-          );
+          const momoResponse = await axios.get(`${API_URL}/api/bookings`, {
+            params: {
+              userId: currentUser._id,
+              paymentMethod: "momo",
+            },
+          });
 
           // Loại bỏ các mục đã bị xóa
           const filteredMomoBookings = momoResponse.data.filter(

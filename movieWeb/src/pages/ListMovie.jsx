@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
@@ -7,13 +7,17 @@ import "../styles/Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faTimes, faHeart } from "@fortawesome/free-solid-svg-icons";
 import Header from "../layout/Header";
-import Footer from "../layout/Footer";
-import ChatButton from "../components/ChatButton";
-import Chatbot from "../components/Chatbot";
 import moment from "moment";
 import translations from "../pages/translations";
 import { useLanguage } from "../pages/LanguageContext";
 import API_URL from "../api/config";
+import FallbackTank from "../components/FallbackTank";
+
+// Lazy load các component lớn
+const MovieItem = lazy(() => import("../components/MovieItem"));
+const Footer = lazy(() => import("../layout/Footer"));
+const ChatButton = lazy(() => import("../components/ChatButton"));
+const Chatbot = lazy(() => import("../components/Chatbot"));
 
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
 const useIntersectionObserver = (options = {}) => {
@@ -228,25 +232,25 @@ const ListMovie = () => {
     };
   }, []);
 
-  const handlePrev = () => {
-    setCurrentPoster((prev) => (prev === 0 ? posters.length - 1 : prev - 1));
-  };
+  // const handlePrev = () => {
+  //   setCurrentPoster((prev) => (prev === 0 ? posters.length - 1 : prev - 1));
+  // };
 
-  const handleNext = () => {
-    setCurrentPoster((prev) => (prev === posters.length - 1 ? 0 : prev + 1));
-  };
+  // const handleNext = () => {
+  //   setCurrentPoster((prev) => (prev === posters.length - 1 ? 0 : prev + 1));
+  // };
 
-  const handleFeaturedPrev = () => {
-    setFeaturedIndex((prev) =>
-      prev === 0 ? (movies.length > 5 ? movies.length - 5 : 0) : prev - 1
-    );
-  };
+  // const handleFeaturedPrev = () => {
+  //   setFeaturedIndex((prev) =>
+  //     prev === 0 ? (movies.length > 5 ? movies.length - 5 : 0) : prev - 1
+  //   );
+  // };
 
-  const handleFeaturedNext = () => {
-    setFeaturedIndex((prev) =>
-      prev >= (movies.length > 5 ? movies.length - 5 : 0) ? 0 : prev + 1
-    );
-  };
+  // const handleFeaturedNext = () => {
+  //   setFeaturedIndex((prev) =>
+  //     prev >= (movies.length > 5 ? movies.length - 5 : 0) ? 0 : prev + 1
+  //   );
+  // };
 
   const handleTrailerClick = (url) => {
     setTrailerUrl(url);
@@ -279,46 +283,33 @@ const ListMovie = () => {
 
   // Thêm useEffect để lấy dữ liệu từ bookings
   useEffect(() => {
+    let pollingInterval;
     const fetchBookedSeats = async () => {
-      if (!selectedMovie || !selectedShowtime) {
-        // console.warn("Missing required parameters for fetching booked seats.");
-        return;
-      }
-
-      try {
-        const formattedDate = moment(new Date(selectedShowtime.date)).format(
-          "YYYY-MM-DD"
-        );
-        // console.log("fetchBookedSeats - movieTitle:", selectedMovie.title);
-        // console.log("fetchBookedSeats - formattedDate:", formattedDate);
-
-        const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
-          params: {
-            movieTitle: selectedMovie.title,
-            date: formattedDate,
-          },
-        });
-
-        const bookedSeatsByTime = response.data;
-        // console.log("Booked seats by time:", bookedSeatsByTime);
-
-        // Tính số ghế còn trống cho từng khung giờ
-        const totalSeats = 70; // Tổng số ghế
-        const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
-          time: slot.time,
-          availableSeats: totalSeats - slot.bookedSeats,
-        }));
-
-        // console.log("Available seats by time:", availableSeatsByTime);
-
-        setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
-      } catch (error) {
-        console.error("Error fetching booked seats:", error);
-      }
+      if (!selectedMovie || !selectedShowtime) return;
+      const formattedDate = moment(new Date(selectedShowtime.date)).format(
+        "YYYY-MM-DD"
+      );
+      const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
+        params: { movieTitle: selectedMovie.title, date: formattedDate },
+      });
+      const bookedSeatsByTime = response.data;
+      const totalSeats = 70;
+      const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
+        time: slot.time,
+        availableSeats: totalSeats - slot.bookedSeats,
+      }));
+      setBookings(availableSeatsByTime);
     };
 
-    fetchBookedSeats();
-  }, [selectedMovie, selectedShowtime]);
+    if (showPopup && selectedMovie && selectedShowtime) {
+      fetchBookedSeats();
+      pollingInterval = setInterval(fetchBookedSeats, 5000); // gọi lại API mỗi 5 giây
+    }
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [showPopup, selectedMovie, selectedShowtime]);
 
   // Thêm hàm để xử lý sự kiện click vào ưu thích phim
   const handleFavoriteClick = (movie) => {
@@ -654,9 +645,15 @@ const ListMovie = () => {
             </div>
           </div>
         )}
-        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-        <ChatButton />
-        <Chatbot />
+        <Suspense fallback={<FallbackTank />}>
+          <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+        </Suspense>
+        <Suspense fallback={<FallbackTank />}>
+          <ChatButton />
+        </Suspense>
+        <Suspense fallback={<FallbackTank />}>
+          <Chatbot />
+        </Suspense>
       </div>
     </div>
   );

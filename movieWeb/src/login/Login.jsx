@@ -41,10 +41,12 @@ const Login = () => {
       orUseEmailAndPassword: "hoặc sử dụng email và mật khẩu của bạn",
       forgotPassword: "Quên mật khẩu?",
       welcomeBack: "Chào Mừng Trở Lại!",
-      connectWithPersonalDetails: "Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn",
+      connectWithPersonalDetails:
+        "Để giữ kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn",
       loginButton: "Đăng Nhập",
       helloFriend: "Xin Chào, Bạn!",
-      enterPersonalDetails: "Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi",
+      enterPersonalDetails:
+        "Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi",
       registerButton: "Đăng Ký",
       registerSuccess: "Đăng ký tài khoản thành công!",
       registerFailure: "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
@@ -65,10 +67,12 @@ const Login = () => {
       orUseEmailAndPassword: "or use your email and password",
       forgotPassword: "Forgot password?",
       welcomeBack: "Welcome Back!",
-      connectWithPersonalDetails: "To keep connected with us, please login with your personal info",
+      connectWithPersonalDetails:
+        "To keep connected with us, please login with your personal info",
       loginButton: "Login",
       helloFriend: "Hello, Friend!",
-      enterPersonalDetails: "Enter your personal details and start journey with us",
+      enterPersonalDetails:
+        "Enter your personal details and start journey with us",
       registerButton: "Register",
       registerSuccess: "Account registration successful!",
       registerFailure: "Registration failed. Please check your information.",
@@ -82,10 +86,12 @@ const Login = () => {
     e.preventDefault();
     try {
       if (isRegister) {
-        const response = await axios.post(
-          `${API_URL}/api/auth/register`,
-          { name, email, password, phone }
-        );
+        const response = await axios.post(`${API_URL}/api/auth/register`, {
+          name,
+          email,
+          password,
+          phone,
+        });
         setSuccess(texts[language].registerSuccess);
         setTimeout(() => {
           setIsRegister(false);
@@ -93,10 +99,10 @@ const Login = () => {
           navigate("/login");
         }, 2000);
       } else {
-        const response = await axios.post(
-          `${API_URL}/api/auth/login`,
-          { email, password }
-        );
+        const response = await axios.post(`${API_URL}/api/auth/login`, {
+          email,
+          password,
+        });
         localStorage.setItem("userInfo", JSON.stringify(response.data));
         // Kiểm tra vai trò của người dùng
         if (response.data.role === "admin") {
@@ -138,12 +144,9 @@ const Login = () => {
         return;
       }
 
-      const res = await axios.post(
-        `${API_URL}/api/auth/google-login`,
-        {
-          tokenId: credential,
-        }
-      );
+      const res = await axios.post(`${API_URL}/api/auth/google-login`, {
+        tokenId: credential,
+      });
       localStorage.setItem("userInfo", JSON.stringify(res.data));
       if (res.data.user.role === "admin") {
         navigate("/admin");
@@ -193,6 +196,10 @@ const Login = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
 
   return (

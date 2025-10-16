@@ -1,0 +1,47 @@
+.fallback-tank-bg {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  background: linear-gradient(to top, #e0f7fa 60%, #fff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.dinh-doc-lap {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 120px;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/2/2a/Dinh_Doc_Lap_2011.jpg') center bottom/cover no-repeat;
+  opacity: 0.45;
+  border-radius: 12px 12px 0 0;
+  z-index: 1;
+}
+
+.tank-animation {
+  position: relative;
+  z-index: 2;
+  animation: tank-move 2.5s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes tank-move {
+  0% { transform: translateX(-120px); }
+  60% { transform: translateX(80px); }
+  100% { transform: translateX(220px); }
+}
+
+.fallback-tank-text {
+  position: relative;
+  z-index: 3;
+  font-size: 1.4rem;
+  color: #d32f2f;
+  font-weight: bold;
+  margin-bottom: 18px;
+  text-shadow: 1px 1px 6px #fff, 0 0 2px #222;
+}

@@ -3,57 +3,90 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "@splidejs/splide/dist/css/splide.min.css";
 import axios from "axios"; // Thêm import axios
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom"; // Thêm useNavigate
-import { getMovies } from "../api";
 import API_URL from "../api/config";
 import poster1 from "../assets/poster/post1.jpg";
 import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
-import ChatButton from "../components/ChatButton";
-import Chatbot from "../components/Chatbot";
-import FavoritesAndBookings from "../components/FavoritesAndBookings";
-import NowShowingMovies from "../components/NowShowingMovies";
-import PosterSection from "../components/PosterSection";
-import ShowtimesPopup from "../components/ShowtimesPopup";
-import TrailerModal from "../components/TrailerModal";
-import UpcomingMovies from "../components/UpcomingMovies";
-import Footer from "../layout/Footer";
 import Header from "../layout/Header";
+import FallbackTank from "../components/FallbackTank";
 import "../styles/Home.css";
 import "../styles_admin/ManageGenres.css";
 
+const TrailerModal = lazy(() => import("../components/TrailerModal"));
+const ShowtimesPopup = lazy(() => import("../components/ShowtimesPopup"));
+const FavoritesAndBookings = lazy(() => import("../components/FavoritesAndBookings"));
+const PosterSection = lazy(() => import("../components/PosterSection"));
+const NowShowingMovies = lazy(() => import("../components/NowShowingMovies"));
+const UpcomingMovies = lazy(() => import("../components/UpcomingMovies"));
+const ChatButton = lazy(() => import("../components/ChatButton"));
+const Chatbot = lazy(() => import("../components/Chatbot"));
+const Footer = lazy(() => import("../layout/Footer"));
+
 // Hook để kiểm tra khi phần tử xuất hiện trong viewport
+const observersMap = new Map(); // key = JSON.stringify(options) -> { observer, elements:set }
+
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
+  const key = JSON.stringify(options);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, options);
+    let entryCallback;
+    let record;
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (!observersMap.has(key)) {
+      const elements = new Set();
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const cb = entry.target.__ioCallback;
+          if (cb) cb(entry.isIntersecting);
+        });
+      }, options);
+      observersMap.set(key, { observer, elements, count: 0 });
     }
 
-    const handleResize = () => {
-      if (ref.current) {
-        observer.observe(ref.current); // Quan sát lại khi thay đổi kích thước
-      }
-    };
+    record = observersMap.get(key);
+    const { observer, elements } = record;
 
-    window.addEventListener("resize", handleResize);
+    entryCallback = (visible) => setIsVisible(visible);
+
+    const node = ref.current;
+    if (node) {
+      // attach callback to node so observer callback can call it
+      node.__ioCallback = entryCallback;
+      elements.add(node);
+      observer.observe(node);
+      record.count = (record.count || 0) + 1;
+    }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      const n = ref.current;
+      if (n && record) {
+        try {
+          observer.unobserve(n);
+        } catch (e) {
+          console.error("IntersectionObserver unobserve error:", e);
+        }
+        n.__ioCallback = null;
+        elements.delete(n);
+        record.count = Math.max(0, (record.count || 1) - 1);
+        // cleanup observer when no elements remain
+        if (record.count === 0) {
+          try {
+            observer.disconnect();
+          } catch (e) {
+            console.error("IntersectionObserver disconnect error:", e);
+          }
+          observersMap.delete(key);
+        }
       }
-      window.removeEventListener("resize", handleResize);
     };
-  }, [options]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   return [ref, isVisible];
 };
@@ -230,40 +263,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [posters.length]);
 
-  // useEffect(() => {
-  //   const fetchMovies = async () => {
-  //     try {
-  //       const data = await getMovies();
-  //       if (Array.isArray(data)) {
-  //         setMovies(data);
-  //       } else {
-  //         throw new Error("Invalid data format");
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching movies:", err);
-  //       setError("Không thể tải danh sách phim.");
-  //     }
-  //   };
-  //   fetchMovies();
-
-  //   const style = document.createElement("style");
-  //   style.textContent = `
-  //     .animated-section {
-  //       transition: opacity 0.8s ease, transform 0.8s ease;
-  //       will-change: opacity, transform;
-  //     }
-  //     .animated-section.visible {
-  //       opacity: 1 !important;
-  //       transform: translate(0, 0) !important;
-  //     }
-  //   `;
-  //   document.head.appendChild(style);
-
-  //   return () => {
-  //     document.head.removeChild(style);
-  //   };
-  // }, []);
-
   const handlePrev = () => {
     setCurrentPoster((prev) => (prev === 0 ? posters.length - 1 : prev - 1));
   };
@@ -304,9 +303,11 @@ const Home = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // filteredMovies computation with useMemo
+  const filteredMovies = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return movies.filter((movie) => movie.title.toLowerCase().includes(q));
+  }, [movies, searchTerm]);
 
   const updateTotalNotifications = (total) => {
     setTotalNotifications(total); // Cập nhật tổng số lượng thông báo
@@ -412,64 +413,65 @@ const Home = () => {
     fetchMovies();
   }, []);
 
-  const visibleMovies = [
-    ...nowShowingMovies.slice(featuredIndex, featuredIndex + 6),
-    ...nowShowingMovies.slice(
-      0,
-      Math.max(0, featuredIndex + 6 - nowShowingMovies.length)
-    ),
-  ];
+  // memoize visible movies
+  const visibleMovies = useMemo(() => {
+    if (!nowShowingMovies || nowShowingMovies.length === 0) return [];
+    return [
+      ...nowShowingMovies.slice(featuredIndex, featuredIndex + 6),
+      ...nowShowingMovies.slice(
+        0,
+        Math.max(0, featuredIndex + 6 - nowShowingMovies.length)
+      ),
+    ];
+  }, [nowShowingMovies, featuredIndex]);
 
-  const visibleUpcomingMovies = [
-    ...upcomingMovies.slice(upcomingIndex, upcomingIndex + 6),
-    ...upcomingMovies.slice(
-      0,
-      Math.max(0, upcomingIndex + 6 - upcomingMovies.length)
-    ),
-  ];
+  const visibleUpcomingMovies = useMemo(() => {
+    if (!upcomingMovies || upcomingMovies.length === 0) return [];
+    return [
+      ...upcomingMovies.slice(upcomingIndex, upcomingIndex + 6),
+      ...upcomingMovies.slice(
+        0,
+        Math.max(0, upcomingIndex + 6 - upcomingMovies.length)
+      ),
+    ];
+  }, [upcomingMovies, upcomingIndex]);
 
   // Thêm useEffect để lấy dữ liệu từ bookings
   useEffect(() => {
+    let pollingInterval;
     const fetchBookedSeats = async () => {
-      if (!selectedMovie || !selectedShowtime) {
-        // console.warn('Missing required parameters for fetching booked seats.');
-        return;
-      }
-
+      if (!selectedMovie || !selectedShowtime) return;
       try {
         const formattedDate = moment(new Date(selectedShowtime.date)).format(
           "YYYY-MM-DD"
         );
-        // console.log('fetchBookedSeats - movieTitle:', selectedMovie.title);
-        // console.log('fetchBookedSeats - formattedDate:', formattedDate);
-
         const response = await axios.get(`${API_URL}/api/payment/seats/page`, {
           params: {
             movieTitle: selectedMovie.title,
             date: formattedDate,
           },
         });
-
         const bookedSeatsByTime = response.data;
-        // console.log('Booked seats by time:', bookedSeatsByTime);
-
-        // Tính số ghế còn trống cho từng khung giờ
-        const totalSeats = 70; // Tổng số ghế
+        const totalSeats = 70;
         const availableSeatsByTime = bookedSeatsByTime.map((slot) => ({
           time: slot.time,
           availableSeats: totalSeats - slot.bookedSeats,
         }));
-
-        // console.log('Available seats by time:', availableSeatsByTime);
-
-        setBookings(availableSeatsByTime); // Lưu danh sách số ghế còn trống theo từng khung giờ
+        setBookings(availableSeatsByTime);
       } catch (error) {
         console.error("Error fetching booked seats:", error);
       }
     };
 
-    fetchBookedSeats();
-  }, [selectedMovie, selectedShowtime]);
+    if (showPopup && selectedMovie && selectedShowtime) {
+      fetchBookedSeats();
+      pollingInterval = setInterval(fetchBookedSeats, 5000); // gọi lại API mỗi 5 giây
+    }
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [showPopup, selectedMovie, selectedShowtime]);
 
   // Thêm useEffect để cuộn trang khi người dùng cuộn
   useEffect(() => {
@@ -497,7 +499,6 @@ const Home = () => {
     const storedBookings = JSON.parse(localStorage.getItem("bookings")) || [];
     setBookings(storedBookings);
   }, []);
-
 
   return (
     <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
@@ -541,27 +542,31 @@ const Home = () => {
           </button>
         </div>
 
-        {currentTab === "now-showing" && (
-          <NowShowingMovies
-            visibleMovies={visibleMovies}
-            handleFeaturedPrev={handleFeaturedPrev}
-            handleFeaturedNext={handleFeaturedNext}
-            handleTrailerClick={handleTrailerClick}
-          />
-        )}
-        {currentTab === "upcoming" && (
-          <UpcomingMovies
-            visibleUpcomingMovies={visibleUpcomingMovies}
-            handleUpcomingPrev={handleUpcomingPrev}
-            handleUpcomingNext={handleUpcomingNext}
-            handleTrailerClick={handleTrailerClick}
-          />
-        )}
+        <Suspense fallback={<div>Đang tải...</div>}>
+          {currentTab === "now-showing" && (
+            <NowShowingMovies
+              visibleMovies={visibleMovies}
+              handleFeaturedPrev={handleFeaturedPrev}
+              handleFeaturedNext={handleFeaturedNext}
+              handleTrailerClick={handleTrailerClick}
+            />
+          )}
+          {currentTab === "upcoming" && (
+            <UpcomingMovies
+              visibleUpcomingMovies={visibleUpcomingMovies}
+              handleUpcomingPrev={handleUpcomingPrev}
+              handleUpcomingNext={handleUpcomingNext}
+              handleTrailerClick={handleTrailerClick}
+            />
+          )}
+        </Suspense>
         {/* Poster Section */}
         <div className="poster-header">
           <h2>XEM GÌ TẠI CINEMA</h2>
         </div>
-        <PosterSection movies={movies} />
+        <Suspense fallback={<FallbackTank />}>
+          <PosterSection movies={movies} />
+        </Suspense>
         <AnimatedSection animation="fade-right" delay={10}>
           <div className="card-items">
             <h2>Danh sách phim</h2>
@@ -624,7 +629,13 @@ const Home = () => {
                         >
                           <div className="movie-item">
                             <div className="movie-image-container">
-                              <img src={movie.imageUrl} alt={movie.title} />
+                              <img
+                                src={movie.imageUrl}
+                                alt={movie.title}
+                                loading="lazy"
+                                width="300"
+                                height="420"
+                              />
                               <button
                                 className={`favorite-button ${
                                   favorites.some((fav) => fav._id === movie._id)
@@ -692,35 +703,50 @@ const Home = () => {
           </div>
         </AnimatedSection>
       </div>
-      <TrailerModal trailerUrl={trailerUrl} onClose={handleCloseTrailer} />;
-      <ShowtimesPopup
-        showPopup={showPopup}
-        selectedMovie={selectedMovie}
-        showtimes={showtimes}
-        selectedShowtime={selectedShowtime}
-        bookings={bookings}
-        activeSeat={activeSeat}
-        bookingInfo={bookingInfo}
-        handleCloseShowtimesPopup={handleCloseShowtimesPopup}
-        handleClosePopup={handleClosePopup}
-        handleDateClick={handleDateClick}
-        handleSeatClick={handleSeatClick}
-        handleCloseBookingInfo={handleCloseBookingInfo}
-        handleConfirmBooking={handleConfirmBooking}
-        formatDate={formatDate}
-      />
-      <FavoritesAndBookings
-        user={user}
-        favorites={favorites}
-        bookings={bookings}
-        showFavorites={showFavorites}
-        setShowFavorites={setShowFavorites}
-        handleRemoveFavorite={handleRemoveFavorite}
-        updateTotalNotifications={updateTotalNotifications}
-      />
-      <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-      <ChatButton />
-      <Chatbot />
+
+      <Suspense fallback={<FallbackTank />}>
+        <TrailerModal trailerUrl={trailerUrl} onClose={handleCloseTrailer} />
+      </Suspense>
+      <Suspense fallback={<FallbackTank />}>
+        <ShowtimesPopup
+          showPopup={showPopup}
+          selectedMovie={selectedMovie}
+          showtimes={showtimes}
+          selectedShowtime={selectedShowtime}
+          bookings={bookings}
+          activeSeat={activeSeat}
+          bookingInfo={bookingInfo}
+          handleCloseShowtimesPopup={handleCloseShowtimesPopup}
+          handleClosePopup={handleClosePopup}
+          handleDateClick={handleDateClick}
+          handleSeatClick={handleSeatClick}
+          handleCloseBookingInfo={handleCloseBookingInfo}
+          handleConfirmBooking={handleConfirmBooking}
+          formatDate={formatDate}
+        />
+      </Suspense>
+      <Suspense fallback={<FallbackTank />}>
+        <FavoritesAndBookings
+          user={user}
+          favorites={favorites}
+          bookings={bookings}
+          showFavorites={showFavorites}
+          setShowFavorites={setShowFavorites}
+          handleRemoveFavorite={handleRemoveFavorite}
+          updateTotalNotifications={updateTotalNotifications}
+        />
+      </Suspense>
+
+      <Suspense fallback={<FallbackTank />}>
+        <Footer toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+      </Suspense>
+
+      <Suspense fallback={<FallbackTank />}>
+        <ChatButton />
+      </Suspense>
+      <Suspense fallback={<FallbackTank />}>
+        <Chatbot />
+      </Suspense>
     </div>
   );
 };

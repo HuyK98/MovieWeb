@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import axios from "axios";
 import "../../styles_admin/MovieList.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
-import {
-  FaBars,
-} from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
 import API_URL from "../../api/config"; // Import API_URL từ file config
-import HeaderAdmin from "../admin_layout/HeaderAdmin";
-import Sidebar from "../admin_layout/Sidebar";
+import FallbackTank from "../../components/FallbackTank";
+
+// Lazy load các component lớn
+const HeaderAdmin = lazy(() => import("../admin_layout/HeaderAdmin"));
+const Sidebar = lazy(() => import("../admin_layout/Sidebar"));
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
@@ -197,16 +198,19 @@ const MovieList = () => {
 
   if (loading) return <div>Đang tải danh sách phim...</div>;
   if (error) return <div>{error}</div>;
-    
 
   return (
     <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
-      <Sidebar
-        isSidebarCollapsed={isSidebarCollapsed}
-        setIsSidebarCollapsed={setIsSidebarCollapsed}
-      />
-      <HeaderAdmin />
+      <Suspense fallback={<FallbackTank />}>
+        <Sidebar
+          isSidebarCollapsed={isSidebarCollapsed}
+          setIsSidebarCollapsed={setIsSidebarCollapsed}
+        />
+      </Suspense>
+      <Suspense fallback={<FallbackTank />}>
+        <HeaderAdmin />
+      </Suspense>
       <button
         className="collapse-button"
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -281,143 +285,152 @@ const MovieList = () => {
 
       {/* Modal chỉnh sửa */}
       {showEditModal && editMovie && (
-        <div className="modal">
-          <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>
-              X
-            </button>
-            <h2>Chỉnh sửa phim</h2>
-            <form onSubmit={handleUpdateSubmit} className="movie-form">
-              <label>Tiêu đề phim:</label>
-              <input
-                type="text"
-                value={editMovie.title}
-                onChange={(e) =>
-                  setEditMovie({ ...editMovie, title: e.target.value })
-                }
-                required
-              />
-
-              <label>Mô tả:</label>
-              <textarea
-                value={editMovie.description}
-                onChange={(e) =>
-                  setEditMovie({ ...editMovie, description: e.target.value })
-                }
-                required
-              />
-
-              <label>Ngày phát hành:</label>
-              <input
-                type="date"
-                value={
-                  new Date(editMovie.releaseDate).toISOString().split("T")[0]
-                }
-                onChange={(e) =>
-                  setEditMovie({ ...editMovie, releaseDate: e.target.value })
-                }
-                required
-              />
-
-              <label>Thể loại:</label>
-              <input
-                type="text"
-                value={editMovie.genre}
-                onChange={(e) =>
-                  setEditMovie({ ...editMovie, genre: e.target.value })
-                }
-                required
-              />
-
-              <label>Chọn ảnh mới (nếu muốn thay đổi):</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              <img
-                src={editMovie.imageUrl}
-                alt="Current"
-                className="preview-img"
-              />
-
-              <label>Chọn video mới (nếu muốn thay đổi):</label>
-              <input
-                type="file"
-                accept="video/mp4"
-                onChange={handleVideoChange}
-              />
-
-              <button className="add-btn" type="submit">
-                Cập nhật
+        <Suspense fallback={<FallbackTank />}>
+          <div className="modal">
+            <div className="modal-content">
+              <button className="close-button" onClick={handleCloseModal}>
+                X
               </button>
-              <button
-                className="cancel-btn"
-                type="button"
-                onClick={() => setShowEditModal(false)}
-              >
-                Hủy
-              </button>
-            </form>
+              <h2>Chỉnh sửa phim</h2>
+              <form onSubmit={handleUpdateSubmit} className="movie-form">
+                <label>Tiêu đề phim:</label>
+                <input
+                  type="text"
+                  value={editMovie.title}
+                  onChange={(e) =>
+                    setEditMovie({ ...editMovie, title: e.target.value })
+                  }
+                  required
+                />
+
+                <label>Mô tả:</label>
+                <textarea
+                  value={editMovie.description}
+                  onChange={(e) =>
+                    setEditMovie({ ...editMovie, description: e.target.value })
+                  }
+                  required
+                />
+
+                <label>Ngày phát hành:</label>
+                <input
+                  type="date"
+                  value={
+                    new Date(editMovie.releaseDate).toISOString().split("T")[0]
+                  }
+                  onChange={(e) =>
+                    setEditMovie({ ...editMovie, releaseDate: e.target.value })
+                  }
+                  required
+                />
+
+                <label>Thể loại:</label>
+                <input
+                  type="text"
+                  value={editMovie.genre}
+                  onChange={(e) =>
+                    setEditMovie({ ...editMovie, genre: e.target.value })
+                  }
+                  required
+                />
+
+                <label>Chọn ảnh mới (nếu muốn thay đổi):</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                <img
+                  src={editMovie.imageUrl}
+                  alt="Current"
+                  className="preview-img"
+                />
+
+                <label>Chọn video mới (nếu muốn thay đổi):</label>
+                <input
+                  type="file"
+                  accept="video/mp4"
+                  onChange={handleVideoChange}
+                />
+
+                <button className="add-btn" type="submit">
+                  Cập nhật
+                </button>
+                <button
+                  className="cancel-btn"
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Hủy
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
+        </Suspense>
       )}
 
       {/* Modal thêm lịch chiếu */}
       {showAddShowtimeModal && selectedMovieForShowtime && (
-        <div className="modal">
-          <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>
-              X
-            </button>
-            <h2>Thêm Lịch Chiếu - {selectedMovieForShowtime.title}</h2>
-            <form onSubmit={handleAddShowtimeSubmit} className="showtime-form">
-              <label>Ngày chiếu:</label>
-              <input
-                type="date"
-                value={showtimeDate}
-                onChange={(e) => setShowtimeDate(e.target.value)}
-                required
-              />
-
-              <label>Giờ chiếu:</label>
-              <input
-                type="time"
-                value={showtimeTime}
-                onChange={(e) => setShowtimeTime(e.target.value)}
-                required
-              />
-
-              <button className="add-btn" type="submit">
-                Thêm Lịch Chiếu
+        <Suspense fallback={<FallbackTank />}>
+          <div className="modal">
+            <div className="modal-content">
+              <button className="close-button" onClick={handleCloseModal}>
+                X
               </button>
-              <button
-                className="cancel-btn"
-                type="button"
-                onClick={handleCloseAddShowtimeModal}
+              <h2>Thêm Lịch Chiếu - {selectedMovieForShowtime.title}</h2>
+              <form
+                onSubmit={handleAddShowtimeSubmit}
+                className="showtime-form"
               >
-                Hủy
-              </button>
-            </form>
+                <label>Ngày chiếu:</label>
+                <input
+                  type="date"
+                  value={showtimeDate}
+                  onChange={(e) => setShowtimeDate(e.target.value)}
+                  required
+                />
+
+                <label>Giờ chiếu:</label>
+                <input
+                  type="time"
+                  value={showtimeTime}
+                  onChange={(e) => setShowtimeTime(e.target.value)}
+                  required
+                />
+
+                <button className="add-btn" type="submit">
+                  Thêm Lịch Chiếu
+                </button>
+                <button
+                  className="cancel-btn"
+                  type="button"
+                  onClick={handleCloseAddShowtimeModal}
+                >
+                  Hủy
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
+        </Suspense>
       )}
 
       {/* Modal xác nhận xóa */}
       {showDeleteConfirmModal && movieToDelete && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Bạn có chắc chắn xóa không?</h2>
-            <div className="confirm-buttons">
-              <button className="confirm-btn" onClick={handleConfirmDelete}>
-                Yes
-              </button>
-              <button className="cancel-btn" onClick={handleCancelDelete}>
-                No
-              </button>
+        <Suspense fallback={<FallbackTank />}>
+          <div className="modal">
+            <div className="modal-content">
+              <h2>Bạn có chắc chắn xóa không?</h2>
+              <div className="confirm-buttons">
+                <button className="confirm-btn" onClick={handleConfirmDelete}>
+                  Yes
+                </button>
+                <button className="cancel-btn" onClick={handleCancelDelete}>
+                  No
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Suspense>
       )}
     </div>
   );

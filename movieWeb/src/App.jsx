@@ -32,37 +32,36 @@ import MovieJourney from "./pages/MovieJourney";
 import { WebSocketProvider } from "./services/WebSocketContext";
 import API_URL from "./api/config";
 import AdminProvider from "./services/AdminContext"; // Import AdminProvider
-import { useWebSocket } from "./services/WebSocketContext"; // Import socket từ WebSocketContext
 
 const App = () => {
   return (
     <WebSocketProvider>
-      <LanguageProvider>
-        {/* giao diện cho user */}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/movie-detail" element={<MovieDetail />} />
-          <Route path="/payment" element={<PaymentInfo />} />
-          <Route path="/movielist" element={<ListMovie />} />
-          <Route path="/place" element={<CinemaIntro />} />
-          <Route path="/about" element={<PriceList />} />
-          <Route path="/news" element={<NewsAndOffers />} />
-          <Route path="/showtimes" element={<Showtimes />} />
-          <Route path="/chat" element={<ChatButton />} />
-          <Route path="/chatbot" element={<Chatbot />} />
-          <Route path="/movie/:movieId" element={<FilmDetail />} />
-          <Route path="/booking/:bookingId" element={<BookingDetail />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/points" element={<Points />} />
-          <Route path="/vouchers" element={<Vouchers />} />
-          <Route path="/movie-journey" element={<MovieJourney />} />
-          <Route path="/member-card" element={<MemberCard />} />{" "}
-          {/* Thêm route này */}
-        </Routes>
+      <AdminProvider API_URL={API_URL}>
+        <LanguageProvider>
+          {/* giao diện cho user */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/movie-detail" element={<MovieDetail />} />
+            <Route path="/payment" element={<PaymentInfo />} />
+            <Route path="/movielist" element={<ListMovie />} />
+            <Route path="/place" element={<CinemaIntro />} />
+            <Route path="/about" element={<PriceList />} />
+            <Route path="/news" element={<NewsAndOffers />} />
+            <Route path="/showtimes" element={<Showtimes />} />
+            <Route path="/chat" element={<ChatButton />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/movie/:movieId" element={<FilmDetail />} />
+            <Route path="/booking/:bookingId" element={<BookingDetail />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/points" element={<Points />} />
+            <Route path="/vouchers" element={<Vouchers />} />
+            <Route path="/movie-journey" element={<MovieJourney />} />
+            <Route path="/member-card" element={<MemberCard />} />{" "}
+            {/* Thêm route này */}
+          </Routes>
 
-        {/* giao diện cho admin */}
-        <AdminProvider API_URL={API_URL}>
+          {/* giao diện cho admin */}
           {/* <HeaderAdmin API_URL={API_URL}/> */}
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
@@ -71,13 +70,16 @@ const App = () => {
             <Route path="/admin/schedules" element={<ScheduleList />} />
             <Route path="/admin/users" element={<UserList />} />
             <Route path="/admin/revenue" element={<Revenue />} />
-            <Route path="/admin/booking-detail/:bookingId" element={<BookingDetailAdmin />} />
+            <Route
+              path="/admin/booking-detail/:bookingId"
+              element={<BookingDetailAdmin />}
+            />
             <Route path="/admin/chat" element={<Chat />} />
             <Route path="/admin/bills" element={<BillsManage />} />
             <Route path="/admin/genres" element={<ManageGenres />} />
           </Routes>
-        </AdminProvider>
-      </LanguageProvider>
+        </LanguageProvider>
+      </AdminProvider>
     </WebSocketProvider>
   );
 };

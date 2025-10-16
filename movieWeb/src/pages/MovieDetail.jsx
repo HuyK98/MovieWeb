@@ -28,61 +28,125 @@ const MovieDetail = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // lấy số ghế đã đặt từ API và cập nhật trạng thái mỗi 5s
   useEffect(() => {
-    const fetchSeats = async () => {
-      try {
-        if (
-          !bookingInfo ||
-          !bookingInfo.movieTitle ||
-          !bookingInfo.date ||
-          !bookingInfo.time
-        ) {
-          console.error("bookingInfo hoặc các trường cần thiết là undefined");
-          return;
-        }
+  let pollingInterval;
 
-        // Kiểm tra và định dạng ngày
-        const formattedDate = moment(
-          bookingInfo.date,
-          moment.ISO_8601,
-          true
-        ).isValid()
-          ? moment(bookingInfo.date).format("YYYY-MM-DD") // Xử lý định dạng ISO
-          : moment(bookingInfo.date, "DD/MM/YYYY", true).isValid()
-          ? moment(bookingInfo.date, "DD/MM/YYYY").format("YYYY-MM-DD") // Xử lý định dạng DD/MM/YYYY
-          : null;
-
-        if (!formattedDate) {
-          console.error("Ngày không hợp lệ:", bookingInfo.date);
-          return;
-        }
-
-        const response = await axios.get(`${API_URL}/api/payment/seats`, {
-          params: {
-            movieTitle: bookingInfo.movieTitle,
-            date: formattedDate,
-            time: bookingInfo.time,
-          },
-        });
-
-        const bookedSeats = response.data;
-        const allSeats = Array.from({ length: 70 }, (_, i) => ({
-          id: i + 1,
-          isBooked: bookedSeats.includes((i + 1).toString()),
-        }));
-        setSeats(allSeats);
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin ghế:", error);
+  const fetchSeats = async () => {
+    try {
+      if (
+        !bookingInfo ||
+        !bookingInfo.movieTitle ||
+        !bookingInfo.date ||
+        !bookingInfo.time
+      ) {
+        console.error("bookingInfo hoặc các trường cần thiết là undefined");
+        return;
       }
-    };
 
-    fetchSeats();
+      // Kiểm tra và định dạng ngày
+      const formattedDate = moment(
+        bookingInfo.date,
+        moment.ISO_8601,
+        true
+      ).isValid()
+        ? moment(bookingInfo.date).format("YYYY-MM-DD")
+        : moment(bookingInfo.date, "DD/MM/YYYY", true).isValid()
+        ? moment(bookingInfo.date, "DD/MM/YYYY").format("YYYY-MM-DD")
+        : null;
 
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (userInfo) {
-      setUser(userInfo);
+      if (!formattedDate) {
+        console.error("Ngày không hợp lệ:", bookingInfo.date);
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/api/payment/seats`, {
+        params: {
+          movieTitle: bookingInfo.movieTitle,
+          date: formattedDate,
+          time: bookingInfo.time,
+        },
+      });
+
+      const bookedSeats = response.data;
+      const allSeats = Array.from({ length: 70 }, (_, i) => ({
+        id: i + 1,
+        isBooked: bookedSeats.includes((i + 1).toString()),
+      }));
+      setSeats(allSeats);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin ghế:", error);
     }
-  }, [bookingInfo]);
+  };
+
+  fetchSeats();
+  pollingInterval = setInterval(fetchSeats, 5000); // gọi lại API mỗi 5 giây
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  if (userInfo) {
+    setUser(userInfo);
+  }
+
+  return () => {
+    if (pollingInterval) clearInterval(pollingInterval);
+  };
+}, [bookingInfo]);
+
+  // useEffect(() => {
+  //   const fetchSeats = async () => {
+  //     try {
+  //       if (
+  //         !bookingInfo ||
+  //         !bookingInfo.movieTitle ||
+  //         !bookingInfo.date ||
+  //         !bookingInfo.time
+  //       ) {
+  //         console.error("bookingInfo hoặc các trường cần thiết là undefined");
+  //         return;
+  //       }
+
+  //       // Kiểm tra và định dạng ngày
+  //       const formattedDate = moment(
+  //         bookingInfo.date,
+  //         moment.ISO_8601,
+  //         true
+  //       ).isValid()
+  //         ? moment(bookingInfo.date).format("YYYY-MM-DD") // Xử lý định dạng ISO
+  //         : moment(bookingInfo.date, "DD/MM/YYYY", true).isValid()
+  //         ? moment(bookingInfo.date, "DD/MM/YYYY").format("YYYY-MM-DD") // Xử lý định dạng DD/MM/YYYY
+  //         : null;
+
+  //       if (!formattedDate) {
+  //         console.error("Ngày không hợp lệ:", bookingInfo.date);
+  //         return;
+  //       }
+
+  //       const response = await axios.get(`${API_URL}/api/payment/seats`, {
+  //         params: {
+  //           movieTitle: bookingInfo.movieTitle,
+  //           date: formattedDate,
+  //           time: bookingInfo.time,
+  //         },
+  //       });
+
+  //       const bookedSeats = response.data;
+  //       const allSeats = Array.from({ length: 70 }, (_, i) => ({
+  //         id: i + 1,
+  //         isBooked: bookedSeats.includes((i + 1).toString()),
+  //       }));
+  //       setSeats(allSeats);
+  //     } catch (error) {
+  //       console.error("Lỗi khi lấy thông tin ghế:", error);
+  //     }
+  //   };
+
+  //   fetchSeats();
+
+  //   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  //   if (userInfo) {
+  //     setUser(userInfo);
+  //   }
+  // }, [bookingInfo]);
 
   const handleSeatClick = (seat) => {
     if (seat.isBooked) return;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
 import {
@@ -14,30 +14,16 @@ import {
   BarController,
 } from "chart.js";
 import "../styles_admin/Revenue.css";
-import { Link } from "react-router-dom";
-import {
-  FaCogs,
-  FaFilm,
-  FaUser,
-  FaTicketAlt,
-  FaSignOutAlt,
-  FaChartLine,
-  FaBars,
-} from "react-icons/fa";
-import {
-  MdRemoveRedEye,
-  MdOutlineAddCircle,
-  MdTheaters,
-  MdSchedule,
-  MdCategory,
-} from "react-icons/md";
-import logo from "../assets/logo.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
-import HeaderAdmin from "./admin_layout/HeaderAdmin";
-import Sidebar from "./admin_layout/Sidebar";
+import { FaBars } from "react-icons/fa";
+import API_URL from "../api/config";
+import FallbackTank from "../components/FallbackTank";
 
-// Đăng ký các thành phần cần thiết của Chart.js
+const Sidebar = lazy(() => import("./admin_layout/Sidebar"));
+const HeaderAdmin = lazy(() => import("./admin_layout/HeaderAdmin"));
+const TotalSummary = lazy(() => import("./components/TotalSummary"));
+const ChartSection = lazy(() => import("./components/ChartSection"));
+const TransactionsTable = lazy(() => import("./components/TransactionsTable"));
+
 Chart.register(
   CategoryScale,
   LinearScale,
@@ -49,7 +35,6 @@ Chart.register(
   LineController,
   BarController
 );
-import API_URL from "../api/config"; // Import API_URL từ file config.js
 
 const Revenue = () => {
   const [summary, setSummary] = useState({});
@@ -58,14 +43,13 @@ const Revenue = () => {
   const [weeklyRevenue, setWeeklyRevenue] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [revenueByMovie, setRevenueByMovie] = useState([]);
-  const [selectedChart, setSelectedChart] = useState("daily"); // State để lưu biểu đồ được chọn
+  const [selectedChart, setSelectedChart] = useState("daily");
   const [error, setError] = useState(null);
-  const [isMoviesOpen, setIsMoviesOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State để quản lý trạng thái collapse
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(""); // Lưu tháng được chọn
-  const [searchTerm, setSearchTerm] = useState(""); // Lưu từ khóa tìm kiếm
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -73,8 +57,7 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/summary`);
         setSummary(response.data);
       } catch (error) {
-        console.error("Error fetching revenue summary:", error);
-        setError("Không thể tải dữ liệu doanh thu.");
+        setError("Không thể tải dữ liệu doanh thu.", error);
       }
     };
 
@@ -83,19 +66,16 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/transactions`);
         setTransactions(response.data);
 
-        // Tự động chọn tháng hiện tại khi load trang
         const currentMonth = new Date().getMonth() + 1;
         setSelectedMonth(currentMonth.toString());
 
-        // Lọc dữ liệu theo tháng hiện tại
         const filtered = response.data.filter((transaction) => {
           const month = new Date(transaction.date).getMonth() + 1;
           return month === currentMonth;
         });
         setFilteredTransactions(filtered);
       } catch (error) {
-        console.error("Error fetching transactions:", error);
-        setError("Không thể tải dữ liệu giao dịch.");
+        setError("Không thể tải dữ liệu giao dịch.", error);
       }
     };
 
@@ -104,8 +84,7 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/daily`);
         setDailyRevenue(response.data);
       } catch (error) {
-        console.error("Error fetching daily revenue:", error);
-        setError("Không thể tải dữ liệu doanh thu theo ngày.");
+        setError("Không thể tải dữ liệu doanh thu theo ngày.", error);
       }
     };
 
@@ -114,8 +93,7 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/weekly`);
         setWeeklyRevenue(response.data);
       } catch (error) {
-        console.error("Error fetching weekly revenue:", error);
-        setError("Không thể tải dữ liệu doanh thu theo tuần.");
+        setError("Không thể tải dữ liệu doanh thu theo tuần.", error);
       }
     };
 
@@ -124,8 +102,7 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/monthly`);
         setMonthlyRevenue(response.data);
       } catch (error) {
-        console.error("Error fetching monthly revenue:", error);
-        setError("Không thể tải dữ liệu doanh thu theo tháng.");
+        setError("Không thể tải dữ liệu doanh thu theo tháng.",error);
       }
     };
     const fetchRevenueByMovie = async () => {
@@ -133,8 +110,7 @@ const Revenue = () => {
         const response = await axios.get(`${API_URL}/api/payment/by-movie`);
         setRevenueByMovie(response.data);
       } catch (error) {
-        console.error("Error fetching revenue by movie:", error);
-        setError("Không thể tải dữ liệu doanh thu theo phim.");
+        setError("Không thể tải dữ liệu doanh thu theo phim.", error);
       }
     };
 
@@ -150,7 +126,7 @@ const Revenue = () => {
     labels: dailyRevenue.map((item) => item._id),
     datasets: [
       {
-        type: "bar", // Bar Chart
+        type: "bar",
         label: "Doanh thu theo ngày (Bar)",
         data: dailyRevenue.map((item) => item.total),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
@@ -158,14 +134,14 @@ const Revenue = () => {
         borderWidth: 1,
       },
       {
-        type: "line", // Line Chart
+        type: "line",
         label: "Doanh thu theo ngày (Line)",
         data: dailyRevenue.map((item) => item.total),
         borderColor: "rgba(255, 99, 132, 1)",
         backgroundColor: "rgba(255, 99, 132, 0.2)",
         borderWidth: 2,
-        tension: 0.4, // Làm mịn đường
-        pointRadius: 3, // Kích thước điểm
+        tension: 0.4,
+        pointRadius: 3,
       },
     ],
   };
@@ -242,37 +218,19 @@ const Revenue = () => {
     ],
   };
 
-  //định ngày theo ngày Việt NamNam
   const formatDate = (dateString) => {
     const options = { day: "2-digit", month: "2-digit", year: "numeric" };
     return new Date(dateString).toLocaleDateString("vi-VN", options);
   };
 
-  // Phân loại giao dịch theo tháng
-  const groupTransactionsByMonth = (transactions) => {
-    return transactions.reduce((acc, transaction) => {
-      const month = new Date(transaction.date).getMonth() + 1; // Lấy tháng (1-12)
-      if (!acc[month]) acc[month] = [];
-      acc[month].push(transaction);
-      return acc;
-    }, {});
-  };
-
-  const transactionsByMonth = groupTransactionsByMonth(transactions);
-
-  // Lọc giao dịch theo tháng và từ khóa tìm kiếm
   useEffect(() => {
     let filtered = transactions;
-
-    // Lọc theo tháng
     if (selectedMonth) {
       filtered = transactions.filter((transaction) => {
         const month = new Date(transaction.date).getMonth() + 1;
         return month === parseInt(selectedMonth);
       });
     }
-
-    // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
       filtered = filtered.filter((transaction) => {
         const searchString = `
@@ -287,201 +245,53 @@ const Revenue = () => {
         return searchString.includes(searchTerm.toLowerCase());
       });
     }
-
     setFilteredTransactions(filtered);
   }, [selectedMonth, searchTerm, transactions]);
 
   return (
     <div className={`admin-dashboard ${isSidebarCollapsed ? "collapsed" : ""}`}>
-      {/* Sidebar */}
-      <Sidebar
-        isSidebarCollapsed={isSidebarCollapsed}
-        setIsSidebarCollapsed={setIsSidebarCollapsed}
-      />
-      <HeaderAdmin />
+      <Suspense fallback={<FallbackTank />}>
+        <Sidebar
+          isSidebarCollapsed={isSidebarCollapsed}
+          setIsSidebarCollapsed={setIsSidebarCollapsed}
+        />
+      </Suspense>
+      <Suspense fallback={<FallbackTank />}>
+        <HeaderAdmin />
+      </Suspense>
       <button
         className="collapse-button"
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       >
         <FaBars />
       </button>
-
       <div className="revenue-container">
         <h1>Quản Lý Doanh Thu</h1>
         {error && <p className="error">{error}</p>}
-        <div className="summary">
-          <h2>Tổng Quan</h2>
-          <p>
-            Tổng Doanh Thu: {summary.totalRevenue?.toLocaleString("vi-VN")} VND
-          </p>{" "}
-          <p>Số Lượng Vé Bán Ra: {summary.totalTickets}</p>
-          <h3>Doanh Thu Theo Phim</h3>
-          <ul>
-            {summary.revenueByMovie &&
-              summary.revenueByMovie.map((item) => (
-                <li key={item._id}>
-                  {item._id}: {item.total?.toLocaleString("vi-VN")} VND
-                </li>
-              ))}
-          </ul>
-          <h3>Doanh Thu Theo Rạp</h3>
-          <ul>
-            {summary.revenueByCinema &&
-              summary.revenueByCinema.map((item) => (
-                <li key={item._id}>
-                  {item.total?.toLocaleString("vi-VN")} VND
-                </li>
-              ))}
-          </ul>
-          <h3>Doanh Thu Theo Ngày</h3>
-          <ul>
-            {summary.revenueByDate &&
-              summary.revenueByDate.map((item) => (
-                <li key={item._id}>
-                  {formatDate(item._id)}: {item.total?.toLocaleString("vi-VN")}{" "}
-                  VND
-                </li>
-              ))}
-          </ul>
-        </div>
-
-        {/* Dropdown menu để chọn biểu đồ */}
-        <div className="chart-dropdown">
-          <label htmlFor="chart-select">Chọn Biểu Đồ:</label>
-          <select
-            id="chart-select"
-            value={selectedChart}
-            onChange={(e) => setSelectedChart(e.target.value)}
-          >
-            <option value="daily">Doanh Thu Theo Ngày</option>
-            <option value="weekly">Doanh Thu Theo Tuần</option>
-            <option value="monthly">Doanh Thu Theo Tháng</option>
-            <option value="movie">Doanh Thu Theo Phim</option>
-          </select>
-        </div>
-
-        {/* Hiển thị biểu đồ dựa trên lựa chọn */}
-        <div className="chart">
-          <h2>Biểu Đồ Doanh Thu</h2>
-          {selectedChart === "daily" && (
-            <Bar
-              data={dailyData}
-              options={{
-                plugins: {
-                  legend: {
-                    display: true,
-                    labels: { color: "rgba(75, 192, 192, 1)" },
-                  },
-                },
-              }}
-            />
-          )}
-          {selectedChart === "weekly" && (
-            <Bar
-              data={weeklyData}
-              options={{
-                plugins: {
-                  legend: {
-                    display: true,
-                    labels: { color: "rgba(75, 192, 192, 1)" },
-                  },
-                },
-              }}
-            />
-          )}
-          {selectedChart === "monthly" && (
-            <Bar
-              data={monthlyData}
-              options={{
-                plugins: {
-                  legend: {
-                    display: true,
-                    labels: { color: "rgba(153, 102, 255, 1)" },
-                  },
-                },
-              }}
-            />
-          )}
-          {selectedChart === "movie" && (
-            <Bar
-              data={movieData}
-              options={{
-                plugins: {
-                  legend: {
-                    display: true,
-                    labels: { color: "rgba(255, 159, 64, 1)" },
-                  },
-                },
-              }}
-            />
-          )}
-        </div>
-
-        <div className="transactions">
-          <h2>Chi Tiết Giao Dịch</h2>
-          {/* Bộ lọc tháng */}
-          <div className="filters">
-            <label htmlFor="month-select">Chọn Tháng:</label>
-            <select
-              id="month-select"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              {/* <option value="">Tất cả</option> */}
-              {[...Array(12).keys()].map((month) => (
-                <option key={month + 1} value={month + 1}>
-                  Tháng {month + 1}
-                </option>
-              ))}
-            </select>
-
-            {/* Ô tìm kiếm */}
-            <label htmlFor="search-input">Tìm Kiếm:</label>
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Nhập tên, email, phim, rạp, ngày, giờ, ghế..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th className="col-stt">STT</th>
-                <th className="col-user">Người Dùng</th>
-                <th className="col-email">Email</th>
-                <th className="col-movie">Phim</th>
-                <th className="col-cinema">Rạp</th>
-                <th className="col-date">Ngày</th>
-                <th className="col-time">Giờ</th>
-                <th className="col-seats">Ghế</th>
-                <th className="col-total">Tổng Tiền</th>
-                <th className="col-payment">Phương Thức Thanh Toán</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((transaction, index) => (
-                <tr key={transaction._id}>
-                  <td className="col-stt">
-                    {transactions.indexOf(transaction) + 1}
-                  </td>
-                  <td className="col-user">{transaction.user.name}</td>
-                  <td className="col-email">{transaction.user.email}</td>
-                  <td className="col-movie">{transaction.movieTitle}</td>
-                  <td className="col-cinema">{transaction.cinema}</td>
-                  <td className="col-date">{formatDate(transaction.date)}</td>
-                  <td className="col-time">{transaction.time}</td>
-                  <td className="col-seats">{transaction.seats.join(", ")}</td>
-                  <td className="col-total">
-                    {transaction.totalPrice?.toLocaleString("vi-VN")} VND
-                  </td>
-                  <td className="col-payment">{transaction.paymentMethod}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Suspense fallback={<FallbackTank />}>
+          <TotalSummary summary={summary} formatDate={formatDate} />
+        </Suspense>
+        <Suspense fallback={<FallbackTank />}>
+          <ChartSection
+            selectedChart={selectedChart}
+            setSelectedChart={setSelectedChart}
+            dailyData={dailyData}
+            weeklyData={weeklyData}
+            monthlyData={monthlyData}
+            movieData={movieData}
+          />
+        </Suspense>
+        <Suspense fallback={<FallbackTank />}>
+          <TransactionsTable
+            filteredTransactions={filteredTransactions}
+            transactions={transactions}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            formatDate={formatDate}
+          />
+        </Suspense>
       </div>
     </div>
   );
