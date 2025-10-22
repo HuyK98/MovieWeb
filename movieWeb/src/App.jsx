@@ -14,7 +14,7 @@ import PriceList from "./pages/PriceList";
 import NewsAndOffers from "./pages/NewsAndOffers";
 import CinemaIntro from "./pages/CinemaIntro";
 import Showtimes from "./pages/Showtime";
-import ChatButton from "./components/ChatButton";
+import ChatButton from "./components/chat/ChatButton";
 import Chatbot from "./components/Chatbot";
 import ManageGenres from "./admin/ManageGenres";
 import FilmDetail from "./pages/FilmDetail";

@@ -9,7 +9,6 @@ export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}
   const typingDebounceRef = useRef(null);
   const isTypingRef = useRef(false);
 
-  // Giữ handlers ổn định bằng ref để không trigger remount socket
   const onReceiveRef = useRef(onReceive);
   const onTypingRef = useRef(onTyping);
   const onStopTypingRef = useRef(onStopTyping);
@@ -44,6 +43,7 @@ export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}
       onStopTypingRef.current?.(data);
     });
 
+    // them log de bat loi disconnect
     s.on('connect_error', (err) => console.warn('[socket connect_error]', err?.message));
     s.on('reconnect_attempt', (n) => console.log('[socket reconnect_attempt]', n));
     s.on('disconnect', (reason) => console.log('[socket disconnect]', reason));
@@ -54,7 +54,7 @@ export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}
       s.off();
       s.close();
     };
-  }, []); // chi mount lan dau
+  }, []);  // chi mount lan dau
 
   const emitMessage = useCallback((payload) => socketRef.current?.emit('sendMessage', payload), []);
   const emitTyping = useCallback((payload) => {

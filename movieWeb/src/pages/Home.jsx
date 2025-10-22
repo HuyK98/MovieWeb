@@ -12,7 +12,7 @@ import poster2 from "../assets/poster/post2.jpg";
 import poster3 from "../assets/poster/post3.jpg";
 import poster4 from "../assets/poster/post4.jpg";
 import poster5 from "../assets/poster/post5.jpg";
-import ChatButton from "../components/ChatButton";
+import ChatButton from "../components/chat/ChatButton";
 import Chatbot from "../components/Chatbot";
 import FavoritesAndBookings from "../components/FavoritesAndBookings";
 import NowShowingMovies from "../components/NowShowingMovies";

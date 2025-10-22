@@ -9,7 +9,7 @@ import { faPlay, faTimes, faHeart } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-import ChatButton from "../components/ChatButton";
+import ChatButton from "../components/chat/ChatButton";
 import Chatbot from "../components/Chatbot";
 import moment from "moment";
 import translations from "../pages/translations";
