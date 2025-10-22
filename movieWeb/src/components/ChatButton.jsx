@@ -18,6 +18,10 @@ function ChatButton() {
   const [isUploading, setIsUploading] = useState(false);
 
   const messagesEndRef = useRef(null);
+  
+  const typingTimeoutRef = useRef(null);
+  const typingDebounceRef = useRef(null);
+  const isUserTypingRef = useRef(false);
 
   const formatTimestamp = (timestamp) => {
     try {
@@ -34,7 +38,6 @@ function ChatButton() {
   useEffect(scrollToBottom, [messages]);
   useEffect(() => { if (isOpen) scrollToBottom(); }, [isOpen]);
 
-  // Lấy thông tin user
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
@@ -45,7 +48,6 @@ function ChatButton() {
     }
   }, []);
 
-  // Kết nối socket
   useEffect(() => {
     const s = io(API_BASE_URL, { transports: ['websocket'] });
     setSocket(s);
@@ -66,13 +68,26 @@ function ChatButton() {
     });
 
     s.on('typing', (data) => {
-      if (data.from === 'admin') setIsTyping(true);
+      if (data.from === 'admin') {
+        setIsTyping(true);
+        
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 3000);
+      }
     });
+    
     s.on('stopTyping', (data) => {
-      if (data.from === 'admin') setIsTyping(false);
+      if (data.from === 'admin') {
+        clearTimeout(typingTimeoutRef.current);
+        setIsTyping(false);
+      }
     });
 
     return () => {
+      clearTimeout(typingTimeoutRef.current);
+      clearTimeout(typingDebounceRef.current);
       s.off('receiveMessage');
       s.off('typing');
       s.off('stopTyping');
@@ -80,7 +95,6 @@ function ChatButton() {
     };
   }, []);
 
-  // Lấy lịch sử tin nhắn
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -100,13 +114,31 @@ function ChatButton() {
     if (!socket || !userId) return;
 
     if (val.trim().length > 0) {
-      socket.emit('typing', { userId, from: 'user', userName });
+      // Emit typing lần đầu
+      if (!isUserTypingRef.current) {
+        isUserTypingRef.current = true;
+        socket.emit('typing', { userId, from: 'user', userName });
+      }
+      
+      // Reset timer - sau 1s không gõ sẽ tự động stopTyping
+      clearTimeout(typingDebounceRef.current);
+      typingDebounceRef.current = setTimeout(() => {
+        if (isUserTypingRef.current) {
+          isUserTypingRef.current = false;
+          socket.emit('stopTyping', { userId, from: 'user', userName });
+        }
+      }, 1000);
+      
     } else {
-      socket.emit('stopTyping', { userId, from: 'user', userName });
+      // Hết chữ → dừng typing NGAY
+      clearTimeout(typingDebounceRef.current);
+      if (isUserTypingRef.current) {
+        isUserTypingRef.current = false;
+        socket.emit('stopTyping', { userId, from: 'user', userName });
+      }
     }
   };
 
-  // gui tin nhan text
   const sendMessage = async () => {
     if (!socket?.connected || !input.trim() || !userId) return;
 
@@ -123,7 +155,13 @@ function ChatButton() {
       await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
       socket.emit('sendMessage', newMessage);
       setInput('');
-      socket.emit('stopTyping', { userId, from: 'user', userName });
+      
+      // QUAN TRỌNG: Dừng typing ngay sau khi gửi
+      clearTimeout(typingDebounceRef.current);
+      if (isUserTypingRef.current) {
+        isUserTypingRef.current = false;
+        socket.emit('stopTyping', { userId, from: 'user', userName });
+      }
     } catch (err) {
       console.error('Lỗi khi gửi tin nhắn:', err.response?.data || err.message);
     }
@@ -133,17 +171,15 @@ function ChatButton() {
     if (e.key === 'Enter') sendMessage(); 
   };
 
-  // gui tin nhan hinh anh
   const sendImage = async (file) => {
     if (!file || !userId) return;
 
-    setIsUploading(true); //loading trong khi upload
+    setIsUploading(true);
 
     const formData = new FormData();
     formData.append('image', file);
 
     try {
-      // upload cloudinary
       console.log('Đang upload ảnh lên cloudinary');
       const uploadResponse = await axios.post(
         `${API_BASE_URL}/api/chat/upload`, 
@@ -157,7 +193,6 @@ function ChatButton() {
       const { imageUrl, cloudinaryId, imageSize, imageName } = uploadResponse.data;
       console.log('Upload thành công:', imageUrl);
 
-      // tao object
       const newMessage = {
         text: '[Hình ảnh]',
         imageUrl,
@@ -171,25 +206,30 @@ function ChatButton() {
         isAdmin: false,
       };
 
-      // luu vao firebase
       await axios.post(`${API_BASE_URL}/api/chat/messages`, newMessage);
       console.log('Đã lưu vào Firebase');
 
-      // gui qua socket
       socket.emit('sendMessage', newMessage);
 
-      // Bước 5: cap nhat UI
       setMessages(prev => ({
         ...prev,
         [userId]: [...(prev[userId] || []), newMessage],
       }));
 
       console.log('Hoàn tất gửi ảnh');
+      
+      // Dừng typing sau khi gửi ảnh
+      clearTimeout(typingDebounceRef.current);
+      if (isUserTypingRef.current) {
+        isUserTypingRef.current = false;
+        socket.emit('stopTyping', { userId, from: 'user', userName });
+      }
+      
     } catch (err) {
       console.error('Lỗi khi gửi ảnh:', err);
       alert('Lỗi khi upload ảnh. Vui lòng thử lại!');
     } finally {
-      setIsUploading(false); // tat loading
+      setIsUploading(false);
     }
   };
 
@@ -226,14 +266,12 @@ function ChatButton() {
               );
             })}
 
-            {/* Typing indicator từ admin */}
             {isTyping && (
               <div className="typing-indicator">
                 <span></span><span></span><span></span>
               </div>
             )}
 
-            {/* Loading khi đang upload */}
             {isUploading && (
               <div className="uploading-indicator">
                 <p>Đang upload ảnh...</p>
