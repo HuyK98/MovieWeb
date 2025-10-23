@@ -19,6 +19,7 @@ export default function ChatPage() {
     const [error, setError] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const endRef = useRef(null);
     const navigate = useNavigate();
 
@@ -97,7 +98,7 @@ export default function ChatPage() {
             .toLowerCase()
             .trim();
 
-    // Users sau khi filter theo searchQuery
+    // react re-render lai,filteredUsers tinh lai bang useMemo()
     const filteredUsers = useMemo(() => {
         const q = normalize(searchQuery);
         if (!q) return users;
@@ -217,12 +218,20 @@ export default function ChatPage() {
             <div className="chat-main-modern">
                 {selectedUser ? (
                     <>
-                        <ChatHeader user={selectedUser} />
+                        <ChatHeader 
+                            user={selectedUser}
+                            onSearchClick={setSearchTerm}
+                        />
                         <ChatMessages
-                            items={messagesByUser[selectedUser._id] || []}
+                            items={(messagesByUser[selectedUser._id] || []).filter(msg => {
+                                if (!searchTerm.trim()) return true;
+                                const text = (msg.text || '').toLowerCase();
+                                return text.includes(searchTerm.toLowerCase());
+                            })}
                             onImageClick={setPreviewImage}
                             endRef={endRef}
                             isTyping={typingForSelected} //truyen flag de render
+                            searchTerm={searchTerm}
                         />
                         <ChatInput
                             value={draft}

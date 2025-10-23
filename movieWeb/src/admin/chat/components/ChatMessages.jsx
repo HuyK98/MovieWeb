@@ -1,10 +1,17 @@
 import { format } from 'date-fns';
 
-export default function ChatMessages({ items, onImageClick, endRef, isTyping }) {
+export default function ChatMessages({ items, onImageClick, endRef, isTyping, searchTerm= '' }) {
   const fmt = (ts) => {
     try { return format(new Date(ts), 'HH:mm:ss dd/MM/yyyy'); }
     catch { return 'Invalid date'; }
   };
+
+  // highlight search text
+  const highlightText = (text, keyword) => {
+    if (!keyword.trim()) return text;
+    const regrex = new RegExp(`(${keyword})`, 'gi');
+    return text.replace(regrex, '<mark>$1</mark>');
+  }
 
   return (
     <div className="chat-messages-modern">
@@ -21,7 +28,11 @@ export default function ChatMessages({ items, onImageClick, endRef, isTyping }) 
               onClick={() => onImageClick(msg.imageUrl)}
             />
           ) : (
-            <p>{msg.text}</p>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: highlightText(msg.text || '', searchTerm),
+              }}
+            ></p>
           )}
           <span className="timestamp-modern">{fmt(msg.timestamp)}</span>
         </div>

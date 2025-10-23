@@ -8,7 +8,7 @@ export default function ChatSidebar({
   isLoading,
   error,
   onBack,
-  searchQuery = '',
+  searchQuery = '',  //tim kiem user theo ten,gmail hoac noi dung tin nhan gan nhat
   onSearch = () => {},
 }) {
   return (
