@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}) {
-  const socketRef = useRef(null);
+  const socketRef = useRef(null);  // giu socket qua cac render,tranh tao socket moi
   const typingTimeoutRef = useRef(null);
   const typingDebounceRef = useRef(null);
   const isTypingRef = useRef(false);
@@ -44,6 +44,7 @@ export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}
       onStopTypingRef.current?.(data);
     });
 
+    // them log bat loi connected& disconnect
     s.on('connect_error', (err) => console.warn('[socket connect_error]', err?.message));
     s.on('reconnect_attempt', (n) => console.log('[socket reconnect_attempt]', n));
     s.on('disconnect', (reason) => console.log('[socket disconnect]', reason));
@@ -52,9 +53,9 @@ export default function useChatSocket(onReceive, { onTyping, onStopTyping } = {}
       clearTimeout(typingTimeoutRef.current);
       clearTimeout(typingDebounceRef.current);
       s.off();
-      s.close();
+      s.close();  //ngat ket noi khi unmount
     };
-  }, []); // chi mount lan dau
+  }, []); // chi mount 1 lan,ko connect/disconnect spam   khi render lai
 
   const emitMessage = useCallback((payload) => socketRef.current?.emit('sendMessage', payload), []);
   const emitTyping = useCallback((payload) => {
