@@ -8,6 +8,8 @@ export default function ChatSidebar({
   isLoading,
   error,
   onBack,
+  searchQuery = '',
+  onSearch = () => {},
 }) {
   return (
     <div className="chat-sidebar-modern">
@@ -16,6 +18,15 @@ export default function ChatSidebar({
           <FaArrowLeft /> Quay lại
         </button>
         <h3>Danh sách người dùng</h3>
+
+        {/* search chat */}
+        <input
+          className='sidebar-search'
+          type='text'
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          placeholder='Tìm theo tên, email, nội dung...'
+          />
       </div>
 
       {isLoading && <div className="loading">Đang tải danh sách người dùng...</div>}
@@ -42,7 +53,7 @@ export default function ChatSidebar({
                 {lastMessage ? (
                   <p className="last-message">
                     {lastMessage.imageUrl ? (
-                      <span className="message-text">📷 [Hình ảnh]</span>
+                      <span className="message-text">[Hình ảnh]</span>
                     ) : (
                       <span className="message-text">
                         {lastMessage.text && lastMessage.text.length > 30 

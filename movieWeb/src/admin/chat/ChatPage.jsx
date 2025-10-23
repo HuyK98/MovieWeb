@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ChatPage.css';
 import { getUsersWithLastMessage, getMessages, sendMessageAPI, uploadImageAPI } from './services/chat.api';
@@ -18,6 +18,7 @@ export default function ChatPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const endRef = useRef(null);
     const navigate = useNavigate();
 
@@ -86,6 +87,32 @@ export default function ChatPage() {
             console.error('Lỗi khi lấy tin nhắn:', e);
         }
     };
+
+    // ham bo dau & chuan hoa khoang trang
+    const normalize = (s = '') =>
+        s
+            .toString()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+
+    // Users sau khi filter theo searchQuery
+    const filteredUsers = useMemo(() => {
+        const q = normalize(searchQuery);
+        if (!q) return users;
+
+        return users.filter((u) => {
+            const name = normalize(u.name);
+            const email = normalize(u.email || '');
+            const lastText = normalize(u.lastMessage?.text || '');
+            return (
+                name.includes(q) ||
+                email.includes(q) ||
+                lastText.includes(q)
+            );
+        });
+    }, [users, searchQuery]);
 
     const handleSendText = async () => {
         if (!draft.trim() || !selectedUser) return;
@@ -176,13 +203,15 @@ export default function ChatPage() {
     return (
         <div className="chat-container-modern">
             <ChatSidebar
-                users={users}
+                users={filteredUsers}
                 messagesByUser={messagesByUser}
                 selectedUser={selectedUser}
                 onSelectUser={handleSelectUser}
                 isLoading={isLoading}
                 error={error}
                 onBack={() => navigate('/admin')}
+                searchQuery={searchQuery}
+                onSearch={setSearchQuery}
             />
 
             <div className="chat-main-modern">
