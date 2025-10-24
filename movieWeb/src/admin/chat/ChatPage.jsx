@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ChatPage.css';
+import './styles/ChatPage.css';
+import './styles/common.css';
 import { getUsersWithLastMessage, getMessages, sendMessageAPI, uploadImageAPI } from './services/chat.api';
 import useChatSocket from './hooks/useChatSocket';
 import ChatSidebar from './components/ChatSidebar';
@@ -127,17 +128,6 @@ export default function ChatPage() {
         try {
             await sendMessageAPI(msg);
             emitMessage(msg);
-            setMessagesByUser((prev) => ({
-                ...prev,
-                [selectedUser._id]: [...(prev[selectedUser._id] || []), msg],
-            }));
-            setUsers(prevUsers =>
-                prevUsers.map(user =>
-                    user._id === selectedUser._id
-                        ? { ...user, lastMessage: msg }
-                        : user
-                )
-            );
             setDraft('');
             emitStopTyping({ userId: selectedUser._id, from: 'admin' }); //ngung go sau khi da gui
         } catch (e) {

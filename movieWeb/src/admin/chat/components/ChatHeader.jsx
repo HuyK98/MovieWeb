@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
+import '../styles/ChatHeader.css';
 
 export default function ChatHeader({ user, onSearchClick }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);

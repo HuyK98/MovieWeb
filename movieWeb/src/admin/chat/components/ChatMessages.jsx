@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import '../styles/ChatMessages.css';
 
 export default function ChatMessages({ items, onImageClick, endRef, isTyping, searchTerm= '' }) {
   const fmt = (ts) => {

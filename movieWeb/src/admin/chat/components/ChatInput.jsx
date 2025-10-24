@@ -1,4 +1,5 @@
 import { FaPaperPlane, FaSmile, FaPaperclip } from 'react-icons/fa';
+import '../styles/ChatInput.css';
 
 export default function ChatInput({ value, onChange, onSend, onSendImage }) {
   return (

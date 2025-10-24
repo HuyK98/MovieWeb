@@ -1,5 +1,6 @@
 import { FaArrowLeft } from 'react-icons/fa';
 import { format } from 'date-fns';
+import "../styles/ChatSidebar.css";
 
 export default function ChatSidebar({
   users,
@@ -45,7 +46,7 @@ export default function ChatSidebar({
               <img
                 src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
                 alt={user.name}
-                className="user-avatar-modern"
+                className="user-avatar-sidebar"
               />
               <div className="user-info-modern">
                 <h4>{user.name}</h4>

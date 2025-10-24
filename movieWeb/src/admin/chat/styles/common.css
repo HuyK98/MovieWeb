@@ -1,0 +1,26 @@
+/* Highlight cho search-term trong message */
+mark {
+    background: #fff59d;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+/* Preview ảnh phóng to (ImagePreviewModal) */
+.image-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.image-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+    cursor: zoom-out;
+}

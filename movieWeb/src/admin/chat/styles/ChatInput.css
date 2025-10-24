@@ -1,0 +1,36 @@
+.chat-input-modern {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input-modern input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin: 0 10px;
+}
+
+.icon-button-modern {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+}
+
+.send-button-modern {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.send-button-modern:hover {
+    background: #0056b3;
+}
