@@ -43,6 +43,18 @@
     margin: 4px 0;
 }
 
+/* style link */
+.chat-message-modern p a.message-link {
+  color: #2563eb;
+  text-decoration: underline;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.chat-message-modern p a.message-link:hover {
+  color: #1d4ed8;
+}
+
 /* typing */
 .typing-indicator {
     display: inline-flex;

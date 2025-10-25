@@ -1,17 +1,36 @@
 import { format } from 'date-fns';
 import '../styles/ChatMessages.css';
 
-export default function ChatMessages({ items, onImageClick, endRef, isTyping, searchTerm= '' }) {
+export default function ChatMessages({ items, onImageClick, endRef, isTyping, searchTerm = '' }) {
   const fmt = (ts) => {
     try { return format(new Date(ts), 'HH:mm:ss dd/MM/yyyy'); }
     catch { return 'Invalid date'; }
   };
+
+  //ham phat hien va chuyen link thanh <a> tag
+  const linkify = (text) => {
+    if (!text) return '';
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+    return text.replace(urlRegex, (url) => {
+      const href = url.startsWith('www') ? `http://${url}` : url;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`; //chuyen link www thanh http
+    })
+  }
 
   // highlight search text
   const highlightText = (text, keyword) => {
     if (!keyword.trim()) return text;
     const regrex = new RegExp(`(${keyword})`, 'gi');
     return text.replace(regrex, '<mark>$1</mark>');
+  }
+
+  //linkify truoc,roi highlight sau
+  const processText = (text, keyword) => {
+    let processed = linkify(text); //chuyen link
+    if (keyword) {
+      processed = highlightText(processed, keyword); //highlight
+    }
+    return processed;
   }
 
   return (
@@ -31,7 +50,7 @@ export default function ChatMessages({ items, onImageClick, endRef, isTyping, se
           ) : (
             <p
               dangerouslySetInnerHTML={{
-                __html: highlightText(msg.text || '', searchTerm),
+                __html: processText(msg.text || '', searchTerm),
               }}
             ></p>
           )}

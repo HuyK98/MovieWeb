@@ -10,6 +10,23 @@ const router = express.Router();
 
 app.use('/uploads', express.static('uploads'));
 
+//ham phat hien link trong text
+const detectLinks = (text) => {
+  if (!text || typeof text !== 'string') return [];
+  const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+  const matches = text.match(urlRegex);
+  return matches || [];
+};
+
+// ham xac dinh loai tin nhan
+const getMessageType = (text, imageUrl) => {
+  if (imageUrl) return 'image';
+  if (!text) return 'text';
+  const links = detectLinks(text);
+  if (links.length > 0) return 'link';
+  return 'text';
+};
+
 // upload image firebase
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
@@ -46,11 +63,16 @@ router.delete('/upload/:cloudinaryId', async (req, res) => {
   }
 });
 
-
 // Endpoint lưu tin nhắn vào Firebase
 router.post('/messages', async (req, res) => {
   try {
     const { userId, sender, text, imageUrl, cloudinaryId, imageSize, imageName, timestamp } = req.body;
+
+    //xac dinh loai tn
+    const messageType = getMessageType(text, imageUrl);
+
+    //extract links
+    const links = messageType === 'link' ? detectLinks(text) : [];
 
     // tao message object 
     const newMessage = {
@@ -61,6 +83,8 @@ router.post('/messages', async (req, res) => {
       imageSize: imageSize || null,
       imageName: imageName || null,
       timestamp: timestamp || new Date().toISOString(),
+      messageType: messageType,
+      links: links
     };
 
     // Lưu tin nhắn vào Firebase
