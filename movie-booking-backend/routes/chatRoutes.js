@@ -67,12 +67,16 @@ router.delete('/upload/:cloudinaryId', async (req, res) => {
 router.post('/messages', async (req, res) => {
   try {
     const { userId, sender, text, imageUrl, cloudinaryId, imageSize, imageName, timestamp } = req.body;
+    console.log('dữ liệu nhận được: ', { text, imageUrl });
+
 
     //xac dinh loai tn
     const messageType = getMessageType(text, imageUrl);
+    console.log('Loại tin nhắn xác định:', messageType);
 
     //extract links
     const links = messageType === 'link' ? detectLinks(text) : [];
+    console.log('Links được phát hiện trong tin nhắn:', links);
 
     // tao message object 
     const newMessage = {
@@ -116,6 +120,40 @@ router.get('/messages/:userId', async (req, res) => {
   } catch (error) {
     console.error('Lỗi khi lấy tin nhắn:', error);
     res.status(500).json({ error: 'Lỗi khi lấy tin nhắn' });
+  }
+});
+
+// Endpoint lấy media(image & links)
+router.get('/messages/:userId/media', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { type } = req.query; //type= image hoac link
+
+    const messagesRef = ref(database, `messages/${userId}`);
+    const snapshot = await get(messagesRef);
+
+    if (!snapshot.exists()) {
+      return res.status(200).json([]);
+    }
+
+    const messages = Object.values(snapshot.val());
+    //loc theo type
+    let filteredMessages = messages;
+    if (type === 'image') {
+      filteredMessages = messages.filter(msg => msg.messageType === 'image');
+    } else if (type === 'link') {
+      filteredMessages = messages.filter(msg => msg.messageType === 'link');
+    }
+
+    // sap xep moi nhat truoc\
+    filteredMessages.sort((a, b) =>
+      new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    res.status(200).json(filteredMessages);
+  } catch (error) {
+    console.error('Lỗi khi lấy media:', error);
+    res.status(500).json({ error: 'Lỗi khi lấy media' });
   }
 });
 

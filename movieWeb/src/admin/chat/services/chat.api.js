@@ -8,3 +8,5 @@ export const uploadImageAPI = (formData) =>
   axios.post(`${API_URL}/api/chat/upload`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+export const getMediaAPI = (userId, type) =>
+  axios.get(`${API_URL}/api/chat/messages/${userId}/media?type=${type}`);

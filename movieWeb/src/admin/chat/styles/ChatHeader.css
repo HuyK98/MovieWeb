@@ -29,14 +29,15 @@
     position: fixed;
     right: 0;
     top: 0;
-    width: 320px;
+    width: 350px;
     height: 100vh;
-    background: rgba(255, 255, 255, .85);
-    box-shadow: -2px 0 6px rgba(0, 0, 0, .15);
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, .1);
     display: flex;
     flex-direction: column;
-    padding: 15px;
     animation: slideIn .3s ease;
+    overflow-y: auto;
+    z-index: 1000;
 }
 
 @keyframes slideIn {
@@ -56,28 +57,63 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+    padding: 16px 20px;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .panel-header h4 {
     margin: 0;
     font-size: 16px;
+    font-weight: 600;
 }
 
 .panel-header button {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 20px;
     color: #666;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.panel-header button:hover {
+    color: #000;
+}
+
+/* User Info */
+.user-info {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
 }
 
 .user-avatar-large {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    margin: 15px auto;
+    margin: 0 auto 12px;
     display: block;
+}
+
+.user-info p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.user-info strong {
+    font-size: 16px;
+    color: #000;
+}
+
+/* Search Section */
+.search-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
 }
 
 .search-bar {
@@ -85,9 +121,13 @@
     align-items: center;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 5px 8px;
-    gap: 6px;
-    margin-top: 10px;
+    padding: 8px 12px;
+    gap: 8px;
+    transition: border-color 0.2s;
+}
+
+.search-bar:focus-within {
+    border-color: #2563eb;
 }
 
 .search-bar input {
@@ -95,4 +135,160 @@
     border: none;
     outline: none;
     font-size: 14px;
+}
+
+/* Media Section */
+.media-section {
+    padding: 16px 20px;
+}
+
+.section-title {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+}
+
+/* Media Tabs */
+.media-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.media-tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.media-tab.active {
+    background: #2563eb;
+    color: white;
+}
+
+.media-tab:hover:not(.active) {
+    background: #e5e7eb;
+}
+
+/* Media Content */
+.media-content {
+    min-height: 120px;
+}
+
+.loading-state,
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* Image Grid */
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.image-item {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.image-item:hover {
+    transform: scale(1.05);
+}
+
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Link List */
+.link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.link-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    align-items: flex-start;
+}
+
+.link-icon {
+    color: #2563eb;
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.link-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.link-url {
+    display: block;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 13px;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.link-url:hover {
+    text-decoration: underline;
+}
+
+/* Show More */
+.show-more {
+    text-align: center;
+    padding: 10px;
+    margin-top: 8px;
+    background: #f9fafb;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Scrollbar */
+.chat-detail-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-detail-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-detail-panel::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.chat-detail-panel::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }
