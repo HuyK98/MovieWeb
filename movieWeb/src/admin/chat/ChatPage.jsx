@@ -138,6 +138,7 @@ export default function ChatPage() {
     const handleSendImage = async (file) => {
         if (!file || !selectedUser) return;
         try {
+            setIsUploading(true);
             const formData = new FormData();
             formData.append('image', file);
             const { data } = await uploadImageAPI(formData);
@@ -179,7 +180,6 @@ export default function ChatPage() {
         typingForSelected = false;
     }
 
-
     return (
         <div className="chat-container-modern">
             <ChatSidebar
@@ -192,6 +192,7 @@ export default function ChatPage() {
                 onBack={() => navigate('/admin')}
                 searchQuery={searchQuery}
                 onSearch={setSearchQuery}
+                typingUsers={isTyping}
             />
 
             <div className="chat-main-modern">

@@ -11,6 +11,7 @@ export default function ChatSidebar({
   onBack,
   searchQuery = '',  //tim kiem user theo ten,gmail hoac noi dung tin nhan gan nhat
   onSearch = () => {},
+  typingUsers = {},
 }) {
   return (
     <div className="chat-sidebar-modern">
@@ -36,6 +37,7 @@ export default function ChatSidebar({
       <ul>
         {users.map((user) => {
           const lastMessage = user.lastMessage;
+          const isTyping = typingUsers[user._id]; //kiem tra user co typing ko
           
           return (
             <li
@@ -50,8 +52,18 @@ export default function ChatSidebar({
               />
               <div className="user-info-modern">
                 <h4>{user.name}</h4>
+
+                {isTyping ? (
+                  <p className='last-message typing'>
+                    <span className='typing-text'>
+                      <span className='typing-dots'>
+                        <span></span><span></span><span></span>
+                      </span>
+                      Đang nhập
+                    </span>
+                  </p>
                 
-                {lastMessage ? (
+                ) : lastMessage ? (
                   <p className="last-message">
                     {lastMessage.imageUrl ? (
                       <span className="message-text">[Hình ảnh]</span>
