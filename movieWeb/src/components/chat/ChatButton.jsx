@@ -158,7 +158,7 @@ export default function ChatButton() {
       />
 
       <ImagePreview 
-        imageUrl={previewImage} 
+        src={previewImage} 
         onClose={() => setPreviewImage(null)} 
       />
     </div>

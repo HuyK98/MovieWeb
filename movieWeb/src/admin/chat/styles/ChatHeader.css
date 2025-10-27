@@ -31,13 +31,12 @@
     top: 0;
     width: 350px;
     height: 100vh;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.95);
     box-shadow: -2px 0 8px rgba(0, 0, 0, .1);
     display: flex;
     flex-direction: column;
     animation: slideIn .3s ease;
     overflow-y: auto;
-    z-index: 1000;
 }
 
 @keyframes slideIn {

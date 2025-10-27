@@ -151,17 +151,6 @@ export default function ChatPage() {
             };
             await sendMessageAPI(msg);
             emitMessage(msg);
-            setMessagesByUser((prev) => ({
-                ...prev,
-                [selectedUser._id]: [...(prev[selectedUser._id] || []), msg],
-            }));
-            setUsers(prevUsers =>
-                prevUsers.map(user =>
-                    user._id === selectedUser._id
-                        ? { ...user, lastMessage: msg }
-                        : user
-                )
-            );
         } catch (e) {
             console.error('Error sending image:', e);
         }
@@ -208,7 +197,7 @@ export default function ChatPage() {
             <div className="chat-main-modern">
                 {selectedUser ? (
                     <>
-                        <ChatHeader 
+                        <ChatHeader
                             user={selectedUser}
                             onSearchClick={setSearchTerm}
                         />
