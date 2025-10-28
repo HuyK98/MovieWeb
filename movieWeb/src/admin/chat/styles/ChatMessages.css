@@ -12,18 +12,20 @@
 
 .chat-message-modern.incoming {
     text-align: left;
+    margin-right: auto;
+    width: fit-content;
 }
 
 .chat-message-modern.outgoing {
     text-align: right;
     margin-left: auto;
+    width: fit-content;
 }
 
 .chat-message-modern p {
     margin: 0;
     padding: 10px 12px;
     border-radius: 12px;
-    display: inline-block;
     background: #fff;
     box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
 }

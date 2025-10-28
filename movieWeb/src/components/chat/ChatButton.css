@@ -68,12 +68,15 @@
 
 .user-msg {
   text-align: right;
-  color: #007bff;
+  margin-left: auto;
+  width: fit-content;
 }
 
 .admin-msg {
   text-align: left;
-  color: #333;
+  margin-right: auto;
+  width: fit-content;
+  color: #007bff;
 }
 
 .chat-messages p {
