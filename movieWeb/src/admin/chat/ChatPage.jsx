@@ -8,7 +8,10 @@ import ChatSidebar from './components/ChatSidebar';
 import ChatHeader from './components/ChatHeader';
 import ChatMessages from './components/ChatMessages';
 import ChatInput from './components/ChatInput';
-import ImagePreviewModal from './components/ImagePreviewModal';
+import ImagePreviewModal from './components/ImagePreviewModal'
+import { normalize, searchMatch } from './utils/textUtils';
+import { isUserTyping, createMessage, filterMessages } from './utils/chatUtils';
+import { SENDER, TYPING_FROM, ERROR_MESSAGES, PLACEHOLDERS } from './utils/constants';
 
 export default function ChatPage() {
     const [users, setUsers] = useState([]);
@@ -17,6 +20,7 @@ export default function ChatPage() {
     const [draft, setDraft] = useState('');
     const [isTyping, setIsTyping] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -24,42 +28,42 @@ export default function ChatPage() {
     const endRef = useRef(null);
     const navigate = useNavigate();
 
-    // nhan message va typing qua socket
-    const { emitMessage, emitTyping, emitStopTyping } = useChatSocket((data) => {
-        setMessagesByUser((prev) => ({
-            ...prev,
-            [data.userId]: [...(prev[data.userId] || []), data],
-        }));
+    //socket setup
+    const { emitMessage, emitTyping, emitStopTyping } = useChatSocket(
+        // Callback nhan message
+        (data) => {
+            setMessagesByUser((prev) => ({
+                ...prev,
+                [data.userId]: [...(prev[data.userId] || []), data],
+            }));
 
-        //cap nhat lastmessage trong users khi co tn moi
-        setUsers(prevUsers =>
-            prevUsers.map(user =>
-                user._id === data.userId
-                    ? { ...user, lastMessage: data }
-                    : user
-            )
-        );
-    },
+            // Cập nhật last message trong users
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
+                    user._id === data.userId
+                        ? { ...user, lastMessage: data }
+                        : user
+                )
+            );
+        },
         {
-            //onTyping
             onTyping: ({ userId }) => {
-                setIsTyping((p) => ({ ...p, [userId]: true }));
+                setIsTyping((prev) => ({ ...prev, [userId]: true }));
             },
-            //stopTyping
             onStopTyping: ({ userId }) => {
-                setIsTyping((p) => ({ ...p, [userId]: false }))
+                setIsTyping((prev) => ({ ...prev, [userId]: false }));
             },
         }
     );
 
-    // load users voi last message
     useEffect(() => {
-        (async () => {
+        const loadUsers = async () => {
             try {
                 setIsLoading(true);
                 const res = await getUsersWithLastMessage();
                 setUsers(res.data);
 
+                // khoi tao message map voi last message
                 const messagesMap = {};
                 res.data.forEach(user => {
                     if (user.lastMessage) {
@@ -70,121 +74,125 @@ export default function ChatPage() {
 
                 setError(null);
             } catch (e) {
-                setError('Lỗi khi tải danh sách người dùng');
+                console.error('Lỗi load users:', e);
+                setError(ERROR_MESSAGES.LOAD_USERS);
             } finally {
                 setIsLoading(false);
             }
-        })();
+        };
+
+        loadUsers();
     }, []);
 
-    // auto scroll
-    useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messagesByUser, selectedUser]);
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messagesByUser, selectedUser]);
 
+    //select user
     const handleSelectUser = async (user) => {
         setSelectedUser(user);
         try {
             const { data } = await getMessages(user._id);
             setMessagesByUser((prev) => ({ ...prev, [user._id]: data }));
         } catch (e) {
-            console.error('Lỗi khi lấy tin nhắn:', e);
+            console.error('Lỗi load messages:', e);
         }
     };
 
-    // ham bo dau & chuan hoa khoang trang
-    const normalize = (s = '') =>
-        s
-            .toString()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-
-    // react re-render lai,filteredUsers tinh lai bang useMemo()
+    //filter users voi useMemo(searchQuery)
     const filteredUsers = useMemo(() => {
-        const q = normalize(searchQuery);
-        if (!q) return users;
+        const query = normalize(searchQuery);
+        if (!query) return users;
 
-        return users.filter((u) => {
-            const name = normalize(u.name);
-            const email = normalize(u.email || '');
-            const lastText = normalize(u.lastMessage?.text || '');
+        return users.filter((user) => {
             return (
-                name.includes(q) ||
-                email.includes(q) ||
-                lastText.includes(q)
+                searchMatch(user.name, query) ||
+                searchMatch(user.email, query) ||
+                searchMatch(user.lastMessage?.text, query)
             );
         });
     }, [users, searchQuery]);
 
     const handleSendText = async () => {
         if (!draft.trim() || !selectedUser) return;
-        const msg = {
+
+        const msg = createMessage({
             text: draft,
-            timestamp: new Date().toISOString(),
-            sender: 'admin',
+            sender: SENDER.ADMIN,
             userId: selectedUser._id,
             isAdmin: true,
-        };
+        });
+
         try {
             await sendMessageAPI(msg);
             emitMessage(msg);
             setDraft('');
-            emitStopTyping({ userId: selectedUser._id, from: 'admin' }); //ngung go sau khi da gui
+            emitStopTyping({
+                userId: selectedUser._id,
+                from: TYPING_FROM.ADMIN
+            });
         } catch (e) {
-            console.error('Lỗi khi gửi tin nhắn:', e);
+            console.error('Lỗi send message:', e);
+            alert(ERROR_MESSAGES.SEND_MESSAGE);
         }
     };
 
     const handleSendImage = async (file) => {
         if (!file || !selectedUser) return;
+
         try {
             setIsUploading(true);
             const formData = new FormData();
             formData.append('image', file);
             const { data } = await uploadImageAPI(formData);
-            const msg = {
-                text: '[Hình ảnh]',
+
+            const msg = createMessage({
+                text: PLACEHOLDERS.IMAGE_ALT,
                 imageUrl: data.imageUrl,
-                timestamp: new Date().toISOString(),
-                sender: 'admin',
+                cloudinaryId: data.cloudinaryId,
+                sender: SENDER.ADMIN,
                 userId: selectedUser._id,
                 isAdmin: true,
-            };
+            });
+
             await sendMessageAPI(msg);
             emitMessage(msg);
         } catch (e) {
-            console.error('Error sending image:', e);
+            console.error('Lỗi send image:', e);
+            alert(ERROR_MESSAGES.SEND_IMAGE);
+        } finally {
+            setIsUploading(false);
         }
     };
 
-    const handleTypingChange = (val) => {
+    const handleTypingChange = (value) => {
         if (!selectedUser) return;
 
-        if (val.trim().length > 0) {
-            emitTyping({ userId: selectedUser._id, from: 'admin' });
+        if (value.trim().length > 0) {
+            emitTyping({
+                userId: selectedUser._id,
+                from: TYPING_FROM.ADMIN
+            });
         } else {
-            emitStopTyping({ userId: selectedUser._id, from: 'admin' });
+            emitStopTyping({
+                userId: selectedUser._id,
+                from: TYPING_FROM.ADMIN
+            });
         }
     };
 
-    let typingForSelected = false;
+    const typingForSelected = isUserTyping(isTyping, selectedUser?._id);
 
-    if (selectedUser) {
-        const typingState = isTyping[selectedUser._id];
-        if (typingState) {
-            typingForSelected = true;
-        } else {
-            typingForSelected = false;
-        }
-    } else {
-        typingForSelected = false;
-    }
+    // filter messages voi util function(filterMessages)
+    const filteredMessages = filterMessages(
+        messagesByUser[selectedUser?._id] || [],
+        searchTerm
+    );
 
     return (
         <div className="chat-container-modern">
             <ChatSidebar
                 users={filteredUsers}
-                messagesByUser={messagesByUser}
                 selectedUser={selectedUser}
                 onSelectUser={handleSelectUser}
                 isLoading={isLoading}
@@ -203,32 +211,35 @@ export default function ChatPage() {
                             onSearchClick={setSearchTerm}
                         />
                         <ChatMessages
-                            items={(messagesByUser[selectedUser._id] || []).filter(msg => {
-                                if (!searchTerm.trim()) return true;
-                                const text = (msg.text || '').toLowerCase();
-                                return text.includes(searchTerm.toLowerCase());
-                            })}
+                            items={filteredMessages}
                             onImageClick={setPreviewImage}
                             endRef={endRef}
-                            isTyping={typingForSelected} //truyen flag de render
+                            isTyping={typingForSelected}
                             searchTerm={searchTerm}
                         />
                         <ChatInput
                             value={draft}
-                            onChange={(val) => { setDraft(val); handleTypingChange(val); }}
+                            onChange={(val) => {
+                                setDraft(val);
+                                handleTypingChange(val);
+                            }}
                             onSend={handleSendText}
                             onSendImage={handleSendImage}
+                            disabled={isUploading}
                         />
                     </>
                 ) : (
                     <div className="chat-placeholder-admin">
-                        <h3>Chọn một người dùng để bắt đầu chat</h3>
+                        <h3>{PLACEHOLDERS.NO_USER_SELECTED}</h3>
                     </div>
                 )}
             </div>
 
             {previewImage && (
-                <ImagePreviewModal src={previewImage} onClose={() => setPreviewImage(null)} />
+                <ImagePreviewModal
+                    src={previewImage}
+                    onClose={() => setPreviewImage(null)}
+                />
             )}
         </div>
     );
