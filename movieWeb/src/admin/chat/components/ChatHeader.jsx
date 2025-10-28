@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes, FaImage, FaLink } from 'react-icons/fa';
 import { getMediaAPI } from "../services/chat.api";
-import ImagePreviewModal  from './ImagePreviewModal';
+import ImagePreviewModal from './ImagePreviewModal';
 import '../styles/ChatHeader.css';
 
 export default function ChatHeader({ user, onSearchClick }) {
@@ -10,6 +10,7 @@ export default function ChatHeader({ user, onSearchClick }) {
   const [mediaData, setMediaData] = useState([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch media khi doi tab hoac mo panel
   useEffect(() => {
@@ -111,15 +112,25 @@ export default function ChatHeader({ user, onSearchClick }) {
                             <img
                               src={msg.imageUrl}
                               alt={msg.imageName || 'Image'}
-                              onClick={() => setPreviewImage(msg.imageUrl)}
+                              onClick={() => {
+                                setCurrentImageIndex(idx);
+                                setPreviewImage(msg.imageUrl);
+                              }}
                             />
                           </div>
                         ))}
                       </div>
                       {previewImage && (
                         <ImagePreviewModal
-                          src={previewImage}
-                          onClose={() => setPreviewImage(null)}
+                          src={mediaData[currentImageIndex].imageUrl}
+                          onClose={() => {
+                            setPreviewImage(null);
+                            setCurrentImageIndex(0);
+                          }}
+                          onNext={() => setCurrentImageIndex(prev => prev + 1)}
+                          onPrev={() => setCurrentImageIndex(prev => prev - 1)}
+                          hasNext={currentImageIndex < mediaData.length - 1}
+                          hasPrev={currentImageIndex > 0}
                         />
                       )}
                     </>

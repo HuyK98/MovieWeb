@@ -14,7 +14,6 @@ mark {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
 }
 
 .image-overlay img {
@@ -23,4 +22,40 @@ mark {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, .5);
     cursor: zoom-out;
+}
+
+/* image nav */
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-arrow:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.nav-arrow.prev {
+    left: -60px;
+}
+
+.nav-arrow.next {
+    right: -60px;
 }

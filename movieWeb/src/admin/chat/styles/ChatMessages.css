@@ -42,6 +42,7 @@
     max-height: 200px;
     border-radius: 8px;
     object-fit: cover;
+    cursor: pointer;
     margin: 4px 0;
 }
 

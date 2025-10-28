@@ -119,6 +119,7 @@
   max-height: 120px;
   border-radius: 8px;
   object-fit: cover;
+  cursor: pointer;
   margin: 5px 0;
 }
 
