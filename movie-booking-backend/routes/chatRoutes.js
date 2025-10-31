@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const { database } = require('../config/firebaseConfig');
 const { cloudinary, upload } = require('../config/cloudinaryConfig');
-const { ref, push, get } = require('firebase/database');
+const { ref, push, get, query, orderByChild, limitToLast, endBefore } = require('firebase/database');
 const User = require('../models/User');
 const app = express();
 
@@ -105,18 +105,34 @@ router.post('/messages', async (req, res) => {
 // Endpoint lấy tin nhắn từ Firebase
 router.get('/messages/:userId', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId.trim();
+    const { limit, before } = req.query;
 
-    // Lấy tin nhắn từ Firebase
+    console.log("Debug info:", { userId, limit, before });
+
     const messagesRef = ref(database, `messages/${userId}`);
-    const snapshot = await get(messagesRef);
 
-    if (snapshot.exists()) {
-      const messages = Object.values(snapshot.val());
-      res.status(200).json(messages);
-    } else {
-      res.status(200).json([]);
+    // Nếu không truyền limit/before → trả toàn bộ (giữ nguyên hành vi cũ)
+    if (!limit && !before) {
+      const snapshot = await get(messagesRef);
+      if (!snapshot.exists()) return res.status(200).json([]);
+      const all = Object.values(snapshot.val());
+      return res.status(200).json(all);
     }
+
+    // Nếu có → truy vấn phân trang (lazy load)
+    const pageSize = Math.max(1, Math.min(200, Number(limit) || 20));
+    let q = query(messagesRef, orderByChild('timestamp'));
+    if (before) {
+      q = query(q, endBefore(before));
+    }
+    q = query(q, limitToLast(pageSize));
+
+    const snapshot = await get(q);
+    const list = snapshot.exists() ? Object.values(snapshot.val()) : [];
+    list.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    res.status(200).json(list);
   } catch (error) {
     console.error('Lỗi khi lấy tin nhắn:', error);
     res.status(500).json({ error: 'Lỗi khi lấy tin nhắn' });
@@ -145,7 +161,7 @@ router.get('/messages/:userId/media', async (req, res) => {
       filteredMessages = messages.filter(msg => msg.messageType === 'link');
     }
 
-    // sap xep moi nhat truoc\
+    // sap xep moi nhat truoc
     filteredMessages.sort((a, b) =>
       new Date(b.timestamp) - new Date(a.timestamp)
     );

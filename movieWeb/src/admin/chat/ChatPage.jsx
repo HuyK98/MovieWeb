@@ -8,7 +8,7 @@ import ChatSidebar from './components/ChatSidebar';
 import ChatHeader from './components/ChatHeader';
 import ChatMessages from './components/ChatMessages';
 import ChatInput from './components/ChatInput';
-import ImagePreviewModal from './components/ImagePreviewModal'
+import ImagePreviewModal from './components/ImagePreviewModal';
 import { normalize, searchMatch } from './utils/textUtils';
 import { isUserTyping, createMessage, filterMessages } from './utils/chatUtils';
 import { SENDER, TYPING_FROM, ERROR_MESSAGES, PLACEHOLDERS } from './utils/constants';
@@ -17,6 +17,8 @@ export default function ChatPage() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messagesByUser, setMessagesByUser] = useState({});
+  const [hasMoreMessages, setHasMoreMessages] = useState({});
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -25,34 +27,24 @@ export default function ChatPage() {
   const [previewImage, setPreviewImage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const endRef = useRef(null);
   const navigate = useNavigate();
 
-    //socket setup
+  // socket setup
   const { emitMessage, emitTyping, emitStopTyping } = useChatSocket(
-    // Callback nhan message
     (data) => {
       setMessagesByUser((prev) => ({
         ...prev,
         [data.userId]: [...(prev[data.userId] || []), data],
       }));
-
-      // Cập nhật last message trong users
       setUsers(prevUsers =>
         prevUsers.map(user =>
-          user._id === data.userId
-            ? { ...user, lastMessage: data }
-            : user
+          user._id === data.userId ? { ...user, lastMessage: data } : user
         )
       );
     },
     {
-      onTyping: ({ userId }) => {
-        setIsTyping((prev) => ({ ...prev, [userId]: true }));
-      },
-      onStopTyping: ({ userId }) => {
-        setIsTyping((prev) => ({ ...prev, [userId]: false }));
-      },
+      onTyping: ({ userId }) => setIsTyping((prev) => ({ ...prev, [userId]: true })),
+      onStopTyping: ({ userId }) => setIsTyping((prev) => ({ ...prev, [userId]: false })),
     }
   );
 
@@ -63,7 +55,6 @@ export default function ChatPage() {
         const res = await getUsersWithLastMessage();
         setUsers(res.data);
 
-        // khoi tao message map voi last message
         const messagesMap = {};
         res.data.forEach(user => {
           if (user.lastMessage) {
@@ -71,7 +62,6 @@ export default function ChatPage() {
           }
         });
         setMessagesByUser(messagesMap);
-
         setError(null);
       } catch (e) {
         console.error('Lỗi load users:', e);
@@ -80,42 +70,75 @@ export default function ChatPage() {
         setIsLoading(false);
       }
     };
-
     loadUsers();
   }, []);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messagesByUser, selectedUser]);
-
-  //select user
+  // chọn user
   const handleSelectUser = async (user) => {
     setSelectedUser(user);
     try {
-      const { data } = await getMessages(user._id);
+      const { data } = await getMessages(user._id, { limit: 20 });
       setMessagesByUser((prev) => ({ ...prev, [user._id]: data }));
+      setHasMoreMessages((prev) => ({ ...prev, [user._id]: data.length === 20 }));
     } catch (e) {
       console.error('Lỗi load messages:', e);
     }
   };
 
-  //filter users voi useMemo(searchQuery)
+  // load thêm tin nhắn cũ
+  const handleLoadMore = async () => {
+    if (!selectedUser || isLoadingMore) return;
+    const userId = selectedUser._id;
+    const current = messagesByUser[userId] || [];
+    if (current.length === 0) return;
+
+    const oldest = current[0];
+    setIsLoadingMore(true);
+
+    try {
+      const { data: older } = await getMessages(userId, {
+        limit: 20,
+        before: oldest.timestamp,
+      });
+
+      if (older.length > 0) {
+        setMessagesByUser((prev) => {
+          const merged = [...older, ...current];
+          return { ...prev, [userId]: merged };
+        });
+
+        // ép Virtuoso render lại để hiển thị ngay
+        setMessagesByUser((prev) => ({ ...prev }));
+
+        setHasMoreMessages((prev) => ({
+          ...prev,
+          [userId]: older.length === 20,
+        }));
+      } else {
+        setHasMoreMessages((prev) => ({ ...prev, [userId]: false }));
+      }
+    } catch (err) {
+      console.error('Lỗi load thêm tin:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // lọc users
   const filteredUsers = useMemo(() => {
     const query = normalize(searchQuery);
     if (!query) return users;
 
-    return users.filter((user) => {
-      return (
-        searchMatch(user.name, query) ||
-        searchMatch(user.email, query) ||
-        searchMatch(user.lastMessage?.text, query)
-      );
-    });
+    return users.filter((user) =>
+      searchMatch(user.name, query) ||
+      searchMatch(user.email, query) ||
+      searchMatch(user.lastMessage?.text, query)
+    );
   }, [users, searchQuery]);
 
+  // gửi tin nhắn text
   const handleSendText = async () => {
     if (!draft.trim() || !selectedUser) return;
-
     const msg = createMessage({
       text: draft,
       sender: SENDER.ADMIN,
@@ -127,19 +150,16 @@ export default function ChatPage() {
       await sendMessageAPI(msg);
       emitMessage(msg);
       setDraft('');
-      emitStopTyping({ 
-        userId: selectedUser._id, 
-        from: TYPING_FROM.ADMIN 
-      });
+      emitStopTyping({ userId: selectedUser._id, from: TYPING_FROM.ADMIN });
     } catch (e) {
       console.error('Lỗi send message:', e);
       alert(ERROR_MESSAGES.SEND_MESSAGE);
     }
   };
 
+  // gửi hình ảnh
   const handleSendImage = async (file) => {
     if (!file || !selectedUser) return;
-
     try {
       setIsUploading(true);
       const formData = new FormData();
@@ -165,29 +185,21 @@ export default function ChatPage() {
     }
   };
 
+  // typing indicator
   const handleTypingChange = (value) => {
     if (!selectedUser) return;
-
     if (value.trim().length > 0) {
-      emitTyping({ 
-        userId: selectedUser._id, 
-        from: TYPING_FROM.ADMIN 
-      });
+      emitTyping({ userId: selectedUser._id, from: TYPING_FROM.ADMIN });
     } else {
-      emitStopTyping({ 
-        userId: selectedUser._id, 
-        from: TYPING_FROM.ADMIN 
-      });
+      emitStopTyping({ userId: selectedUser._id, from: TYPING_FROM.ADMIN });
     }
   };
 
   const typingForSelected = isUserTyping(isTyping, selectedUser?._id);
 
-  //filter messages voi useMemo(searchTerm)
-  const filteredMessages = filterMessages(
-    messagesByUser[selectedUser?._id] || [],
-    searchTerm
-  );
+  const filteredMessages = useMemo(() => {
+    return filterMessages(messagesByUser[selectedUser?._id] || [], searchTerm);
+  }, [messagesByUser, selectedUser?._id, searchTerm]);
 
   return (
     <div className="chat-container-modern">
@@ -206,16 +218,14 @@ export default function ChatPage() {
       <div className="chat-main-modern">
         {selectedUser ? (
           <>
-            <ChatHeader
-              user={selectedUser}
-              onSearchClick={setSearchTerm}
-            />
+            <ChatHeader user={selectedUser} onSearchClick={setSearchTerm} />
             <ChatMessages
               items={filteredMessages}
               onImageClick={setPreviewImage}
-              endRef={endRef}
               isTyping={typingForSelected}
               searchTerm={searchTerm}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMoreMessages[selectedUser._id] ?? true}
             />
             <ChatInput
               value={draft}
@@ -236,9 +246,9 @@ export default function ChatPage() {
       </div>
 
       {previewImage && (
-        <ImagePreviewModal 
-          src={previewImage} 
-          onClose={() => setPreviewImage(null)} 
+        <ImagePreviewModal
+          src={previewImage}
+          onClose={() => setPreviewImage(null)}
         />
       )}
     </div>
