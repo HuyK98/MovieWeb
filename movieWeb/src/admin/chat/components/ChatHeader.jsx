@@ -110,6 +110,7 @@ export default function ChatHeader({ user, onSearchClick }) {
                         {mediaData.slice(0, 6).map((msg, idx) => (
                           <div key={idx} className="image-item">
                             <img
+                              loading='lazy'
                               src={msg.imageUrl}
                               alt={msg.imageName || 'Image'}
                               onClick={() => {
@@ -120,6 +121,7 @@ export default function ChatHeader({ user, onSearchClick }) {
                           </div>
                         ))}
                       </div>
+
                       {previewImage && (
                         <ImagePreviewModal
                           src={mediaData[currentImageIndex].imageUrl}
@@ -127,13 +129,25 @@ export default function ChatHeader({ user, onSearchClick }) {
                             setPreviewImage(null);
                             setCurrentImageIndex(0);
                           }}
-                          onNext={() => setCurrentImageIndex(prev => prev + 1)}
-                          onPrev={() => setCurrentImageIndex(prev => prev - 1)}
+                          onNext={() => setCurrentImageIndex((prev) => prev < mediaData.length - 1 ? prev + 1 : prev)}
+                          onPrev={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev))}
                           hasNext={currentImageIndex < mediaData.length - 1}
                           hasPrev={currentImageIndex > 0}
                         />
                       )}
                     </>
+                  )}
+
+                  {mediaData.length > 6 && (
+                    <div className='show-more'
+                      onClick={() => {
+                        const startInndex = 6;
+                        setCurrentImageIndex(startInndex);
+                        setPreviewImage(mediaData[startInndex].imageUrl);
+                      }}
+                    >
+                      + {mediaData.length - 6} ảnh khác
+                    </div>
                   )}
 
                   {/* Hien thi link */}
@@ -157,13 +171,6 @@ export default function ChatHeader({ user, onSearchClick }) {
                           </div>
                         </div>
                       ))}
-                    </div>
-                  )}
-
-                  {/* Show more */}
-                  {mediaData.length > (activeMediaTab === 'image' ? 6 : 5) && (
-                    <div className="show-more">
-                      +{mediaData.length - (activeMediaTab === 'image' ? 6 : 5)} {activeMediaTab === 'image' ? 'ảnh' : 'liên kết'} khác
                     </div>
                   )}
                 </>
