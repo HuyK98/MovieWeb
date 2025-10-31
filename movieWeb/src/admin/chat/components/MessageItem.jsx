@@ -1,4 +1,5 @@
-import { formatTime, processText, downloadImage } from "../hooks/useMessageActions";
+import renderRichText from "../hooks/RenderRichText.jsx";
+import { formatTime, downloadImage } from "../hooks/useMessageActions";
 import { FiDownload } from "react-icons/fi";
 import "../styles/ChatMessages.css";
 
@@ -26,11 +27,7 @@ export default function MessageItem({ msg, onImageClick, searchTerm }) {
           </button>
         </div>
       ) : (
-        <p
-          dangerouslySetInnerHTML={{
-            __html: processText(msg.text || "", searchTerm),
-          }}
-        ></p>
+        <p>{renderRichText(msg.text || "", searchTerm)}</p>
       )}
       <span className="timestamp-modern">{formatTime(msg.timestamp)}</span>
     </div>

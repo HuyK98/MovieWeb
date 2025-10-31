@@ -13,27 +13,6 @@ export const formatTime = (ts) => {
   }
 };
 
-export const linkify = (text) => {
-  if (!text) return '';
-  const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
-  return text.replace(urlRegex, (url) => {
-    const href = url.startsWith('www') ? `http://${url}` : url;
-    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-  });
-};
-
-export const highlightText = (text, keyword) => {
-  if (!keyword.trim()) return text;
-  const regex = new RegExp(`(${keyword})`, 'gi');
-  return text.replace(regex, '<mark>$1</mark>');
-};
-
-export const processText = (text, keyword) => {
-  let processed = linkify(text);
-  if (keyword) processed = highlightText(processed, keyword);
-  return processed;
-};
-
 // download image
 export async function downloadImage(url, filename = 'image.jpg') {
   const res = await fetch(url, { mode: 'cors' });
